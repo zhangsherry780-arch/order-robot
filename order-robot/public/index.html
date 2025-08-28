@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司订餐系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .meal-section {
+            margin-bottom: 30px;
+        }
+        .meal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        .meal-title .icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        .dish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .dish-card {
+            border: 1px solid #ebeef5;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .dish-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            border-color: #409eff;
+        }
+        .dish-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .dish-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .dish-rating {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #f56c6c;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .register-form {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .rating-section {
+            background: #fff7f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        @media (max-width: 768px) {
+            .dish-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 10px;
+            }
+            .main-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>🍽️ 公司订餐系统</h1>
+                <p>{{ todayDate }} {{ getDayName() }}</p>
+            </div>
+
+            <div class="main-card">
+                <!-- 今日菜单 -->
+                <div v-if="todayMenu.lunch.length > 0 || todayMenu.dinner.length > 0">
+                    <div class="meal-section" v-if="todayMenu.lunch.length > 0">
+                        <div class="meal-title">
+                            <span class="icon">🌅</span>
+                            午餐菜单
+                        </div>
+                        <div class="dish-grid">
+                            <div class="dish-card" v-for="dish in todayMenu.lunch" :key="dish.id" 
+                                 @click="selectDishForRating(dish, 'lunch')">
+                                <div class="dish-name">{{ dish.dishName }}</div>
+                                <div class="dish-desc">{{ dish.restaurantName || '点击评价此菜品' }}</div>
+                                <div class="dish-rating">
+                                    ⭐ {{ dish.rating ? dish.rating.toFixed(1) : '暂无评分' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meal-section" v-if="todayMenu.dinner.length > 0">
+                        <div class="meal-title">
+                            <span class="icon">🌙</span>
+                            晚餐菜单
+                        </div>
+                        <div class="dish-grid">
+                            <div class="dish-card" v-for="dish in todayMenu.dinner" :key="dish.id"
+                                 @click="selectDishForRating(dish, 'dinner')">
+                                <div class="dish-name">{{ dish.dishName }}</div>
+                                <div class="dish-desc">{{ dish.restaurantName || '点击评价此菜品' }}</div>
+                                <div class="dish-rating">
+                                    ⭐ {{ dish.rating ? dish.rating.toFixed(1) : '暂无评分' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 周末提示 -->
+                <div v-else style="text-align: center; padding: 50px; color: #666;">
+                    <h3>🎉 今天是休息日，暂无菜单</h3>
+                    <p>周一到周五才有订餐服务哦</p>
+                </div>
+
+                <!-- 订餐统计 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ orderStats.lunch.orderCount }}</div>
+                        <div class="stat-label">午餐订餐份数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ orderStats.lunch.noEatCount }}</div>
+                        <div class="stat-label">午餐不吃人数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ orderStats.dinner.orderCount }}</div>
+                        <div class="stat-label">晚餐订餐份数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ orderStats.dinner.noEatCount }}</div>
+                        <div class="stat-label">晚餐不吃人数</div>
+                    </div>
+                </div>
+
+                <!-- 当前人数设置 -->
+                <div class="register-form">
+                    <h3 style="margin-top: 0;">👥 当前人数设置</h3>
+                    <el-form :model="currentPeopleForm" inline>
+                        <el-form-item label="餐次">
+                            <el-select v-model="currentPeopleForm.mealType" placeholder="选择餐次" style="width: 120px;">
+                                <el-option label="午餐" value="lunch"></el-option>
+                                <el-option label="晚餐" value="dinner"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="当前人数">
+                            <el-input-number 
+                                v-model="currentPeopleForm.count" 
+                                :min="0" 
+                                :max="200" 
+                                placeholder="输入当前人数"
+                                style="width: 150px;">
+                            </el-input-number>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="setCurrentPeople">设置人数</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                        <div>当前设置 - 午餐人数: {{ currentPeople.lunch }} 人，晚餐人数: {{ currentPeople.dinner }} 人</div>
+                    </div>
+                </div>
+
+                <!-- 菜品评价 -->
+                <div class="rating-section" v-if="showRatingForm">
+                    <h3 style="margin-top: 0;">⭐ 菜品评价</h3>
+                    <el-form :model="ratingForm">
+                        <el-form-item label="菜品">
+                            <span>{{ selectedDish.dishName }}</span>
+                        </el-form-item>
+                        <el-form-item label="姓名">
+                            <el-input v-model="ratingForm.employeeName" placeholder="请输入姓名"></el-input>
+                        </el-form-item>
+                        <el-form-item label="评分">
+                            <el-rate v-model="ratingForm.rating" :max="5"></el-rate>
+                        </el-form-item>
+                        <el-form-item label="建议">
+                            <el-input v-model="ratingForm.comment" type="textarea" placeholder="对这道菜的建议(可选)"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="submitRating">提交评价</el-button>
+                            <el-button @click="closeRatingForm">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <div class="actions-bar">
+                    <el-button type="info" @click="showWeekMenu">查看本周菜单</el-button>
+                    <el-button type="success" @click="refreshData">刷新数据</el-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 周菜单弹窗 -->
+        <el-dialog v-model="weekMenuVisible" title="本周菜单" width="90%" :before-close="closeWeekMenu">
+            <div v-for="(dayMenu, day) in weekMenus" :key="day">
+                <h4>{{ getDayNameByNum(day) }}</h4>
+                <div style="margin-bottom: 20px;">
+                    <div v-if="dayMenu.lunch.length > 0">
+                        <strong>午餐：</strong>
+                        <span v-for="(dish, index) in dayMenu.lunch" :key="dish.id">
+                            {{ dish.dishName }}<span v-if="index < dayMenu.lunch.length - 1">、</span>
+                        </span>
+                    </div>
+                    <div v-if="dayMenu.dinner.length > 0" style="margin-top: 10px;">
+                        <strong>晚餐：</strong>
+                        <span v-for="(dish, index) in dayMenu.dinner" :key="dish.id">
+                            {{ dish.dishName }}<span v-if="index < dayMenu.dinner.length - 1">、</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="closeWeekMenu">关闭</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.8/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            data() {
+                return {
+                    todayDate: new Date().toLocaleDateString('zh-CN'),
+                    todayMenu: {
+                        lunch: [],
+                        dinner: []
+                    },
+                    orderStats: {
+                        lunch: { orderCount: 0, noEatCount: 0, status: 'closed' },
+                        dinner: { orderCount: 0, noEatCount: 0, status: 'closed' }
+                    },
+                    currentPeopleForm: {
+                        mealType: 'lunch',
+                        count: 0
+                    },
+                    currentPeople: {
+                        lunch: 0,
+                        dinner: 0
+                    },
+                    ratingForm: {
+                        employeeName: '',
+                        dishId: null,
+                        rating: 5,
+                        comment: '',
+                        mealType: 'lunch'
+                    },
+                    selectedDish: {},
+                    showRatingForm: false,
+                    weekMenuVisible: false,
+                    weekMenus: {}
+                };
+            },
+            mounted() {
+                this.loadTodayMenu();
+                this.loadOrderStats();
+                this.loadCurrentPeople();
+                // 每30秒刷新统计数据
+                setInterval(() => {
+                    this.loadOrderStats();
+                    this.loadCurrentPeople();
+                }, 30000);
+            },
+            methods: {
+                async loadTodayMenu() {
+                    try {
+                        const response = await fetch('/api/menu/today');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.todayMenu = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载今日菜单失败:', error);
+                    }
+                },
+                async loadOrderStats() {
+                    try {
+                        const response = await fetch('/api/order/stats/today');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.orderStats = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载订餐统计失败:', error);
+                    }
+                },
+                async loadCurrentPeople() {
+                    try {
+                        const response = await fetch('/api/current-people/today');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.currentPeople = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载当前人数失败:', error);
+                    }
+                },
+                async setCurrentPeople() {
+                    if (this.currentPeopleForm.count === undefined || this.currentPeopleForm.count < 0) {
+                        ElMessage.warning('请输入有效的人数');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/current-people/set', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                mealType: this.currentPeopleForm.mealType,
+                                currentPeople: this.currentPeopleForm.count
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('设置成功');
+                            this.currentPeopleForm.count = 0;
+                            this.loadOrderStats();
+                            this.loadCurrentPeople();
+                        } else {
+                            ElMessage.error(result.message || '设置失败');
+                        }
+                    } catch (error) {
+                        ElMessage.error('设置失败，请重试');
+                        console.error('设置失败:', error);
+                    }
+                },
+                selectDishForRating(dish, mealType) {
+                    this.selectedDish = dish;
+                    this.ratingForm.dishId = dish.dishId;
+                    this.ratingForm.mealType = mealType;
+                    this.showRatingForm = true;
+                },
+                async submitRating() {
+                    if (!this.ratingForm.employeeName) {
+                        ElMessage.warning('请输入姓名');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/rating/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.ratingForm)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('评价提交成功');
+                            this.closeRatingForm();
+                        } else {
+                            ElMessage.error(result.message || '评价提交失败');
+                        }
+                    } catch (error) {
+                        ElMessage.error('评价提交失败，请重试');
+                        console.error('评价提交失败:', error);
+                    }
+                },
+                closeRatingForm() {
+                    this.showRatingForm = false;
+                    this.ratingForm = {
+                        employeeName: '',
+                        dishId: null,
+                        rating: 5,
+                        comment: '',
+                        mealType: 'lunch'
+                    };
+                    this.selectedDish = {};
+                },
+                async showWeekMenu() {
+                    try {
+                        const response = await fetch('/api/menu/week');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.weekMenus = result.data;
+                            this.weekMenuVisible = true;
+                        }
+                    } catch (error) {
+                        ElMessage.error('加载周菜单失败');
+                        console.error('加载周菜单失败:', error);
+                    }
+                },
+                closeWeekMenu() {
+                    this.weekMenuVisible = false;
+                },
+                refreshData() {
+                    this.loadTodayMenu();
+                    this.loadOrderStats();
+                    this.loadCurrentPeople();
+                    ElMessage.success('数据已刷新');
+                },
+                getDayName() {
+                    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                    return days[new Date().getDay()];
+                },
+                getDayNameByNum(dayNum) {
+                    const days = ['', '周一', '周二', '周三', '周四', '周五'];
+                    return days[dayNum] || dayNum;
+                }
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

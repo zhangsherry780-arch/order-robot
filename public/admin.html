@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订餐系统 - 管理后台</title>
+    <link href="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 20px;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .section-content {
+            padding: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .actions-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 0 10px 20px;
+            }
+            .section-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="admin-header">
+            <h1>🛠️ 订餐系统管理后台</h1>
+            <p>系统配置与数据管理</p>
+        </div>
+
+        <div class="admin-container">
+            <!-- 统计概览 -->
+            <div class="section-card">
+                <div class="section-header">📊 今日统计概览</div>
+                <div class="section-content">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-number">{{ stats.totalEmployees }}</div>
+                            <div class="stat-label">总员工数</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">{{ stats.lunchOrders }}</div>
+                            <div class="stat-label">午餐订餐</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">{{ stats.dinnerOrders }}</div>
+                            <div class="stat-label">晚餐订餐</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">{{ stats.totalRatings }}</div>
+                            <div class="stat-label">今日评价数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 员工管理 -->
+            <div class="section-card">
+                <div class="section-header">👥 员工管理</div>
+                <div class="section-content">
+                    <div class="actions-bar">
+                        <el-button type="primary" @click="showAddEmployeeDialog">添加员工</el-button>
+                        <el-button @click="loadEmployees">刷新数据</el-button>
+                    </div>
+                    
+                    <el-table :data="employees" stripe style="width: 100%">
+                        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                        <el-table-column prop="name" label="姓名"></el-table-column>
+                        <el-table-column prop="department" label="部门"></el-table-column>
+                        <el-table-column prop="active" label="状态">
+                            <template #default="scope">
+                                <el-tag :type="scope.row.active ? 'success' : 'danger'">
+                                    {{ scope.row.active ? '激活' : '禁用' }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="150">
+                            <template #default="scope">
+                                <el-button size="small" @click="editEmployee(scope.row)">编辑</el-button>
+                                <el-button size="small" type="danger" @click="deleteEmployee(scope.row.id)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 饭店管理 -->
+            <div class="section-card">
+                <div class="section-header">🏪 饭店管理</div>
+                <div class="section-content">
+                    <div class="actions-bar">
+                        <el-button type="primary" @click="showAddRestaurantDialog">添加饭店</el-button>
+                        <el-button @click="loadRestaurants">刷新数据</el-button>
+                    </div>
+                    
+                    <el-table :data="restaurants" stripe style="width: 100%">
+                        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                        <el-table-column prop="name" label="饭店名称"></el-table-column>
+                        <el-table-column prop="description" label="描述"></el-table-column>
+                        <el-table-column prop="phone" label="电话"></el-table-column>
+                        <el-table-column prop="address" label="地址"></el-table-column>
+                        <el-table-column prop="availableDays" label="营业日">
+                            <template #default="scope">
+                                <el-tag v-for="day in scope.row.availableDays" :key="day" size="small" style="margin-right: 4px;">
+                                    {{ getDayNameByNum(day) }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="150">
+                            <template #default="scope">
+                                <el-button size="small" @click="editRestaurant(scope.row)">编辑</el-button>
+                                <el-button size="small" type="danger" @click="deleteRestaurant(scope.row.id)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 菜品管理 -->
+            <div class="section-card">
+                <div class="section-header">🍽️ 菜品管理</div>
+                <div class="section-content">
+                    <div class="actions-bar">
+                        <el-button type="primary" @click="showAddDishDialog">添加菜品</el-button>
+                        <el-button type="success" @click="generateMenu">重新生成本周菜单</el-button>
+                        <el-button @click="loadDishes">刷新数据</el-button>
+                    </div>
+                    
+                    <el-table :data="dishes" stripe style="width: 100%">
+                        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                        <el-table-column prop="name" label="菜名"></el-table-column>
+                        <el-table-column prop="description" label="描述"></el-table-column>
+                        <el-table-column prop="category" label="类别"></el-table-column>
+                        <el-table-column prop="restaurantId" label="所属饭店">
+                            <template #default="scope">
+                                {{ getRestaurantName(scope.row.restaurantId) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="price" label="价格">
+                            <template #default="scope">
+                                ¥{{ scope.row.price }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="150">
+                            <template #default="scope">
+                                <el-button size="small" @click="editDish(scope.row)">编辑</el-button>
+                                <el-button size="small" type="danger" @click="deleteDish(scope.row.id)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 系统设置 -->
+            <div class="section-card">
+                <div class="section-header">⚙️ 系统设置</div>
+                <div class="section-content">
+                    <el-form :model="settings" label-width="120px">
+                        <el-form-item label="总员工数">
+                            <el-input-number v-model="settings.totalEmployees" :min="1" :max="1000"></el-input-number>
+                        </el-form-item>
+                        <el-form-item label="午餐登记时间">
+                            <el-time-picker v-model="settings.lunchOpenTime" format="HH:mm" value-format="HH:mm"></el-time-picker>
+                        </el-form-item>
+                        <el-form-item label="晚餐登记时间">
+                            <el-time-picker v-model="settings.dinnerOpenTime" format="HH:mm" value-format="HH:mm"></el-time-picker>
+                        </el-form-item>
+                        <el-form-item label="菜单生成时间">
+                            <el-time-picker v-model="settings.menuGenerateTime" format="HH:mm" value-format="HH:mm"></el-time-picker>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="saveSettings">保存设置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </div>
+
+            <!-- 数据导出 -->
+            <div class="section-card">
+                <div class="section-header">📊 数据导出</div>
+                <div class="section-content">
+                    <div class="actions-bar">
+                        <el-button type="success" @click="exportData('employees')">导出员工数据</el-button>
+                        <el-button type="success" @click="exportData('dishes')">导出菜品数据</el-button>
+                        <el-button type="success" @click="exportData('ratings')">导出评价数据</el-button>
+                        <el-button type="success" @click="exportData('orders')">导出订餐统计</el-button>
+                        <el-button type="warning" @click="exportAllData">导出所有数据</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 员工编辑对话框 -->
+        <el-dialog v-model="employeeDialogVisible" :title="editingEmployee.id ? '编辑员工' : '添加员工'">
+            <el-form :model="editingEmployee" label-width="80px">
+                <el-form-item label="姓名">
+                    <el-input v-model="editingEmployee.name" placeholder="请输入员工姓名"></el-input>
+                </el-form-item>
+                <el-form-item label="部门">
+                    <el-input v-model="editingEmployee.department" placeholder="请输入部门"></el-input>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-switch v-model="editingEmployee.active" active-text="激活" inactive-text="禁用"></el-switch>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="employeeDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveEmployee">保存</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 饭店编辑对话框 -->
+        <el-dialog v-model="restaurantDialogVisible" :title="editingRestaurant.id ? '编辑饭店' : '添加饭店'">
+            <el-form :model="editingRestaurant" label-width="80px">
+                <el-form-item label="饭店名称">
+                    <el-input v-model="editingRestaurant.name" placeholder="请输入饭店名称"></el-input>
+                </el-form-item>
+                <el-form-item label="描述">
+                    <el-input v-model="editingRestaurant.description" placeholder="请输入描述"></el-input>
+                </el-form-item>
+                <el-form-item label="电话">
+                    <el-input v-model="editingRestaurant.phone" placeholder="请输入联系电话"></el-input>
+                </el-form-item>
+                <el-form-item label="地址">
+                    <el-input v-model="editingRestaurant.address" placeholder="请输入地址"></el-input>
+                </el-form-item>
+                <el-form-item label="营业日">
+                    <el-checkbox-group v-model="editingRestaurant.availableDays">
+                        <el-checkbox :label="1">周一</el-checkbox>
+                        <el-checkbox :label="2">周二</el-checkbox>
+                        <el-checkbox :label="3">周三</el-checkbox>
+                        <el-checkbox :label="4">周四</el-checkbox>
+                        <el-checkbox :label="5">周五</el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-switch v-model="editingRestaurant.active" active-text="启用" inactive-text="禁用"></el-switch>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="restaurantDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveRestaurant">保存</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 菜品编辑对话框 -->
+        <el-dialog v-model="dishDialogVisible" :title="editingDish.id ? '编辑菜品' : '添加菜品'">
+            <el-form :model="editingDish" label-width="80px">
+                <el-form-item label="菜名">
+                    <el-input v-model="editingDish.name" placeholder="请输入菜名"></el-input>
+                </el-form-item>
+                <el-form-item label="描述">
+                    <el-input v-model="editingDish.description" placeholder="请输入菜品描述"></el-input>
+                </el-form-item>
+                <el-form-item label="类别">
+                    <el-select v-model="editingDish.category" placeholder="选择类别">
+                        <el-option label="荤菜" value="荤菜"></el-option>
+                        <el-option label="素菜" value="素菜"></el-option>
+                        <el-option label="汤" value="汤"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="所属饭店">
+                    <el-select v-model="editingDish.restaurantId" placeholder="选择饭店">
+                        <el-option v-for="restaurant in restaurants" :key="restaurant.id" 
+                                   :label="restaurant.name" :value="restaurant.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="价格">
+                    <el-input-number v-model="editingDish.price" :precision="2" :step="0.5" :min="0"></el-input-number>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-switch v-model="editingDish.active" active-text="启用" inactive-text="禁用"></el-switch>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="dishDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="saveDish">保存</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.8/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.full.js"></script>
+    <script>
+        const { createApp } = Vue;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+
+        createApp({
+            data() {
+                return {
+                    stats: {
+                        totalEmployees: 0,
+                        lunchOrders: 0,
+                        dinnerOrders: 0,
+                        totalRatings: 0
+                    },
+                    employees: [],
+                    restaurants: [],
+                    dishes: [],
+                    settings: {
+                        totalEmployees: 50,
+                        lunchOpenTime: '10:00',
+                        dinnerOpenTime: '16:00',
+                        menuGenerateTime: '09:00'
+                    },
+                    employeeDialogVisible: false,
+                    restaurantDialogVisible: false,
+                    dishDialogVisible: false,
+                    editingEmployee: {
+                        name: '',
+                        department: '',
+                        active: true
+                    },
+                    editingRestaurant: {
+                        name: '',
+                        description: '',
+                        phone: '',
+                        address: '',
+                        availableDays: [1, 2, 3, 4, 5],
+                        active: true
+                    },
+                    editingDish: {
+                        name: '',
+                        description: '',
+                        category: '荤菜',
+                        restaurantId: null,
+                        price: 0,
+                        active: true
+                    }
+                };
+            },
+            mounted() {
+                this.loadAllData();
+            },
+            methods: {
+                async loadAllData() {
+                    await Promise.all([
+                        this.loadStats(),
+                        this.loadEmployees(),
+                        this.loadRestaurants(),
+                        this.loadDishes(),
+                        this.loadSettings()
+                    ]);
+                },
+                async loadStats() {
+                    try {
+                        const response = await fetch('/api/admin/stats');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.stats = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载统计数据失败:', error);
+                    }
+                },
+                async loadEmployees() {
+                    try {
+                        const response = await fetch('/api/admin/employees');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.employees = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载员工数据失败:', error);
+                    }
+                },
+                async loadRestaurants() {
+                    try {
+                        const response = await fetch('/api/admin/restaurants');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.restaurants = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载饭店数据失败:', error);
+                    }
+                },
+                async loadDishes() {
+                    try {
+                        const response = await fetch('/api/admin/dishes');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.dishes = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载菜品数据失败:', error);
+                    }
+                },
+                async loadSettings() {
+                    try {
+                        const response = await fetch('/api/admin/settings');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.settings = result.data;
+                        }
+                    } catch (error) {
+                        console.error('加载设置失败:', error);
+                    }
+                },
+                showAddEmployeeDialog() {
+                    this.editingEmployee = { name: '', department: '', active: true };
+                    this.employeeDialogVisible = true;
+                },
+                showAddRestaurantDialog() {
+                    this.editingRestaurant = { 
+                        name: '', 
+                        description: '', 
+                        phone: '', 
+                        address: '', 
+                        availableDays: [1, 2, 3, 4, 5], 
+                        active: true 
+                    };
+                    this.restaurantDialogVisible = true;
+                },
+                showAddDishDialog() {
+                    this.editingDish = { 
+                        name: '', 
+                        description: '', 
+                        category: '荤菜', 
+                        restaurantId: null, 
+                        price: 0, 
+                        active: true 
+                    };
+                    this.dishDialogVisible = true;
+                },
+                editEmployee(employee) {
+                    this.editingEmployee = { ...employee };
+                    this.employeeDialogVisible = true;
+                },
+                editRestaurant(restaurant) {
+                    this.editingRestaurant = { ...restaurant };
+                    this.restaurantDialogVisible = true;
+                },
+                editDish(dish) {
+                    this.editingDish = { ...dish };
+                    this.dishDialogVisible = true;
+                },
+                async saveEmployee() {
+                    try {
+                        const method = this.editingEmployee.id ? 'PUT' : 'POST';
+                        const url = this.editingEmployee.id ? 
+                            `/api/admin/employees/${this.editingEmployee.id}` : 
+                            '/api/admin/employees';
+                        
+                        const response = await fetch(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.editingEmployee)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('保存成功');
+                            this.employeeDialogVisible = false;
+                            this.loadEmployees();
+                        } else {
+                            ElMessage.error(result.message || '保存失败');
+                        }
+                    } catch (error) {
+                        ElMessage.error('保存失败');
+                        console.error('保存员工失败:', error);
+                    }
+                },
+                async saveRestaurant() {
+                    try {
+                        const method = this.editingRestaurant.id ? 'PUT' : 'POST';
+                        const url = this.editingRestaurant.id ? 
+                            `/api/admin/restaurants/${this.editingRestaurant.id}` : 
+                            '/api/admin/restaurants';
+                        
+                        const response = await fetch(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.editingRestaurant)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('保存成功');
+                            this.restaurantDialogVisible = false;
+                            this.loadRestaurants();
+                        } else {
+                            ElMessage.error(result.message || '保存失败');
+                        }
+                    } catch (error) {
+                        ElMessage.error('保存失败');
+                        console.error('保存饭店失败:', error);
+                    }
+                },
+                async saveDish() {
+                    try {
+                        const method = this.editingDish.id ? 'PUT' : 'POST';
+                        const url = this.editingDish.id ? 
+                            `/api/admin/dishes/${this.editingDish.id}` : 
+                            '/api/admin/dishes';
+                        
+                        const response = await fetch(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.editingDish)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('保存成功');
+                            this.dishDialogVisible = false;
+                            this.loadDishes();
+                        } else {
+                            ElMessage.error(result.message || '保存失败');
+                        }
+                    } catch (error) {
+                        ElMessage.error('保存失败');
+                        console.error('保存菜品失败:', error);
+                    }
+                },
+                async deleteEmployee(id) {
+                    try {
+                        await ElMessageBox.confirm('确定删除此员工吗？', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        });
+                        
+                        const response = await fetch(`/api/admin/employees/${id}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('删除成功');
+                            this.loadEmployees();
+                        } else {
+                            ElMessage.error(result.message || '删除失败');
+                        }
+                    } catch (error) {
+                        if (error !== 'cancel') {
+                            ElMessage.error('删除失败');
+                            console.error('删除员工失败:', error);
+                        }
+                    }
+                },
+                async deleteRestaurant(id) {
+                    try {
+                        await ElMessageBox.confirm('确定删除此饭店吗？', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        });
+                        
+                        const response = await fetch(`/api/admin/restaurants/${id}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('删除成功');
+                            this.loadRestaurants();
+                        } else {
+                            ElMessage.error(result.message || '删除失败');
+                        }
+                    } catch (error) {
+                        if (error !== 'cancel') {
+                            ElMessage.error('删除失败');
+                            console.error('删除饭店失败:', error);
+                        }
+                    }
+                },
+                async deleteDish(id) {
+                    try {
+                        await ElMessageBox.confirm('确定删除此菜品吗？', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        });
+                        
+                        const response = await fetch(`/api/admin/dishes/${id}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('删除成功');
+                            this.loadDishes();
+                        } else {
+                            ElMessage.error(result.message || '删除失败');
+                        }
+                    } catch (error) {
+                        if (error !== 'cancel') {
+                            ElMessage.error('删除失败');
+                            console.error('删除菜品失败:', error);
+                        }
+                    }
+                },
+                async saveSettings() {
+                    try {
+                        const response = await fetch('/api/admin/settings', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.settings)
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('设置保存成功');
+                        } else {
+                            ElMessage.error(result.message || '保存失败');
+                        }
+                    } catch (error) {
+                        ElMessage.error('保存失败');
+                        console.error('保存设置失败:', error);
+                    }
+                },
+                async generateMenu() {
+                    try {
+                        await ElMessageBox.confirm('确定重新生成本周菜单吗？这将覆盖现有菜单。', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        });
+                        
+                        const response = await fetch('/api/admin/menu/generate', {
+                            method: 'POST'
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('菜单生成成功');
+                        } else {
+                            ElMessage.error(result.message || '生成失败');
+                        }
+                    } catch (error) {
+                        if (error !== 'cancel') {
+                            ElMessage.error('生成失败');
+                            console.error('生成菜单失败:', error);
+                        }
+                    }
+                },
+                async exportData(type) {
+                    try {
+                        const response = await fetch(`/api/admin/export/${type}`);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${type}-${new Date().toISOString().split('T')[0]}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        ElMessage.success('导出成功');
+                    } catch (error) {
+                        ElMessage.error('导出失败');
+                        console.error('导出数据失败:', error);
+                    }
+                },
+                async exportAllData() {
+                    try {
+                        const response = await fetch('/api/admin/export/all');
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `order-system-data-${new Date().toISOString().split('T')[0]}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        ElMessage.success('导出成功');
+                    } catch (error) {
+                        ElMessage.error('导出失败');
+                        console.error('导出数据失败:', error);
+                    }
+                },
+                getRestaurantName(restaurantId) {
+                    const restaurant = this.restaurants.find(r => r.id === restaurantId);
+                    return restaurant ? restaurant.name : '未知饭店';
+                },
+                getDayNameByNum(dayNum) {
+                    const days = ['', '周一', '周二', '周三', '周四', '周五'];
+                    return days[dayNum] || dayNum;
+                }
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

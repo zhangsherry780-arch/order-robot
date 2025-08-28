@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  order-robot:
+    build: .
+    container_name: order-robot
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/menu/today"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+  # 可选: Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: order-robot-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - order-robot
+    restart: unless-stopped
+
+volumes:
+  data:
+  logs:
