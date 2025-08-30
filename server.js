@@ -199,12 +199,18 @@ class ExcelSyncManager {
   // 更新菜品数据
   async updateDishes(excelData, restaurants) {
     const dishes = [];
+    let idCounter = 1;
     
     excelData.forEach(item => {
       const restaurant = restaurants.find(r => r.name === item.restaurantName);
       if (restaurant) {
+        // 为同一菜品的不同餐次创建不同的ID
+        // 格式: 餐次前缀 + 顺序号 (lunch: 10000+, dinner: 20000+)
+        const mealTypePrefix = item.mealType === 'lunch' ? 10000 : 20000;
+        const uniqueDishId = mealTypePrefix + idCounter;
+        
         dishes.push({
-          id: dataStore.generateId(dishes),
+          id: uniqueDishId,
           name: item.dishName,
           description: item.description,
           category: item.category,
@@ -212,8 +218,11 @@ class ExcelSyncManager {
           restaurantId: restaurant.id,
           imageUrl: item.imageUrl,
           rating: item.rating,
+          mealType: item.mealType, // 添加餐次信息
           active: true
         });
+        
+        idCounter++;
       }
     });
 
@@ -227,7 +236,8 @@ class ExcelSyncManager {
     const currentWeekStart = dataStore.getWeekStart();
 
     excelData.forEach(item => {
-      const dish = dishes.find(d => d.name === item.dishName);
+      // 查找匹配的菜品：名称和餐次都要匹配
+      const dish = dishes.find(d => d.name === item.dishName && d.mealType === item.mealType);
       if (dish) {
         weekMenus.push({
           id: dataStore.generateId(weekMenus),
@@ -783,6 +793,34 @@ app.delete('/api/admin/restaurants/:id', async (req, res) => {
   }
 });
 
+// 获取菜品最新评价记录
+app.get('/api/rating/recent/:dishId', async (req, res) => {
+  try {
+    const dishId = parseInt(req.params.dishId);
+    const limit = parseInt(req.query.limit) || 3;
+    
+    const ratings = await dataStore.read('ratings.json');
+    
+    // 获取该菜品的最新评价记录，按时间倒序
+    const dishRatings = ratings
+      .filter(r => r.dishId === dishId)
+      .sort((a, b) => {
+        // 使用 updatedAt 优先，如果没有则用 createdAt
+        const timeA = new Date(a.updatedAt || a.createdAt);
+        const timeB = new Date(b.updatedAt || b.createdAt);
+        return timeB - timeA;
+      })
+      .slice(0, limit);
+    
+    res.json({
+      success: true,
+      data: dishRatings
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // 提交菜品评价
 app.post('/api/rating/submit', async (req, res) => {
   try {
@@ -799,32 +837,17 @@ app.post('/api/rating/submit', async (req, res) => {
     const ratings = await dataStore.read('ratings.json');
     const today = dataStore.getTodayString();
     
-    // 检查今日是否已评价过该菜品
-    const existing = ratings.find(r => 
-      r.employeeName === employeeName && 
-      r.dishId === dishId && 
-      r.date === today &&
-      r.mealType === mealType
-    );
-
-    if (existing) {
-      // 更新评价
-      existing.rating = rating;
-      existing.comment = comment || '';
-      existing.updatedAt = moment().toISOString();
-    } else {
-      // 新增评价
-      ratings.push({
-        id: dataStore.generateId(ratings),
-        employeeName,
-        dishId,
-        date: today,
-        mealType,
-        rating,
-        comment: comment || '',
-        createdAt: moment().toISOString()
-      });
-    }
+    // 每次都创建新的评价记录，允许同一人对同一菜品多次评价
+    ratings.push({
+      id: dataStore.generateId(ratings),
+      employeeName,
+      dishId,
+      date: today,
+      mealType,
+      rating,
+      comment: comment || '',
+      createdAt: moment().toISOString()
+    });
 
     await dataStore.write('ratings.json', ratings);
     

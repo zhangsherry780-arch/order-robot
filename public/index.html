@@ -213,6 +213,19 @@
             background-color: #f8f9fa;
             border-color: #409eff;
         }
+        .dish-clickable {
+            cursor: pointer !important;
+            user-select: none;
+        }
+        .dish-clickable:hover {
+            background-color: #e8f4fd !important;
+            border-color: #409eff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+        }
+        .dish-clickable * {
+            pointer-events: none;
+        }
         .dish-name {
             font-size: 14px;
             font-weight: 500;
@@ -278,6 +291,82 @@
             color: #f56c6c;
             margin-left: 2px;
         }
+        /* 最新评价样式 */
+        .recent-ratings {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .recent-ratings-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .rating-item {
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #409eff;
+        }
+        .rating-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .rating-user {
+            font-size: 11px;
+            font-weight: bold;
+            color: #409eff;
+        }
+        .rating-stars {
+            font-size: 10px;
+        }
+        .rating-comment {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+            margin-left: 2px;
+        }
+        /* 菜品评价详情对话框样式 */
+        .rating-detail-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #e4e7ed;
+            border-radius: 8px;
+            border-left: 4px solid #409eff;
+        }
+        .rating-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .rating-detail-user {
+            font-weight: bold;
+            color: #409eff;
+            font-size: 14px;
+        }
+        .rating-detail-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .rating-detail-stars {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #f56c6c;
+        }
+        .rating-detail-comment {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
         @media (max-width: 768px) {
             .dish-grid {
                 grid-template-columns: 1fr;
@@ -339,7 +428,7 @@
                             <div class="restaurant-group" v-for="restaurant in groupByRestaurant(dayMenu.lunch)" :key="restaurant.name">
                                 <div class="restaurant-name">{{ restaurant.name }}</div>
                                 <div class="dishes-list">
-                                    <div class="dish-item" v-for="dish in restaurant.dishes" :key="dish.id">
+                                    <div class="dish-item dish-clickable" v-for="dish in restaurant.dishes" :key="dish.dishId" @click="showDishRatings(dish, 'lunch')" title="点击查看菜品评价">
                                         <div class="dish-name">{{ dish.dishName }}</div>
                                         <div class="dish-rating">⭐ {{ dish.rating ? dish.rating.toFixed(1) : '--' }}</div>
                                     </div>
@@ -356,7 +445,7 @@
                             <div class="restaurant-group" v-for="restaurant in groupByRestaurant(dayMenu.dinner)" :key="restaurant.name">
                                 <div class="restaurant-name">{{ restaurant.name }}</div>
                                 <div class="dishes-list">
-                                    <div class="dish-item" v-for="dish in restaurant.dishes" :key="dish.id">
+                                    <div class="dish-item dish-clickable" v-for="dish in restaurant.dishes" :key="dish.dishId" @click="showDishRatings(dish, 'dinner')" title="点击查看菜品评价">
                                         <div class="dish-name">{{ dish.dishName }}</div>
                                         <div class="dish-rating">⭐ {{ dish.rating ? dish.rating.toFixed(1) : '--' }}</div>
                                     </div>
@@ -401,6 +490,18 @@
                                     <span v-if="dish.rating">⭐ {{ dish.rating.toFixed(1) }}</span>
                                     <span v-else>暂无评分</span>
                                 </div>
+                                
+                                <!-- 最新评价记录 -->
+                                <div v-if="dish.recentRatings && dish.recentRatings.length > 0" class="recent-ratings">
+                                    <div class="recent-ratings-title">最新评价:</div>
+                                    <div v-for="rating in dish.recentRatings.slice(0, 3)" :key="rating.id" class="rating-item">
+                                        <div class="rating-header">
+                                            <span class="rating-user">{{ rating.employeeName }}</span>
+                                            <span class="rating-stars">{{ '⭐'.repeat(rating.rating) }}</span>
+                                        </div>
+                                        <div v-if="rating.comment" class="rating-comment">{{ rating.comment }}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -422,6 +523,18 @@
                                 <div class="dish-rating">
                                     <span v-if="dish.rating">⭐ {{ dish.rating.toFixed(1) }}</span>
                                     <span v-else>暂无评分</span>
+                                </div>
+                                
+                                <!-- 最新评价记录 -->
+                                <div v-if="dish.recentRatings && dish.recentRatings.length > 0" class="recent-ratings">
+                                    <div class="recent-ratings-title">最新评价:</div>
+                                    <div v-for="rating in dish.recentRatings.slice(0, 3)" :key="rating.id" class="rating-item">
+                                        <div class="rating-header">
+                                            <span class="rating-user">{{ rating.employeeName }}</span>
+                                            <span class="rating-stars">{{ '⭐'.repeat(rating.rating) }}</span>
+                                        </div>
+                                        <div v-if="rating.comment" class="rating-comment">{{ rating.comment }}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -483,49 +596,51 @@
                         </span>
                     </template>
                 </el-dialog>
+
+                <!-- 菜品评价详情对话框 -->
+                <el-dialog v-model="showDishRatingsDialog" :title="`菜品评价 - ${selectedDishForRatings.dishName || ''}`" width="600px" center>
+                    <div v-if="selectedDishForRatings && selectedDishForRatings.dishName">
+                        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h3 style="margin: 0 0 8px 0; color: #333;">{{ selectedDishForRatings.dishName }}</h3>
+                            <p style="margin: 0 0 8px 0; color: #666;">{{ selectedDishForRatings.restaurantName }}</p>
+                            <div style="font-size: 18px; color: #f56c6c;">
+                                <span v-if="selectedDishForRatings.rating">⭐ {{ selectedDishForRatings.rating.toFixed(1) }} 分</span>
+                                <span v-else>暂无评分</span>
+                            </div>
+                        </div>
+
+                        <!-- 评价列表 -->
+                        <div v-if="dishRatingsList && dishRatingsList.length > 0">
+                            <h4 style="margin-bottom: 15px; color: #333;">最新评价</h4>
+                            <div v-for="rating in dishRatingsList" :key="rating.id" class="rating-detail-item">
+                                <div class="rating-detail-header">
+                                    <span class="rating-detail-user">{{ rating.employeeName }}</span>
+                                    <span class="rating-detail-time">{{ formatDate(rating.updatedAt || rating.createdAt) }}</span>
+                                </div>
+                                <div class="rating-detail-stars">{{ '⭐'.repeat(rating.rating) }} ({{ rating.rating }}分)</div>
+                                <div v-if="rating.comment" class="rating-detail-comment">{{ rating.comment }}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 无评价提示 -->
+                        <div v-else style="text-align: center; padding: 40px; color: #999;">
+                            <p>暂无评价</p>
+                            <p style="font-size: 14px;">成为第一个评价这道菜的人吧！</p>
+                        </div>
+                    </div>
+                    
+                    <template #footer>
+                        <span class="dialog-footer">
+                            <el-button @click="closeDishRatingsDialog">关闭</el-button>
+                            <el-button type="primary" @click="goToRatingPage">去评价</el-button>
+                        </span>
+                    </template>
+                </el-dialog>
             </div>
 
             <!-- 首页 -->
             <div class="main-card" v-if="currentPage === 'home'">
-                <!-- 订餐统计卡片 - 放在最上方 -->
-                <div class="stats-section">
-                    <h3 style="margin-bottom: 20px; color: #333;">📊 今日订餐统计</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number">{{ orderStats.lunch.orderCount }}</div>
-                            <div class="stat-label">午餐订餐份数</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">{{ orderStats.lunch.noEatCount }}</div>
-                            <div class="stat-label">午餐不吃人数</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">{{ orderStats.dinner.orderCount }}</div>
-                            <div class="stat-label">晚餐订餐份数</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">{{ orderStats.dinner.noEatCount }}</div>
-                            <div class="stat-label">晚餐不吃人数</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 快捷按钮 -->
-                <div class="quick-actions">
-                    <h3 style="margin-bottom: 20px; color: #333;">⚡ 快捷操作</h3>
-                    <div class="quick-buttons">
-                        <el-button type="warning" size="large" @click="registerNoEat('lunch')" 
-                                   :disabled="!isWorkday">
-                            🥗 我中午不吃
-                        </el-button>
-                        <el-button type="info" size="large" @click="registerNoEat('dinner')" 
-                                   :disabled="!isWorkday">
-                            🌙 我晚上不吃
-                        </el-button>
-                    </div>
-                </div>
-
-                <!-- 今日菜单预览 -->
+                <!-- 今日菜单预览 - 放在最上方 -->
                 <div v-if="isWorkday && (todayMenu.lunch.length > 0 || todayMenu.dinner.length > 0)" class="today-menu-section">
                     <h3 style="margin-bottom: 20px; color: #333;">🍽️ 今日菜单</h3>
                     
@@ -558,6 +673,44 @@
                                     {{ dish.dishName }}<span v-if="dish.rating" class="rating-preview">⭐{{ dish.rating.toFixed(1) }}</span><span v-if="index < restaurant.dishes.length - 1">、</span>
                                 </span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷按钮 -->
+                <div class="quick-actions">
+                    <h3 style="margin-bottom: 20px; color: #333;">⚡ 快捷操作</h3>
+                    <div class="quick-buttons">
+                        <el-button type="warning" size="large" @click="registerNoEat('lunch')" 
+                                   :disabled="!isWorkday">
+                            🥗 我中午不吃
+                        </el-button>
+                        <el-button type="info" size="large" @click="registerNoEat('dinner')" 
+                                   :disabled="!isWorkday">
+                            🌙 我晚上不吃
+                        </el-button>
+                    </div>
+                </div>
+
+                <!-- 订餐统计卡片 -->
+                <div class="stats-section">
+                    <h3 style="margin-bottom: 20px; color: #333;">📊 今日订餐统计</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ orderStats.lunch.orderCount }}</div>
+                            <div class="stat-label">午餐订餐份数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{{ orderStats.lunch.noEatCount }}</div>
+                            <div class="stat-label">午餐不吃人数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{{ orderStats.dinner.orderCount }}</div>
+                            <div class="stat-label">晚餐订餐份数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{{ orderStats.dinner.noEatCount }}</div>
+                            <div class="stat-label">晚餐不吃人数</div>
                         </div>
                     </div>
                 </div>
@@ -680,7 +833,10 @@
                     syncLoading: false,
                     excelStatus: null,
                     clearingLunch: false,
-                    clearingDinner: false
+                    clearingDinner: false,
+                    showDishRatingsDialog: false,
+                    selectedDishForRatings: {},
+                    dishRatingsList: []
                 };
             },
             computed: {
@@ -812,9 +968,31 @@
                         const result = await response.json();
                         if (result.success) {
                             this.todayMenuForRating = result.data;
+                            // 加载每个菜品的最新评价
+                            await this.loadRecentRatingsForDishes();
                         }
                     } catch (error) {
                         console.error('刷新菜单失败:', error);
+                    }
+                },
+                async loadRecentRatingsForDishes() {
+                    try {
+                        const allDishes = [
+                            ...(this.todayMenuForRating.lunch || []),
+                            ...(this.todayMenuForRating.dinner || [])
+                        ];
+                        
+                        for (const dish of allDishes) {
+                            if (dish.dishId) {
+                                const response = await fetch(`/api/rating/recent/${dish.dishId}?limit=3`);
+                                const result = await response.json();
+                                if (result.success) {
+                                    dish.recentRatings = result.data;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('加载最新评价失败:', error);
                     }
                 },
                 closeRatingForm() {
@@ -908,6 +1086,8 @@
                             this.currentPage = 'rating';
                             console.log('点评页面数据已设置:', this.todayMenuForRating);
                             console.log('当前页面状态:', this.currentPage);
+                            // 加载每个菜品的最新评价
+                            await this.loadRecentRatingsForDishes();
                         }
                     } catch (error) {
                         ElMessage.error('加载今日菜单失败');
@@ -1086,6 +1266,53 @@
                 getDayNameByNum(dayNum) {
                     const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
                     return days[dayNum] || dayNum;
+                },
+                async showDishRatings(dish, mealType) {
+                    console.log('显示菜品评价:', dish, mealType);
+                    console.log('菜品dishId:', dish.dishId);
+                    this.selectedDishForRatings = dish;
+                    this.showDishRatingsDialog = true;
+                    
+                    // 加载该菜品的评价列表
+                    try {
+                        const response = await fetch(`/api/rating/recent/${dish.dishId}?limit=10`);
+                        const result = await response.json();
+                        if (result.success) {
+                            this.dishRatingsList = result.data;
+                        } else {
+                            this.dishRatingsList = [];
+                        }
+                    } catch (error) {
+                        console.error('加载菜品评价失败:', error);
+                        this.dishRatingsList = [];
+                    }
+                },
+                closeDishRatingsDialog() {
+                    this.showDishRatingsDialog = false;
+                    this.selectedDishForRatings = {};
+                    this.dishRatingsList = [];
+                },
+                goToRatingPage() {
+                    this.closeDishRatingsDialog();
+                    this.showRatingPage();
+                },
+                formatDate(dateString) {
+                    const date = new Date(dateString);
+                    const now = new Date();
+                    const diff = now - date;
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor(diff / (1000 * 60));
+                    
+                    if (days > 0) {
+                        return `${days}天前`;
+                    } else if (hours > 0) {
+                        return `${hours}小时前`;
+                    } else if (minutes > 0) {
+                        return `${minutes}分钟前`;
+                    } else {
+                        return '刚刚';
+                    }
                 }
             }
         }).use(ElementPlus).mount('#app');
