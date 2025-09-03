@@ -68,10 +68,10 @@ module.exports = {
       user: 'root',
       host: '172.16.74.75',
       ref: 'origin/main',
-      repo: 'git@github.com:yourname/order-robot.git', // 替换为你的仓库地址
-      path: '/var/www/order-robot',
+      repo: 'https://github.com/zhangsherry780-arch/order-robot.git',
+      path: '/root/order-robot-deploy', // PM2部署路径
       'pre-deploy-local': '',
-      'post-deploy': 'npm install && npm run db:migrate && pm2 reload ecosystem.config.js --env production',
+      'post-deploy': 'npm install --production && npm run db:migrate && pm2 reload ecosystem.config.js --env production',
       'pre-setup': ''
     }
   }
