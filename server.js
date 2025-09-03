@@ -6,6 +6,9 @@ const cron = require('node-cron');
 const moment = require('moment');
 const xlsx = require('xlsx');
 const csv = require('csv-parser');
+const session = require('express-session');
+const axios = require('axios');
+const FEISHU_CONFIG = require('./feishu-config');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,7 +16,17 @@ const PORT = process.env.PORT || 3000;
 // 中间件
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// 会话管理
+app.use(session({
+  secret: FEISHU_CONFIG.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false, // 开发环境设为false，生产环境需要https时设为true
+    maxAge: 24 * 60 * 60 * 1000 // 24小时
+  }
+}));
 
 // 数据存储工具类
 class DataStore {
@@ -36,6 +49,7 @@ class DataStore {
       'daily-orders.json': [],
       'no-eat-registrations.json': [],
       'ratings.json': [],
+      'restaurant-suggestions.json': [],
       'settings.json': {
         totalEmployees: 50,
         lunchOpenTime: '10:00',
@@ -306,8 +320,55 @@ class MenuGenerator {
     this.weekDays = [1, 2, 3, 4, 5, 0]; // 周一到周五 + 周日（0表示周日）
   }
 
+  // 复制上一周菜单作为本周菜单
+  async copyLastWeekMenu() {
+    console.log('开始复制上一周菜单...');
+    
+    const weeklyMenus = await dataStore.read('weekly-menus.json');
+    const currentWeekStart = dataStore.getWeekStart();
+    
+    // 计算上一周的开始时间
+    const lastWeekStart = moment(currentWeekStart).subtract(1, 'week').format('YYYY-MM-DD');
+    
+    // 查找上一周的菜单
+    const lastWeekMenus = weeklyMenus.filter(menu => menu.weekStart === lastWeekStart);
+    
+    if (!lastWeekMenus || lastWeekMenus.length === 0) {
+      console.log('没有找到上一周的菜单，将生成新菜单');
+      return this.generateSmartWeeklyMenu();
+    }
+    
+    // 复制上一周菜单，更新为当前周
+    const newWeeklyMenu = lastWeekMenus.map((menu, index) => ({
+      ...menu,
+      id: index + 1,
+      weekStart: currentWeekStart,
+      generatedAt: moment().toISOString()
+    }));
+    
+    // 移除旧菜单，保存新菜单
+    const otherWeekMenus = weeklyMenus.filter(menu => menu.weekStart !== currentWeekStart);
+    const allMenus = [...otherWeekMenus, ...newWeeklyMenu];
+    
+    await dataStore.write('weekly-menus.json', allMenus);
+    
+    // 更新设置中的当前周
+    const settings = await dataStore.read('settings.json');
+    settings.currentWeekStart = currentWeekStart;
+    await dataStore.write('settings.json', settings);
+    
+    console.log(`本周菜单生成完成（复制上周），共 ${newWeeklyMenu.length} 个菜品`);
+    return true;
+  }
+
   // 基于评分生成智能菜单
   async generateWeeklyMenu() {
+    // 默认复制上一周菜单
+    return this.copyLastWeekMenu();
+  }
+
+  // 基于评分生成智能菜单（原有逻辑，重命名）
+  async generateSmartWeeklyMenu() {
     console.log('开始生成本周菜单...');
     
     const dishes = await dataStore.read('dishes.json');
@@ -1103,14 +1164,28 @@ app.put('/api/admin/settings', async (req, res) => {
   }
 });
 
-// 管理员API - 手动生成菜单
+// 管理员API - 手动生成菜单（复制上周）
 app.post('/api/admin/menu/generate', async (req, res) => {
   try {
     const result = await menuGenerator.generateWeeklyMenu();
     if (result) {
-      res.json({ success: true, message: '菜单生成成功' });
+      res.json({ success: true, message: '菜单生成成功（复制上周）' });
     } else {
       res.json({ success: false, message: '菜单生成失败，请检查是否有可用菜品' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 管理员API - 手动生成智能菜单
+app.post('/api/admin/menu/generate-smart', async (req, res) => {
+  try {
+    const result = await menuGenerator.generateSmartWeeklyMenu();
+    if (result) {
+      res.json({ success: true, message: '智能菜单生成成功' });
+    } else {
+      res.json({ success: false, message: '智能菜单生成失败，请检查是否有可用菜品' });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -1190,6 +1265,26 @@ app.post('/api/no-eat/register', async (req, res) => {
       return res.status(400).json({ 
         success: false, 
         message: '缺少必要参数' 
+      });
+    }
+
+    // 检查时间限制
+    const now = moment();
+    const currentHour = now.hour();
+    
+    // 午餐：11点后不能登记
+    if (mealType === 'lunch' && currentHour >= 11) {
+      return res.status(400).json({
+        success: false,
+        message: '午餐登记时间已截止（每天11点后不可登记）'
+      });
+    }
+    
+    // 晚餐：17点后不能登记
+    if (mealType === 'dinner' && currentHour >= 17) {
+      return res.status(400).json({
+        success: false,
+        message: '晚餐登记时间已截止（每天17点后不可登记）'
       });
     }
 
@@ -1345,15 +1440,403 @@ cron.schedule('0 16 * * 1-5', () => {
   orderManager.openRegistration('dinner');
 });
 
-// 静态文件服务
-app.get('*', (req, res) => {
+// =================== 餐厅投稿相关接口 ===================
+
+// 提交餐厅投稿
+app.post('/api/restaurant-suggestions/submit', async (req, res) => {
+  try {
+    const { restaurantName, submitterName, reason, imageUrl } = req.body;
+
+    if (!restaurantName || !submitterName) {
+      return res.status(400).json({
+        success: false,
+        message: '餐厅名称和投稿人姓名不能为空'
+      });
+    }
+
+    const suggestions = await dataStore.read('restaurant-suggestions.json');
+    
+    const newSuggestion = {
+      id: dataStore.generateId(suggestions),
+      restaurantName: restaurantName.trim(),
+      submitterName: submitterName.trim(),
+      reason: reason ? reason.trim() : '',
+      imageUrl: imageUrl ? imageUrl.trim() : '',
+      submittedAt: moment().toISOString(),
+      likes: 0,
+      likedBy: []
+    };
+
+    suggestions.push(newSuggestion);
+    await dataStore.write('restaurant-suggestions.json', suggestions);
+
+    res.json({
+      success: true,
+      message: '餐厅投稿提交成功！',
+      data: newSuggestion
+    });
+
+  } catch (error) {
+    console.error('提交餐厅投稿失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '提交失败，请重试'
+    });
+  }
+});
+
+// 获取餐厅投稿列表
+app.get('/api/restaurant-suggestions/list', async (req, res) => {
+  try {
+    const suggestions = await dataStore.read('restaurant-suggestions.json');
+    
+    // 按点赞数降序，然后按提交时间降序排列
+    const sortedSuggestions = suggestions.sort((a, b) => {
+      if (b.likes !== a.likes) {
+        return b.likes - a.likes;
+      }
+      return new Date(b.submittedAt) - new Date(a.submittedAt);
+    });
+
+    res.json({
+      success: true,
+      data: sortedSuggestions
+    });
+
+  } catch (error) {
+    console.error('获取餐厅投稿列表失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取列表失败，请重试'
+    });
+  }
+});
+
+// 为餐厅投稿点赞
+app.post('/api/restaurant-suggestions/vote', async (req, res) => {
+  try {
+    const { suggestionId, voterName } = req.body;
+
+    if (!suggestionId || !voterName) {
+      return res.status(400).json({
+        success: false,
+        message: '投稿ID和点赞人姓名不能为空'
+      });
+    }
+
+    const suggestions = await dataStore.read('restaurant-suggestions.json');
+    const suggestion = suggestions.find(s => s.id === suggestionId);
+
+    if (!suggestion) {
+      return res.status(404).json({
+        success: false,
+        message: '投稿不存在'
+      });
+    }
+
+    // 检查是否已经点过赞
+    if (suggestion.likedBy.includes(voterName.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: '您已经支持过这家餐厅了！'
+      });
+    }
+
+    // 添加点赞
+    suggestion.likedBy.push(voterName.trim());
+    suggestion.likes = suggestion.likedBy.length;
+
+    await dataStore.write('restaurant-suggestions.json', suggestions);
+
+    res.json({
+      success: true,
+      message: '支持成功！',
+      data: {
+        suggestionId,
+        likes: suggestion.likes,
+        hasVoted: true
+      }
+    });
+
+  } catch (error) {
+    console.error('点赞失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '支持失败，请重试'
+    });
+  }
+});
+
+// 检查用户是否已对某投稿点赞
+app.get('/api/restaurant-suggestions/check-vote/:suggestionId/:voterName', async (req, res) => {
+  try {
+    const { suggestionId, voterName } = req.params;
+
+    const suggestions = await dataStore.read('restaurant-suggestions.json');
+    const suggestion = suggestions.find(s => s.id === parseInt(suggestionId));
+
+    if (!suggestion) {
+      return res.status(404).json({
+        success: false,
+        message: '投稿不存在'
+      });
+    }
+
+    const hasVoted = suggestion.likedBy.includes(voterName);
+
+    res.json({
+      success: true,
+      data: {
+        hasVoted,
+        likes: suggestion.likes
+      }
+    });
+
+  } catch (error) {
+    console.error('检查点赞状态失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '检查失败，请重试'
+    });
+  }
+});
+
+// =================== 飞书OAuth认证路由 ===================
+
+// 生成随机state用于CSRF防护
+function generateState() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+// 飞书登录 - 重定向到飞书授权页面
+app.get('/auth/feishu', (req, res) => {
+  const state = generateState();
+  req.session.oauthState = state;
+  
+  const authUrl = `${FEISHU_CONFIG.AUTHORIZATION_URL}?` +
+    `client_id=${FEISHU_CONFIG.APP_ID}&` +
+    `redirect_uri=${encodeURIComponent(FEISHU_CONFIG.REDIRECT_URI)}&` +
+    `response_type=code&` +
+    `scope=${encodeURIComponent(FEISHU_CONFIG.SCOPE)}&` +
+    `state=${state}`;
+  
+  console.log('重定向到飞书授权页面:', authUrl);
+  res.redirect(authUrl);
+});
+
+// 飞书授权回调
+app.get('/auth/feishu/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+  
+  try {
+    // 如果用户拒绝授权
+    if (error) {
+      console.log('用户拒绝授权:', error);
+      return res.redirect('/login?error=access_denied&message=用户拒绝授权');
+    }
+    
+    // 检查授权码
+    if (!code) {
+      console.log('回调缺少授权码');
+      return res.redirect('/login?error=no_code&message=授权码缺失');
+    }
+    
+    // 验证state防止CSRF攻击 (但允许session过期的情况)
+    if (state && req.session.oauthState && state !== req.session.oauthState) {
+      console.log('State参数不匹配:', { received: state, expected: req.session.oauthState });
+      return res.redirect('/login?error=invalid_state&message=安全验证失败，请重新登录');
+    }
+    
+    console.log('收到飞书回调，code:', code, 'state:', state);
+    
+    // 第一步：获取app access token
+    const appTokenResponse = await axios.post('https://open.feishu.cn/open-apis/auth/v3/app_access_token/internal', {
+      app_id: FEISHU_CONFIG.APP_ID,
+      app_secret: FEISHU_CONFIG.APP_SECRET
+    }, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    });
+    
+    if (appTokenResponse.data.code !== 0) {
+      console.error('获取app access token失败:', appTokenResponse.data);
+      return res.redirect('/login?error=app_token_failed&message=应用认证失败');
+    }
+    
+    const appAccessToken = appTokenResponse.data.app_access_token;
+    console.log('获取到app access token');
+    
+    // 第二步：使用app access token获取用户access token
+    const tokenResponse = await axios.post(FEISHU_CONFIG.TOKEN_URL, {
+      grant_type: 'authorization_code',
+      code: code
+    }, {
+      headers: {
+        'Authorization': `Bearer ${appAccessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (tokenResponse.data.code !== 0) {
+      console.error('获取token失败:', tokenResponse.data);
+      return res.status(400).send('Failed to get access token');
+    }
+    
+    const { access_token } = tokenResponse.data.data;
+    
+    // 获取用户信息
+    const userResponse = await axios.get(FEISHU_CONFIG.USER_INFO_URL, {
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+      }
+    });
+    
+    if (userResponse.data.code !== 0) {
+      console.error('获取用户信息失败:', userResponse.data);
+      return res.status(400).send('Failed to get user info');
+    }
+    
+    const userInfo = userResponse.data.data;
+    console.log('飞书用户信息:', userInfo);
+    
+    // 保存用户信息到session
+    req.session.user = {
+      id: userInfo.union_id || userInfo.user_id,
+      name: userInfo.name,
+      avatar: userInfo.avatar_url || userInfo.avatar_thumb,
+      email: userInfo.email,
+      mobile: userInfo.mobile,
+      loginTime: new Date().toISOString(),
+      accessToken: access_token
+    };
+    
+    // 清除OAuth state
+    delete req.session.oauthState;
+    
+    // 重定向到首页
+    res.redirect('/?login=success');
+    
+  } catch (error) {
+    console.error('飞书OAuth回调错误:', error);
+    
+    // 根据错误类型提供更详细的错误信息
+    let errorMessage = '登录失败，请重试';
+    if (error.response) {
+      const { status, data } = error.response;
+      console.error('API错误响应:', { status, data });
+      
+      if (status === 400) {
+        errorMessage = '授权参数错误，请重新登录';
+      } else if (status === 401) {
+        errorMessage = '应用认证失败，请联系管理员';
+      } else if (status >= 500) {
+        errorMessage = '飞书服务暂时不可用，请稍后重试';
+      }
+    } else if (error.code === 'ENOTFOUND') {
+      errorMessage = '网络连接失败，请检查网络设置';
+    }
+    
+    res.redirect(`/login?error=oauth_error&message=${encodeURIComponent(errorMessage)}`);
+  }
+});
+
+// 获取当前登录用户信息
+app.get('/api/auth/user', (req, res) => {
+  if (req.session.user) {
+    res.json({
+      success: true,
+      data: {
+        id: req.session.user.id,
+        name: req.session.user.name,
+        avatar: req.session.user.avatar,
+        email: req.session.user.email,
+        loginTime: req.session.user.loginTime
+      }
+    });
+  } else {
+    res.json({
+      success: false,
+      message: '用户未登录'
+    });
+  }
+});
+
+// 退出登录
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: '退出登录失败'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: '已成功退出登录'
+    });
+  });
+});
+
+// 权限验证中间件
+function requireAuth(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({
+      success: false,
+      message: '请先登录',
+      code: 'UNAUTHORIZED'
+    });
+  }
+  next();
+}
+
+// 页面权限验证中间件
+function requireAuthPage(req, res, next) {
+  if (!req.session.user) {
+    // 重定向到登录页面
+    return res.redirect('/login?error=unauthorized');
+  }
+  next();
+}
+
+// =================== 页面路由 ===================
+
+// 登录页面 - 无需验证
+app.get('/login', (req, res) => {
+  // 如果已登录，重定向到首页
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// 管理页面 - 需要验证
+app.get('/admin.html', requireAuthPage, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// 首页和其他页面 - 需要验证
+app.get('/', requireAuthPage, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 静态资源 - 无需验证（CSS, JS, 图片等），但不包括 HTML 文件
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/assets', express.static(path.join(__dirname, 'public/assets')));
+
+// 捕获所有其他路由 - 需要验证
+app.get('*', requireAuthPage, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // 启动服务器
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 订餐系统启动成功!`);
-  console.log(`📱 访问地址: http://localhost:${PORT}`);
+  console.log(`📱 本机访问: http://localhost:${PORT}`);
+  console.log(`🌐 局域网访问: http://100.100.192.158:${PORT}`);
   console.log(`🤖 机器人API: http://localhost:${PORT}/api/bot`);
   console.log(`⏰ 定时任务已设置:`);
   console.log(`   - 每周一 09:00 生成菜单`);

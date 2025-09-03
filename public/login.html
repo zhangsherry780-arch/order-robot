@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 公司订餐系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 60px 50px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .login-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo-section {
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .system-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .system-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        
+        .login-section {
+            margin-bottom: 30px;
+        }
+        
+        .login-title {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        
+        .feishu-login-btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #00c9f7 0%, #0099cc 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feishu-login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .feishu-login-btn:hover::before {
+            left: 100%;
+        }
+        
+        .feishu-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 153, 204, 0.3);
+        }
+        
+        .feishu-logo {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 6px;
+            padding: 4px;
+        }
+        
+        .features-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .features-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .features-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .feature-icon {
+            font-size: 16px;
+        }
+        
+        .footer-text {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 40px 30px;
+            }
+            
+            .system-title {
+                font-size: 24px;
+            }
+            
+            .features-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="loading" id="loading">
+            <div>
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #666;">正在跳转到飞书授权...</p>
+            </div>
+        </div>
+        
+        <div class="login-content">
+            <div class="logo-section">
+                <div class="logo">🍽️</div>
+                <h1 class="system-title">公司订餐系统</h1>
+                <p class="system-subtitle">便捷、高效的企业订餐管理平台</p>
+            </div>
+            
+            <div class="login-section">
+                <h2 class="login-title">欢迎使用订餐系统</h2>
+                <button class="feishu-login-btn" onclick="loginWithFeishu()">
+                    <img src="https://sf16-va.larksuitecdn.com/obj/lark-toolkit-assets/images/lark_logo.png" 
+                         class="feishu-logo" alt="飞书">
+                    使用飞书账号登录
+                </button>
+            </div>
+            
+            <div class="features-section">
+                <p class="features-title">系统功能特色</p>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <span class="feature-icon">📋</span>
+                        <span>智能菜单管理</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">⭐</span>
+                        <span>菜品评价系统</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>实时订餐统计</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🏪</span>
+                        <span>餐厅推荐投票</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-text">
+                请使用您的企业飞书账号登录<br>
+                系统将自动获取您的基本信息用于身份验证
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        if (error === 'unauthorized') {
+            showMessage('请先登录后访问', 'warning');
+        }
+        
+        function loginWithFeishu() {
+            // 显示加载状态
+            document.getElementById('loading').classList.add('show');
+            
+            // 跳转到飞书授权
+            setTimeout(() => {
+                window.location.href = '/auth/feishu';
+            }, 500);
+        }
+        
+        function showMessage(message, type = 'info') {
+            // 简单的消息提示，如果有Element Plus可以使用更美观的提示
+            const colors = {
+                'info': '#409eff',
+                'success': '#67c23a', 
+                'warning': '#e6a23c',
+                'error': '#f56c6c'
+            };
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.innerHTML = message;
+            msgDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${colors[type] || colors.info};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 9999;
+                font-size: 14px;
+            `;
+            
+            document.body.appendChild(msgDiv);
+            
+            setTimeout(() => {
+                msgDiv.remove();
+            }, 3000);
+        }
+        
+        // 检查是否已经登录
+        fetch('/api/auth/user')
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // 已登录，跳转到首页
+                    window.location.href = '/';
+                }
+            })
+            .catch(error => {
+                console.log('用户未登录');
+            });
+    </script>
+</body>
+</html>
