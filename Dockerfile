@@ -1,5 +1,5 @@
 # 使用官方Node.js运行时镜像
-FROM node:16-alpine
+FROM node:18-alpine
 
 # 设置工作目录
 WORKDIR /app
@@ -25,7 +25,7 @@ EXPOSE 3000
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/menu/today', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+  CMD node -e "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # 启动应用
 CMD ["node", "server.js"]

@@ -59,14 +59,25 @@ EOF
 
 # 3. 上传项目文件
 echo "📦 上传项目文件..."
-rsync -avz --progress \
-    --exclude='node_modules/' \
-    --exclude='logs/' \
-    --exclude='data_backup_*' \
-    --exclude='.git/' \
-    --exclude='*.log' \
-    --exclude='.env.local' \
-    ./ $SERVER_USER@$SERVER_HOST:~/$PROJECT_NAME/
+
+# 创建临时目录用于复制要上传的文件
+TEMP_DIR=$(mktemp -d)
+echo "使用临时目录: $TEMP_DIR"
+
+# 复制文件到临时目录，排除不需要的文件
+cp -r . "$TEMP_DIR/upload"
+cd "$TEMP_DIR/upload"
+
+# 删除不需要的文件和目录
+rm -rf node_modules/ logs/ data_backup_* .git/ *.log .env.local 2>/dev/null || true
+
+# 使用scp上传文件
+echo "开始上传文件..."
+scp -r ./* $SERVER_USER@$SERVER_HOST:~/$PROJECT_NAME/
+
+# 清理临时目录
+cd "$LOCAL_PROJECT_DIR"
+rm -rf "$TEMP_DIR"
 
 echo "✅ 文件上传完成"
 
