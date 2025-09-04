@@ -137,7 +137,24 @@ ls -la data/
 
 ## 🚨 故障排查
 
-### 1. 端口被占用
+### 1. Node.js/npm 未安装或损坏
+```bash
+# 检查版本
+node --version
+npm --version
+
+# 如果缺失，重新安装
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 如果npm单独缺失
+sudo apt install -y npm
+
+# 验证安装
+node --version && npm --version
+```
+
+### 2. 端口被占用
 ```bash
 # 查看端口占用
 netstat -tlnp | grep :3000
@@ -146,21 +163,31 @@ netstat -tlnp | grep :3000
 kill -9 <PID>
 ```
 
-### 2. 权限问题
+### 3. 权限问题
 ```bash
 # 修复权限
 chmod -R 755 ~/order-robot
 chown -R caikangbei:caikangbei ~/order-robot
 ```
 
-### 3. 模块缺失
+### 4. 模块缺失或损坏
 ```bash
-# 重新安装依赖
+# 清理并重新安装依赖
+cd ~/order-robot
 rm -rf node_modules package-lock.json
 npm install
 ```
 
-### 4. 查看详细错误
+### 5. Git 问题
+```bash
+# 如果git拉取失败
+cd ~/order-robot
+git status
+git reset --hard origin/main
+git pull origin main
+```
+
+### 6. 查看详细错误
 ```bash
 # 查看完整错误信息
 npm start 2>&1 | tee error.log
