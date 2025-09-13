@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   order-robot:
-    build: .
+    image: order-robot:latest
     container_name: order-robot
     ports:
       - "3000:3000"

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  order-robot:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: order-robot-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules  # 防止覆盖容器内的node_modules
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=development
+      - TZ=Asia/Shanghai
+    restart: unless-stopped

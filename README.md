@@ -48,6 +48,9 @@ npm run dev
 
 # 生产环境
 npm start
+
+# 或者直接使用Node.js启动
+node server.js
 ```
 
 4. **访问系统**
@@ -55,14 +58,108 @@ npm start
 - 管理后台: http://localhost:3000/admin.html
 - 机器人API: http://localhost:3000/api/bot
 
+## 🎮 服务控制命令
+
+### 启动服务
+```bash
+# 方法1: 使用npm脚本
+cd D:\git\order-robot
+npm start
+
+# 方法2: 直接使用Node.js
+cd D:\git\order-robot
+node server.js
+
+# 方法3: 指定端口启动
+cd D:\git\order-robot
+set PORT=3001
+npm start
+
+# 方法4: 后台启动(使用PM2)
+npm install -g pm2
+pm2 start server.js --name "order-robot"
+```
+
+### 停止服务
+```bash
+# 方法1: 命令行按 Ctrl+C 停止
+
+# 方法2: 杀掉Node.js进程(Windows)
+taskkill //F //IM node.exe
+
+# 方法3: 杀掉特定端口进程
+# 先查找占用端口的进程ID
+netstat -ano | findstr :3000
+# 杀掉对应进程(替换PID为实际进程ID)
+taskkill //F //PID <PID>
+
+# 方法4: 停止PM2服务
+pm2 stop order-robot
+pm2 delete order-robot
+```
+
+### 重启服务
+```bash
+# 方法1: 先停止再启动
+# 按Ctrl+C停止，然后运行npm start
+
+# 方法2: PM2重启
+pm2 restart order-robot
+
+# 方法3: PM2重载(无停机重启)
+pm2 reload order-robot
+```
+
+### 查看服务状态
+```bash
+# 检查端口占用情况
+netstat -ano | findstr :3000
+
+# 查看Node.js进程
+tasklist | findstr node
+
+# PM2状态查看
+pm2 status
+pm2 logs order-robot
+```
+
+### Docker方式启动/停止
+```bash
+# 构建镜像
+docker build -t order-robot .
+
+# 启动容器
+docker run -d -p 3000:3000 --name order-robot-container order-robot
+
+# 停止容器
+docker stop order-robot-container
+
+# 删除容器
+docker rm order-robot-container
+
+# 使用docker-compose
+docker-compose up -d    # 后台启动
+docker-compose down     # 停止并删除
+docker-compose restart  # 重启服务
+```
+
 ## 📱 使用说明
 
 ### 用户端功能
-1. **查看今日菜单** - 显示当天午餐和晚餐菜单
-2. **不吃登记** - 输入姓名选择餐次进行不吃登记
-3. **菜品评价** - 点击菜品卡片进行打分和建议
-4. **查看统计** - 实时显示订餐人数统计
-5. **本周菜单** - 查看完整周菜单
+
+#### 🍽️ 用户点餐页面 (新功能)
+1. **今日餐次展示** - 显示当天中餐和晚餐详细菜单
+2. **吃/不吃切换** - 大按钮快速切换餐次偏好("✅ 吃饭" / "❌ 不吃")  
+3. **展开本周菜单** - 一键展开查看完整周菜单
+4. **未来餐次预订** - 可为未来日期设置餐次偏好
+5. **时间限制控制** - 午餐11:00后、晚餐16:30后自动禁用修改
+6. **状态智能提示** - 实时显示截止时间和操作状态
+
+#### 🌟 其他功能页面
+1. **菜品评价页面** - 点击菜品查看详细评价，支持打分和评论
+2. **餐厅投稿墙** - 推荐新餐厅，支持投票和图片展示
+3. **飞书登录集成** - 支持企业飞书账号一键登录
+4. **实时统计展示** - 首页显示今日订餐人数统计
 
 ### 管理后台功能
 1. **统计概览** - 今日订餐数据总览
@@ -254,7 +351,18 @@ pm2 logs order-robot
 
 ## 📝 更新日志
 
-### v1.0.0 (2024-01-15)
+### v1.1.0 (2025-09-06)
+- 🎉 **全新用户点餐页面** - 专门的点餐界面，提升用户体验
+- ✅ **餐次展示优化** - 今日中餐/晚餐详细菜单展示  
+- ✅ **吃/不吃快速切换** - 大按钮设计，操作更便捷
+- ✅ **本周菜单展开功能** - 一键查看完整周菜单
+- ✅ **未来餐次预订** - 支持为未来日期设置餐次偏好
+- ✅ **时间限制优化** - 晚餐截止时间调整为16:30，更符合实际需求
+- ✅ **智能状态提示** - 实时显示截止时间和操作状态
+- ✅ **飞书OAuth修复** - 支持动态回调URL，解决重定向问题
+- ✅ **Docker部署支持** - 新增本地构建和部署方案
+
+### v1.0.0 (2024-01-15)  
 - ✅ 初始版本发布
 - ✅ 智能菜单生成功能
 - ✅ 用户端和管理后台

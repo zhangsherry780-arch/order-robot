@@ -334,8 +334,8 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // 已登录，跳转到首页
-                    window.location.href = '/';
+                    // 已登录，跳转到用户中心页面
+                    window.location.href = '/user-dashboard.html';
                 }
             })
             .catch(error => {

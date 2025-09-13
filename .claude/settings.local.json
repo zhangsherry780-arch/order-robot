@@ -3,7 +3,20 @@
     "allow": [
       "Bash(npm install)",
       "Bash(npm start)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(/bashes)",
+      "Bash(node server.js)",
+      "Bash(sed:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(start http://localhost:3000/admin-dashboard.html)",
+      "Bash(timeout:*)",
+      "Bash(start http://localhost:3000)",
+      "Bash(start http://localhost:3000/user-dashboard.html)",
+      "Bash(del:*)"
     ],
     "deny": [],
     "ask": []
