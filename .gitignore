@@ -5,7 +5,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # 数据文件
-data/
 logs/
 
 # 运行时文件

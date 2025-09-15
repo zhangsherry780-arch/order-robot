@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "restaurantName": "���Բ���",
+    "submitterName": "����",
+    "reason": "��Ʒ�ܺóԣ��۸�ʵ��",
+    "imageUrl": "",
+    "submittedAt": "2025-09-02T10:19:09.550Z",
+    "likes": 3,
+    "likedBy": [
+      "����",
+      "John",
+      "sherry"
+    ]
+  },
+  {
+    "id": 2,
+    "restaurantName": "���Բ���2",
+    "submitterName": "�����û�",
+    "reason": "�ܺó�",
+    "imageUrl": "",
+    "submittedAt": "2025-09-02T10:24:33.875Z",
+    "likes": 0,
+    "likedBy": []
+  },
+  {
+    "id": 3,
+    "restaurantName": "�²��Բ���",
+    "submitterName": "�����û�",
+    "reason": "�Ƽ����ɲ���",
+    "imageUrl": "",
+    "submittedAt": "2025-09-02T10:26:24.880Z",
+    "likes": 1,
+    "likedBy": [
+      "sherry"
+    ]
+  },
+  {
+    "id": 4,
+    "restaurantName": "大米先生",
+    "submitterName": "sherry",
+    "reason": "美味又健康",
+    "imageUrl": "",
+    "submittedAt": "2025-09-02T10:27:23.078Z",
+    "likes": 1,
+    "likedBy": [
+      "sherry"
+    ]
+  },
+  {
+    "id": 5,
+    "restaurantName": "南京大排档",
+    "submitterName": "sherry",
+    "reason": "",
+    "imageUrl": "",
+    "submittedAt": "2025-09-02T11:08:23.722Z",
+    "likes": 1,
+    "likedBy": [
+      "sherry"
+    ]
+  }
+]

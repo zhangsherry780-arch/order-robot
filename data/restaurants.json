@@ -1,0 +1,185 @@
+[
+  {
+    "id": 1,
+    "name": "喜家德",
+    "description": "喜家德餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "米村拌饭",
+    "description": "米村拌饭餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "TACO",
+    "description": "TACO餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 4,
+    "name": "食其家",
+    "description": "食其家餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 5,
+    "name": "小满手工粉",
+    "description": "小满手工粉餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 6,
+    "name": "顺风大酒店",
+    "description": "顺风大酒店餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 7,
+    "name": "绿茶餐厅",
+    "description": "绿茶餐厅餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 8,
+    "name": "谷田稻香",
+    "description": "谷田稻香餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 9,
+    "name": "达美乐",
+    "description": "达美乐餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 10,
+    "name": "大米先生",
+    "description": "大米先生餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 11,
+    "name": "麦当劳",
+    "description": "麦当劳餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 12,
+    "name": "老乡鸡",
+    "description": "老乡鸡餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 13,
+    "name": "越南粉",
+    "description": "越南粉餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 14,
+    "name": "KFC",
+    "description": "KFC餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 15,
+    "name": "敏华冰厅",
+    "description": "敏华冰厅餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 16,
+    "name": "肥汁米籣",
+    "description": "肥汁米籣餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 17,
+    "name": "眉州东坡",
+    "description": "眉州东坡餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 18,
+    "name": "南星汇海南鸡",
+    "description": "南星汇海南鸡餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 19,
+    "name": "潮界",
+    "description": "潮界餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 20,
+    "name": "吉野家",
+    "description": "吉野家餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 21,
+    "name": "老娘舅",
+    "description": "老娘舅餐厅",
+    "phone": "待填写",
+    "active": true
+  },
+  {
+    "id": 22,
+    "name": "必胜客",
+    "address": "",
+    "phone": "",
+    "description": "来自用户投稿: 单人套餐",
+    "rating": 0,
+    "imageUrl": "/images/default-restaurant.jpg",
+    "tags": [],
+    "status": "active",
+    "createdAt": "2025-09-12T14:45:35.351Z"
+  },
+  {
+    "id": 23,
+    "name": "耶里夏丽",
+    "address": "",
+    "phone": "",
+    "description": "来自用户投稿: 大盘鸡",
+    "rating": 0,
+    "imageUrl": "/images/default-restaurant.jpg",
+    "tags": [],
+    "status": "active",
+    "createdAt": "2025-09-12T15:16:53.647Z"
+  },
+  {
+    "id": 24,
+    "name": "test",
+    "address": "",
+    "phone": "",
+    "description": "来自用户投稿: test",
+    "rating": 0,
+    "imageUrl": "/images/default-restaurant.jpg",
+    "tags": [],
+    "status": "active",
+    "createdAt": "2025-09-14T10:34:00.680Z"
+  }
+]

@@ -1,0 +1,1199 @@
+[
+  {
+    "id": 1,
+    "date": "2025-08-26",
+    "mealType": "lunch",
+    "totalPeople": 50,
+    "noEatCount": 1,
+    "orderCount": 49,
+    "status": "closed",
+    "createdAt": "2025-08-26T15:57:08.622Z"
+  },
+  {
+    "id": 2,
+    "date": "2025-08-26",
+    "mealType": "dinner",
+    "totalPeople": 50,
+    "noEatCount": 0,
+    "orderCount": 50,
+    "status": "closed",
+    "createdAt": "2025-08-26T15:57:08.623Z"
+  },
+  {
+    "id": 3,
+    "date": "2025-08-27",
+    "mealType": "lunch",
+    "totalPeople": 50,
+    "noEatCount": 26,
+    "orderCount": 24,
+    "status": "closed",
+    "createdAt": "2025-08-26T16:00:30.661Z",
+    "currentPeople": 24
+  },
+  {
+    "id": 4,
+    "date": "2025-08-27",
+    "mealType": "dinner",
+    "totalPeople": 50,
+    "noEatCount": 26,
+    "orderCount": 24,
+    "status": "open",
+    "createdAt": "2025-08-26T16:00:30.662Z",
+    "currentPeople": 24
+  },
+  {
+    "id": 5,
+    "date": "2025-08-28",
+    "mealType": "lunch",
+    "totalPeople": 24,
+    "noEatCount": 3,
+    "orderCount": 21,
+    "status": "closed",
+    "createdAt": "2025-08-27T16:00:27.378Z",
+    "currentPeople": 24
+  },
+  {
+    "id": 6,
+    "date": "2025-08-28",
+    "mealType": "dinner",
+    "totalPeople": 24,
+    "noEatCount": 1,
+    "orderCount": 23,
+    "status": "open",
+    "createdAt": "2025-08-27T16:00:27.381Z"
+  },
+  {
+    "id": 7,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "totalPeople": 24,
+    "noEatCount": 0,
+    "orderCount": 24,
+    "status": "closed",
+    "createdAt": "2025-08-28T16:31:42.761Z"
+  },
+  {
+    "id": 8,
+    "date": "2025-08-29",
+    "mealType": "dinner",
+    "totalPeople": 24,
+    "noEatCount": 0,
+    "orderCount": 24,
+    "status": "open",
+    "createdAt": "2025-08-28T16:31:42.769Z"
+  },
+  {
+    "id": 9,
+    "date": "2025-08-30",
+    "mealType": "lunch",
+    "totalPeople": 24,
+    "noEatCount": 1,
+    "orderCount": 23,
+    "status": "closed",
+    "createdAt": "2025-08-30T14:40:19.995Z"
+  },
+  {
+    "id": 10,
+    "date": "2025-08-30",
+    "mealType": "dinner",
+    "totalPeople": 24,
+    "noEatCount": 0,
+    "orderCount": 24,
+    "status": "closed",
+    "createdAt": "2025-08-30T14:40:19.998Z"
+  },
+  {
+    "id": 11,
+    "date": "2025-08-31",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-08-31T11:38:18.946Z"
+  },
+  {
+    "id": 12,
+    "date": "2025-08-31",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-08-31T11:38:18.949Z"
+  },
+  {
+    "id": 13,
+    "date": "2025-09-01",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-08-31T19:20:06.321Z"
+  },
+  {
+    "id": 14,
+    "date": "2025-09-01",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-08-31T19:20:06.322Z"
+  },
+  {
+    "id": 15,
+    "date": "2025-09-02",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 3,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-02T05:42:33.491Z"
+  },
+  {
+    "id": 16,
+    "date": "2025-09-02",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-02T05:42:33.494Z"
+  },
+  {
+    "id": 17,
+    "date": "2025-09-03",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-03T03:41:07.216Z"
+  },
+  {
+    "id": 18,
+    "date": "2025-09-03",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-03T03:41:07.222Z"
+  },
+  {
+    "id": 19,
+    "date": "2025-09-04",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-03T16:00:43.111Z"
+  },
+  {
+    "id": 20,
+    "date": "2025-09-04",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-03T16:00:43.119Z"
+  },
+  {
+    "id": 21,
+    "date": "2025-09-05",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-04T16:00:37.505Z"
+  },
+  {
+    "id": 22,
+    "date": "2025-09-05",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-04T16:00:37.512Z"
+  },
+  {
+    "id": 23,
+    "date": "2025-09-06",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-06T14:13:19.531Z"
+  },
+  {
+    "id": 24,
+    "date": "2025-09-06",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-06T14:13:19.536Z"
+  },
+  {
+    "date": "2024-01-01",
+    "lunch": [],
+    "dinner": [],
+    "status": "open",
+    "publishedAt": "2025-09-07T17:10:06.120Z"
+  },
+  {
+    "date": "2025-09-08",
+    "lunch": [
+      {
+        "dishId": 10006,
+        "dishName": "烧肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10007,
+        "dishName": "牛肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10037,
+        "dishName": "牛油冒菜锅",
+        "restaurantName": "成都你六姐",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "meat"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-13T08:45:52.978Z"
+  },
+  {
+    "date": "2025-09-09",
+    "lunch": [
+      {
+        "dishId": 10038,
+        "dishName": "单人套餐",
+        "restaurantName": "必胜客",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": []
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10002,
+        "dishName": "米饭套餐",
+        "restaurantName": "喜家德",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-13T08:45:52.978Z"
+  },
+  {
+    "date": "2025-09-10",
+    "lunch": [
+      {
+        "dishId": 10003,
+        "dishName": "石锅拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10004,
+        "dishName": "烤牛肉拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10039,
+        "dishName": "大盘鸡",
+        "restaurantName": "耶里夏丽",
+        "rating": 0,
+        "imageUrl": "/uploads/submissions/submission-1757690211152-971718161.png",
+        "tags": []
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-13T08:45:52.978Z"
+  },
+  {
+    "date": "2025-09-11",
+    "lunch": [
+      {
+        "dishId": 10017,
+        "dishName": "自选菜套餐",
+        "restaurantName": "大米先生",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10010,
+        "dishName": "油焖元宝虾套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10011,
+        "dishName": "红烧牛肉套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-13T08:45:52.979Z"
+  },
+  {
+    "date": "2025-09-12",
+    "lunch": [
+      {
+        "dishId": 10008,
+        "dishName": "跷脚牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "辣"
+        ]
+      },
+      {
+        "dishId": 10009,
+        "dishName": "番茄招牌牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "特色"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10016,
+        "dishName": "披萨",
+        "restaurantName": "达美乐",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "放纵餐"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-13T08:45:52.979Z"
+  },
+  {
+    "date": "2025-09-13",
+    "lunch": [
+      {
+        "dishId": 10006,
+        "dishName": "烧肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10007,
+        "dishName": "牛肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10038,
+        "dishName": "单人套餐",
+        "restaurantName": "必胜客",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": []
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-13T08:45:52.979Z"
+  },
+  {
+    "date": "2025-09-07",
+    "lunch": [
+      {
+        "dishId": 10006,
+        "dishName": "烧肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10007,
+        "dishName": "牛肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10003,
+        "dishName": "石锅拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10004,
+        "dishName": "烤牛肉拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-09T17:04:55.459Z"
+  },
+  {
+    "id": 25,
+    "date": "2025-09-09",
+    "mealType": "lunch",
+    "totalPeople": 50,
+    "noEatCount": 7,
+    "orderCount": 43,
+    "status": "open",
+    "createdAt": "2025-09-08T16:24:30.499Z"
+  },
+  {
+    "id": 26,
+    "date": "2025-09-09",
+    "mealType": "dinner",
+    "totalPeople": 50,
+    "noEatCount": 2,
+    "orderCount": 48,
+    "status": "open",
+    "createdAt": "2025-09-08T16:25:05.236Z"
+  },
+  {
+    "date": "2025-09-16",
+    "lunch": [
+      {
+        "dishId": 10003,
+        "dishName": "石锅拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10004,
+        "dishName": "烤牛肉拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10010,
+        "dishName": "油焖元宝虾套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10011,
+        "dishName": "红烧牛肉套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-12T15:24:42.474Z"
+  },
+  {
+    "date": "2025-09-14",
+    "lunch": [
+      {
+        "dishId": 10003,
+        "dishName": "石锅拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10004,
+        "dishName": "烤牛肉拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10012,
+        "dishName": "烤鸡套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10013,
+        "dishName": "糖醋里脊套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10014,
+        "dishName": "烤鱼套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-09T17:04:29.693Z"
+  },
+  {
+    "date": "2025-09-15",
+    "lunch": [
+      {
+        "dishId": 10039,
+        "dishName": "大盘鸡",
+        "restaurantName": "耶里夏丽",
+        "rating": 0,
+        "imageUrl": "/uploads/submissions/submission-1757690211152-971718161.png",
+        "tags": []
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10008,
+        "dishName": "跷脚牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "辣"
+        ]
+      },
+      {
+        "dishId": 10009,
+        "dishName": "番茄招牌牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "特色"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-12T15:24:42.472Z"
+  },
+  {
+    "date": "2025-09-17",
+    "lunch": [
+      {
+        "dishId": 10037,
+        "dishName": "牛油冒菜锅",
+        "restaurantName": "成都你六姐",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "meat"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10038,
+        "dishName": "单人套餐",
+        "restaurantName": "必胜客",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": []
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-12T15:24:42.475Z"
+  },
+  {
+    "date": "2025-09-18",
+    "lunch": [
+      {
+        "dishId": 10006,
+        "dishName": "烧肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10007,
+        "dishName": "牛肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10012,
+        "dishName": "烤鸡套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10013,
+        "dishName": "糖醋里脊套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10014,
+        "dishName": "烤鱼套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-12T15:24:42.475Z"
+  },
+  {
+    "date": "2025-09-19",
+    "lunch": [
+      {
+        "dishId": 10008,
+        "dishName": "跷脚牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "辣"
+        ]
+      },
+      {
+        "dishId": 10009,
+        "dishName": "番茄招牌牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "特色"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10016,
+        "dishName": "披萨",
+        "restaurantName": "达美乐",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "放纵餐"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-12T15:24:42.476Z"
+  },
+  {
+    "date": "2025-09-20",
+    "lunch": [
+      {
+        "dishId": 10010,
+        "dishName": "油焖元宝虾套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10011,
+        "dishName": "红烧牛肉套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10002,
+        "dishName": "米饭套餐",
+        "restaurantName": "喜家德",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-12T15:24:42.476Z"
+  },
+  {
+    "id": 27,
+    "date": "2025-09-10",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-09T16:00:32.735Z",
+    "updatedAt": "2025-09-10T15:56:59.282Z"
+  },
+  {
+    "id": 28,
+    "date": "2025-09-10",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 1,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-09T16:00:32.737Z"
+  },
+  {
+    "id": 29,
+    "date": "2025-09-11",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 2,
+    "orderCount": 0,
+    "status": "closed",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-10T16:08:09.946Z"
+  },
+  {
+    "id": 30,
+    "date": "2025-09-11",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 1,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z"
+  },
+  {
+    "id": 31,
+    "date": "2025-09-12",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 2,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-11T16:44:35.963Z"
+  },
+  {
+    "id": 32,
+    "date": "2025-09-12",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 1,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-11T16:44:39.748Z"
+  },
+  {
+    "id": 33,
+    "date": "2025-09-13",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-10T16:32:38.964Z"
+  },
+  {
+    "id": 34,
+    "date": "2025-09-13",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-11T16:28:16.119Z"
+  },
+  {
+    "id": 35,
+    "date": "2025-09-14",
+    "mealType": "lunch",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-14T09:44:33.047Z"
+  },
+  {
+    "id": 36,
+    "date": "2025-09-14",
+    "mealType": "dinner",
+    "totalPeople": 0,
+    "noEatCount": 0,
+    "orderCount": 0,
+    "status": "open",
+    "createdAt": "2025-09-11T16:05:00.000Z",
+    "updatedAt": "2025-09-14T09:44:33.049Z"
+  },
+  {
+    "id": 37,
+    "date": "2025-09-15",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 1,
+    "orderCount": 24,
+    "status": "open",
+    "createdAt": "2025-09-13T16:26:30.595Z",
+    "updatedAt": "2025-09-14T16:01:41.548Z"
+  },
+  {
+    "id": 38,
+    "date": "2025-09-15",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 1,
+    "orderCount": 24,
+    "status": "open",
+    "createdAt": "2025-09-13T16:26:33.989Z",
+    "updatedAt": "2025-09-15T07:21:38.277Z"
+  },
+  {
+    "id": 39,
+    "date": "2024-01-01",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.598Z"
+  },
+  {
+    "id": 40,
+    "date": "2024-01-01",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.599Z"
+  },
+  {
+    "id": 41,
+    "date": "2025-09-08",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.601Z"
+  },
+  {
+    "id": 42,
+    "date": "2025-09-08",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.601Z"
+  },
+  {
+    "id": 43,
+    "date": "2025-09-07",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.604Z"
+  },
+  {
+    "id": 44,
+    "date": "2025-09-07",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.604Z"
+  },
+  {
+    "id": 45,
+    "date": "2025-09-16",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.605Z",
+    "updatedAt": "2025-09-14T10:26:46.837Z"
+  },
+  {
+    "id": 46,
+    "date": "2025-09-16",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.605Z"
+  },
+  {
+    "id": 47,
+    "date": "2025-09-17",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.607Z"
+  },
+  {
+    "id": 48,
+    "date": "2025-09-17",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.607Z"
+  },
+  {
+    "id": 49,
+    "date": "2025-09-18",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.608Z"
+  },
+  {
+    "id": 50,
+    "date": "2025-09-18",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.608Z"
+  },
+  {
+    "id": 51,
+    "date": "2025-09-19",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.608Z"
+  },
+  {
+    "id": 52,
+    "date": "2025-09-19",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "open",
+    "createdAt": "2025-09-14T09:33:08.609Z"
+  },
+  {
+    "id": 53,
+    "date": "2025-09-20",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "closed",
+    "createdAt": "2025-09-14T09:33:08.609Z",
+    "updatedAt": "2025-09-14T09:47:14.282Z"
+  },
+  {
+    "id": 54,
+    "date": "2025-09-20",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "closed",
+    "createdAt": "2025-09-14T09:33:08.610Z",
+    "updatedAt": "2025-09-14T09:47:14.841Z"
+  },
+  {
+    "id": 1757853359879.859,
+    "date": "2025-09-13",
+    "mealType": "lunch",
+    "restaurant": "桂满陇",
+    "dishes": [
+      {
+        "id": 10001,
+        "name": "套餐",
+        "imageUrl": "/images/default-dish.jpg",
+        "orders": [
+          {
+            "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+            "userName": "张雪岩",
+            "quantity": 1,
+            "isNoEat": false,
+            "createdAt": "2025-09-13T15:24:15.050Z"
+          }
+        ]
+      }
+    ],
+    "status": "closed",
+    "createdAt": "2025-09-13T15:24:15.050Z",
+    "openedAt": "2025-09-13T15:24:15.050Z",
+    "closedAt": "2025-09-13T15:24:15.050Z"
+  },
+  {
+    "id": 1757853359880.514,
+    "date": "2025-09-13",
+    "mealType": "dinner",
+    "restaurant": "鹅庄",
+    "dishes": [
+      {
+        "id": 20002,
+        "name": "套餐",
+        "imageUrl": "/images/default-dish.jpg",
+        "orders": [
+          {
+            "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+            "userName": "张雪岩",
+            "quantity": 1,
+            "isNoEat": false,
+            "createdAt": "2025-09-13T15:24:15.050Z"
+          }
+        ]
+      }
+    ],
+    "status": "closed",
+    "createdAt": "2025-09-13T15:24:15.050Z",
+    "openedAt": "2025-09-13T15:24:15.050Z",
+    "closedAt": "2025-09-13T15:24:15.050Z"
+  }
+]

@@ -1,18 +1,52 @@
+# Dependencies
 node_modules
 npm-debug.log
+
+# Git
 .git
 .gitignore
+
+# Documentation (减少镜像大小)
 README.md
+*.md
+install.md
+QUICK-START.md
+DEPLOYMENT.md
+
+# Environment files (除了生产环境配置)
 .env
 .env.local
 .env.development
 .env.test
+
+# Development files
 .nyc_output
 coverage
 .vscode
 .idea
+
+# Logs (容器中动态生成)
 *.log
 logs/*
+data/*
+
+# Backup files
 data_backup_*
+
+# OS files
 .DS_Store
 Thumbs.db
+
+# Deployment scripts (不需要在容器内)
+*.bat
+*.sh
+deploy*
+build-and-deploy.sh
+debug-server.sh
+
+# Docker files (避免递归包含)
+Dockerfile*
+docker-compose*.yml
+
+# Test files
+test-*.js

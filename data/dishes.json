@@ -1,0 +1,626 @@
+[
+  {
+    "id": 10002,
+    "name": "米饭套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 1,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": false,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "喜家德",
+    "updatedAt": "2025-09-12T15:20:14.367Z"
+  },
+  {
+    "id": 10003,
+    "name": "石锅拌饭",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 2,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "米村拌饭"
+  },
+  {
+    "id": 10004,
+    "name": "烤牛肉拌饭",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 2,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "米村拌饭"
+  },
+  {
+    "id": 10005,
+    "name": "TACO",
+    "description": "放纵餐",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 3,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "放纵餐"
+    ],
+    "status": "active",
+    "restaurantName": "TACO"
+  },
+  {
+    "id": 10006,
+    "name": "烧肉丼",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 4,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "食其家"
+  },
+  {
+    "id": 10007,
+    "name": "牛肉丼",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 4,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "食其家"
+  },
+  {
+    "id": 10008,
+    "name": "跷脚牛肉粉",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 5,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "辣"
+    ],
+    "status": "active",
+    "restaurantName": "小满手工粉"
+  },
+  {
+    "id": 10009,
+    "name": "番茄招牌牛肉粉",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 5,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色"
+    ],
+    "status": "active",
+    "restaurantName": "小满手工粉"
+  },
+  {
+    "id": 10010,
+    "name": "油焖元宝虾套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 6,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "顺风大酒店"
+  },
+  {
+    "id": 10011,
+    "name": "红烧牛肉套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 6,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "顺风大酒店"
+  },
+  {
+    "id": 10012,
+    "name": "烤鸡套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 7,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "绿茶餐厅"
+  },
+  {
+    "id": 10013,
+    "name": "糖醋里脊套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 7,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "绿茶餐厅"
+  },
+  {
+    "id": 10014,
+    "name": "烤鱼套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 7,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "绿茶餐厅"
+  },
+  {
+    "id": 10015,
+    "name": "烧菜随心配",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 8,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "谷田稻香"
+  },
+  {
+    "id": 10016,
+    "name": "披萨",
+    "description": "放纵餐",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 9,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "放纵餐"
+    ],
+    "status": "active",
+    "restaurantName": "达美乐"
+  },
+  {
+    "id": 10017,
+    "name": "自选菜套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 10,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "大米先生"
+  },
+  {
+    "id": 10018,
+    "name": "汉堡炸鸡薯条",
+    "description": "放纵餐",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 11,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "放纵餐"
+    ],
+    "status": "active",
+    "restaurantName": "麦当劳"
+  },
+  {
+    "id": 10019,
+    "name": "自选菜套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 12,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "老乡鸡"
+  },
+  {
+    "id": 10020,
+    "name": "火车头河粉",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 13,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "越南粉"
+  },
+  {
+    "id": 10021,
+    "name": "全牛肉河粉",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 13,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "越南粉",
+    "updatedAt": "2025-09-12T15:24:15.413Z"
+  },
+  {
+    "id": 10022,
+    "name": "汉堡炸鸡薯条",
+    "description": "放纵餐",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 14,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "放纵餐"
+    ],
+    "status": "active",
+    "restaurantName": "KFC"
+  },
+  {
+    "id": 10023,
+    "name": "黑椒西冷煎蛋饭",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 15,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "敏华冰厅"
+  },
+  {
+    "id": 10024,
+    "name": "黯然销魂饭",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 15,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "敏华冰厅"
+  },
+  {
+    "id": 10025,
+    "name": "招牌小锅米线",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 16,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色",
+      "辣"
+    ],
+    "status": "active",
+    "restaurantName": "肥汁米籣"
+  },
+  {
+    "id": 10026,
+    "name": "精选套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 17,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色"
+    ],
+    "status": "active",
+    "restaurantName": "眉州东坡"
+  },
+  {
+    "id": 10027,
+    "name": "海南鸡豪华套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 18,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色"
+    ],
+    "status": "active",
+    "restaurantName": "南星汇海南鸡"
+  },
+  {
+    "id": 10028,
+    "name": "肉骨茶套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 18,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色"
+    ],
+    "status": "active",
+    "restaurantName": "南星汇海南鸡"
+  },
+  {
+    "id": 10029,
+    "name": "帅龙小炒皇套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 19,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色"
+    ],
+    "status": "active",
+    "restaurantName": "潮界"
+  },
+  {
+    "id": 10030,
+    "name": "潮式牛腩土豆焖饭",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 19,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "特色"
+    ],
+    "status": "active",
+    "restaurantName": "潮界"
+  },
+  {
+    "id": 10031,
+    "name": "超满足套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 20,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "吉野家"
+  },
+  {
+    "id": 10032,
+    "name": "藤椒鸡套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 21,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜",
+      "辣"
+    ],
+    "status": "active",
+    "restaurantName": "老娘舅"
+  },
+  {
+    "id": 10033,
+    "name": "茶树菇老鸭套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 21,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "老娘舅"
+  },
+  {
+    "id": 10034,
+    "name": "咖喱牛肉饭",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 21,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [
+      "荤菜"
+    ],
+    "status": "active",
+    "restaurantName": "老娘舅"
+  },
+  {
+    "id": 10037,
+    "name": "牛油冒菜锅",
+    "description": "",
+    "category": "荤菜",
+    "price": 0,
+    "restaurantName": "成都你六姐",
+    "tags": [
+      "meat"
+    ],
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "active": true,
+    "status": "active",
+    "createdAt": "2025-09-08T16:37:21.815Z",
+    "updatedAt": "2025-09-08T16:41:18.709Z"
+  },
+  {
+    "id": 10038,
+    "name": "单人套餐",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 22,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [],
+    "status": "active",
+    "restaurantName": "必胜客",
+    "createdAt": "2025-09-12T14:45:35.352Z",
+    "updatedAt": "2025-09-12T15:24:18.676Z"
+  },
+  {
+    "id": 10039,
+    "name": "大盘鸡",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 23,
+    "imageUrl": "/uploads/submissions/submission-1757690211152-971718161.png",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": true,
+    "tags": [],
+    "status": "active",
+    "restaurantName": "耶里夏丽",
+    "createdAt": "2025-09-12T15:16:53.649Z",
+    "updatedAt": "2025-09-12T15:24:22.888Z"
+  }
+]
