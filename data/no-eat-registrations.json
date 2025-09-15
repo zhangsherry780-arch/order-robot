@@ -1,0 +1,166 @@
+[
+  {
+    "id": 1,
+    "mealType": "lunch",
+    "date": "2025-08-28",
+    "registeredAt": "2025-08-28T04:13:28.461Z"
+  },
+  {
+    "id": 3,
+    "mealType": "lunch",
+    "date": "2025-08-28",
+    "registeredAt": "2025-08-28T04:13:32.122Z"
+  },
+  {
+    "id": 4,
+    "mealType": "lunch",
+    "date": "2025-08-28",
+    "registeredAt": "2025-08-28T06:35:22.084Z"
+  },
+  {
+    "id": 5,
+    "mealType": "dinner",
+    "date": "2025-08-28",
+    "registeredAt": "2025-08-28T14:11:47.540Z"
+  },
+  {
+    "id": 6,
+    "mealType": "lunch",
+    "date": "2025-08-30",
+    "registeredAt": "2025-08-30T14:50:30.205Z"
+  },
+  {
+    "id": 7,
+    "mealType": "lunch",
+    "date": "2025-09-02",
+    "registeredAt": "2025-09-02T10:22:11.151Z"
+  },
+  {
+    "id": 8,
+    "mealType": "lunch",
+    "date": "2025-09-02",
+    "registeredAt": "2025-09-02T11:13:27.824Z"
+  },
+  {
+    "id": 9,
+    "mealType": "lunch",
+    "date": "2025-09-02",
+    "registeredAt": "2025-09-02T11:15:23.424Z"
+  },
+  {
+    "id": 10,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:24:30.480Z"
+  },
+  {
+    "id": 11,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:24:37.383Z"
+  },
+  {
+    "id": 12,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:24:41.631Z"
+  },
+  {
+    "id": 13,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:24:45.812Z"
+  },
+  {
+    "id": 14,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:24:49.427Z"
+  },
+  {
+    "id": 15,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:24:58.356Z"
+  },
+  {
+    "id": 16,
+    "mealType": "dinner",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:25:05.215Z"
+  },
+  {
+    "id": 17,
+    "mealType": "dinner",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:42:10.197Z"
+  },
+  {
+    "id": 18,
+    "mealType": "lunch",
+    "date": "2025-09-09",
+    "registeredAt": "2025-09-08T16:42:12.810Z"
+  },
+  {
+    "id": 19,
+    "mealType": "dinner",
+    "date": "2025-09-10",
+    "registeredAt": "2025-09-09T16:19:00.361Z"
+  },
+  {
+    "id": 20,
+    "mealType": "dinner",
+    "date": "2025-09-14",
+    "registeredAt": "2025-09-09T16:43:43.581Z"
+  },
+  {
+    "id": 21,
+    "mealType": "lunch",
+    "date": "2025-09-11",
+    "registeredAt": "2025-09-10T15:39:15.588Z"
+  },
+  {
+    "id": 22,
+    "mealType": "lunch",
+    "date": "2025-09-11",
+    "registeredAt": "2025-09-10T15:41:04.080Z"
+  },
+  {
+    "id": 23,
+    "mealType": "dinner",
+    "date": "2025-09-11",
+    "registeredAt": "2025-09-10T15:41:16.567Z"
+  },
+  {
+    "id": 24,
+    "mealType": "lunch",
+    "date": "2025-09-12",
+    "registeredAt": "2025-09-11T16:28:33.615Z"
+  },
+  {
+    "id": 25,
+    "mealType": "lunch",
+    "date": "2025-09-12",
+    "registeredAt": "2025-09-11T16:44:35.960Z"
+  },
+  {
+    "id": 26,
+    "mealType": "dinner",
+    "date": "2025-09-12",
+    "registeredAt": "2025-09-11T16:44:39.745Z"
+  },
+  {
+    "id": 27,
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "mealType": "lunch",
+    "date": "2025-09-15",
+    "registeredAt": "2025-09-14T16:01:41.545Z"
+  },
+  {
+    "id": 28,
+    "userId": "on_285bdf6fad75b9729ee1b79d04661c55",
+    "mealType": "dinner",
+    "date": "2025-09-15",
+    "registeredAt": "2025-09-15T07:21:38.276Z"
+  }
+]

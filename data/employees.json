@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "张三",
+    "department": "技术部",
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "李四",
+    "department": "产品部",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "王五",
+    "department": "设计部",
+    "active": true
+  },
+  {
+    "id": 4,
+    "name": "赵六",
+    "department": "运营部",
+    "active": true
+  },
+  {
+    "id": 5,
+    "name": "钱七",
+    "department": "市场部",
+    "active": true
+  }
+]

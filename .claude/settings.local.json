@@ -16,7 +16,14 @@
       "Bash(timeout:*)",
       "Bash(start http://localhost:3000)",
       "Bash(start http://localhost:3000/user-dashboard.html)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "Bash(chmod:*)",
+      "Bash(rm:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist:*)",
+      "Bash(jq:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

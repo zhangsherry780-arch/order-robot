@@ -1,0 +1,125 @@
+[
+  {
+    "id": 1,
+    "employeeName": "�����û�",
+    "dishId": 19,
+    "date": "2025-08-28",
+    "mealType": "lunch",
+    "rating": 5,
+    "comment": "��������",
+    "createdAt": "2025-08-28T14:18:56.602Z"
+  },
+  {
+    "id": 2,
+    "employeeName": "sherry",
+    "dishId": 19,
+    "date": "2025-08-28",
+    "mealType": "lunch",
+    "rating": 5,
+    "comment": "",
+    "createdAt": "2025-08-28T15:21:09.966Z"
+  },
+  {
+    "id": 3,
+    "employeeName": "sherry",
+    "dishId": 1,
+    "date": "2025-08-28",
+    "mealType": "lunch",
+    "rating": 5,
+    "comment": "",
+    "createdAt": "2025-08-28T15:35:59.439Z",
+    "updatedAt": "2025-08-28T15:45:19.818Z"
+  },
+  {
+    "id": 4,
+    "employeeName": "sherry",
+    "dishId": 1,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "rating": 1,
+    "comment": "",
+    "createdAt": "2025-08-28T16:32:27.301Z",
+    "updatedAt": "2025-08-28T16:32:39.553Z"
+  },
+  {
+    "id": 5,
+    "employeeName": "Test User",
+    "dishId": 10001,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "rating": 4,
+    "comment": "�����������",
+    "createdAt": "2025-08-29T09:12:14.143Z"
+  },
+  {
+    "id": 6,
+    "employeeName": "Test User 2",
+    "dishId": 20002,
+    "date": "2025-08-29",
+    "mealType": "dinner",
+    "rating": 5,
+    "comment": "������������",
+    "createdAt": "2025-08-29T09:12:22.517Z"
+  },
+  {
+    "id": 7,
+    "employeeName": "sherry",
+    "dishId": 10001,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "rating": 2,
+    "comment": "�ٴγ��ԣ����ǲ�̫�ó�",
+    "createdAt": "2025-08-29T09:14:59.965Z",
+    "updatedAt": "2025-08-29T09:26:45.325Z"
+  },
+  {
+    "id": 8,
+    "employeeName": "sherry",
+    "dishId": 20002,
+    "date": "2025-08-29",
+    "mealType": "dinner",
+    "rating": 1,
+    "comment": "",
+    "createdAt": "2025-08-29T09:15:08.449Z"
+  },
+  {
+    "id": 9,
+    "employeeName": "Bridget",
+    "dishId": 10001,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "rating": 5,
+    "comment": "下次多点这个",
+    "createdAt": "2025-08-29T09:24:15.446Z"
+  },
+  {
+    "id": 10,
+    "employeeName": "sherry",
+    "dishId": 10001,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "rating": 1,
+    "comment": "���������ۣ�ȷʵ�ѳ�",
+    "createdAt": "2025-08-29T09:27:19.371Z"
+  },
+  {
+    "id": 11,
+    "employeeName": "sherry",
+    "dishId": 10001,
+    "date": "2025-08-29",
+    "mealType": "lunch",
+    "rating": 5,
+    "comment": "爱吃多点",
+    "createdAt": "2025-08-29T09:28:27.867Z"
+  },
+  {
+    "id": 12,
+    "employeeName": "sherry",
+    "dishId": 20010,
+    "date": "2025-08-29",
+    "mealType": "dinner",
+    "rating": 5,
+    "comment": "Nice！",
+    "createdAt": "2025-08-29T09:36:27.777Z"
+  }
+]

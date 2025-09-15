@@ -270,16 +270,141 @@ tar -czf "backup_${DATE}.tar.gz" data/
 # 可配置到cron定期执行
 ```
 
-### Docker部署(可选)
-```dockerfile
-FROM node:16
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
+### Docker离线部署
+
+适用于服务器无网络环境，通过Docker容器提供运行环境，只需同步修改的代码文件。
+
+#### 🔧 部署流程
+
+**1. 联网环境构建镜像**
+```bash
+# 在开发机上构建Docker镜像
+./build-docker.sh v1.0.6
+
+# 生成文件: order-robot-v1.0.6.tar.gz
 ```
+
+**2. 上传文件到离线服务器**
+```bash
+# 自动同步所有必需文件（已配置服务器信息）
+./sync-files.sh
+
+# 或手动上传以下文件：
+# - order-robot-v1.0.6.tar.gz (Docker镜像)
+# - docker-compose.yml (容器编排)
+# - deploy-offline.sh (部署脚本)
+# - server.js, config/, public/, database/, scripts/, data/
+# - .env.production, ecosystem.config.js, feishu-config.js
+```
+
+**3. 离线服务器部署**
+```bash
+# 一键部署（自动加载镜像、更新latest标签、清理旧镜像）
+./deploy-offline.sh v1.0.6
+
+# 服务自动启动在: http://localhost:3000
+```
+
+#### 📁 文件挂载说明
+
+Docker容器通过文件挂载实现代码热更新：
+
+```yaml
+volumes:
+  # 只读挂载 - 代码文件（支持热更新）
+  - ./server.js:/app/server.js:ro
+  - ./config:/app/config:ro
+  - ./public:/app/public:ro
+  - ./database:/app/database:ro
+  - ./scripts:/app/scripts:ro
+  - ./feishu-config.js:/app/feishu-config.js:ro
+  - ./.env.production:/app/.env.production:ro
+  - ./ecosystem.config.js:/app/ecosystem.config.js:ro
+
+  # 读写挂载 - 数据目录
+  - ./data:/app/data
+  - ./logs:/app/logs
+```
+
+#### 🔄 日常更新流程
+
+**方式1: 自动同步脚本**
+```bash
+# 修改代码后，一键同步到服务器并重启服务
+./sync-files.sh
+```
+
+**方式2: 手动更新**
+```bash
+# 1. 上传修改的文件到服务器
+scp server.js root@192.168.1.100:/opt/order-robot/
+
+# 2. 重启容器生效
+docker-compose restart order-robot
+```
+
+#### 🛠️ 管理命令
+
+```bash
+# 查看服务状态
+docker-compose ps
+
+# 查看实时日志
+docker-compose logs -f order-robot
+
+# 重启服务
+docker-compose restart order-robot
+
+# 停止服务
+docker-compose down
+
+# 启动服务
+docker-compose up -d
+
+# 进入容器调试
+docker-compose exec order-robot sh
+```
+
+#### 🔍 故障排查
+
+```bash
+# 查看容器详细信息
+docker inspect order-robot
+
+# 查看镜像列表
+docker images order-robot
+
+# 手动运行容器调试
+docker run -it --rm order-robot:latest sh
+
+# 检查文件权限
+ls -la server.js config/ public/
+```
+
+#### ⚡ 性能优化
+
+- **镜像优化**: 基于Alpine Linux，镜像大小约220MB
+- **依赖缓存**: 分层构建，依赖变化时无需重新安装
+- **热更新**: 代码文件挂载，修改即时生效
+- **自动清理**: 部署时自动清理旧版本镜像
+- **健康检查**: 内置服务健康检查机制
+
+#### 📦 部署架构
+
+```
+开发机(联网) -> 构建Docker镜像 -> 导出tar.gz
+     ↓
+离线服务器 -> 加载镜像 -> 启动容器 -> 挂载代码文件
+     ↓
+日常更新 -> 只传输代码文件 -> 容器自动重启
+```
+
+**优势：**
+- ✅ 环境一致性 - Docker容器统一运行环境
+- ✅ 快速部署 - 一键脚本自动化部署
+- ✅ 增量更新 - 日常只需传输修改文件
+- ✅ 版本管理 - 支持版本回滚和管理
+- ✅ 自动维护 - 自动清理旧镜像节省空间
 
 ## 🛠️ 开发说明
 

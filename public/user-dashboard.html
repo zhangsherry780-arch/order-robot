@@ -791,15 +791,18 @@
                                 
                                 <!-- 不吃选择 -->
                                 <div class="no-eat-section">
-                                    <p style="margin-bottom: 15px; color: #666;">如果中餐不吃，请点击下方按钮登记：</p>
-                                    <el-button 
+                                    <p style="margin-bottom: 15px; color: #666;">
+                                        <span v-if="userPreferences.lunch === 'eat'">如果中餐不吃，请点击下方按钮登记：</span>
+                                        <span v-else>已登记中餐不吃，点击下方按钮可取消：</span>
+                                    </p>
+                                    <el-button
                                         :type="userPreferences.lunch === 'no-eat' ? 'warning' : 'default'"
                                         @click="toggleMealPreference('lunch')"
                                         :disabled="!canModifyLunch">
-                                        {{ userPreferences.lunch === 'no-eat' ? '不吃中餐' : '登记不吃' }}
+                                        {{ userPreferences.lunch === 'no-eat' ? '取消登记' : '登记不吃' }}
                                     </el-button>
                                     <div style="margin-top: 10px; font-size: 12px; color: #999;">
-                                        <span v-if="canModifyLunch">可修改时间：11:00前</span>
+                                        <span v-if="canModifyLunch">可修改时间：11:10前</span>
                                         <span v-else style="color: #f56c6c;">修改时间已截止</span>
                                     </div>
                                 </div>
@@ -839,15 +842,18 @@
                                 
                                 <!-- 不吃选择 -->
                                 <div class="no-eat-section">
-                                    <p style="margin-bottom: 15px; color: #666;">如果晚餐不吃，请点击下方按钮登记：</p>
-                                    <el-button 
+                                    <p style="margin-bottom: 15px; color: #666;">
+                                        <span v-if="userPreferences.dinner === 'eat'">如果晚餐不吃，请点击下方按钮登记：</span>
+                                        <span v-else>已登记晚餐不吃，点击下方按钮可取消：</span>
+                                    </p>
+                                    <el-button
                                         :type="userPreferences.dinner === 'no-eat' ? 'warning' : 'default'"
                                         @click="toggleMealPreference('dinner')"
                                         :disabled="!canModifyDinner">
-                                        {{ userPreferences.dinner === 'no-eat' ? '不吃晚餐' : '登记不吃' }}
+                                        {{ userPreferences.dinner === 'no-eat' ? '取消登记' : '登记不吃' }}
                                     </el-button>
                                     <div style="margin-top: 10px; font-size: 12px; color: #999;">
-                                        <span v-if="canModifyDinner">可修改时间：17:00前</span>
+                                        <span v-if="canModifyDinner">可修改时间：17:10前</span>
                                         <span v-else style="color: #f56c6c;">修改时间已截止</span>
                                     </div>
                                 </div>
@@ -903,7 +909,7 @@
                                                     :type="getFutureMealStatus(dayIndex, 'lunch') === 'no-eat' ? 'warning' : 'default'"
                                                     @click="setFutureMealPreference(dayIndex, 'lunch')"
                                                     :disabled="!canModifyMeal(dayIndex, 'lunch')">
-                                                    {{ getFutureMealStatus(dayIndex, 'lunch') === 'no-eat' ? '不吃中餐' : '登记不吃' }}
+                                                    {{ getFutureMealStatus(dayIndex, 'lunch') === 'no-eat' ? '取消登记' : '登记不吃' }}
                                                 </el-button>
                                             </div>
                                         </div>
@@ -941,7 +947,7 @@
                                                     :type="getFutureMealStatus(dayIndex, 'dinner') === 'no-eat' ? 'warning' : 'default'"
                                                     @click="setFutureMealPreference(dayIndex, 'dinner')"
                                                     :disabled="!canModifyMeal(dayIndex, 'dinner')">
-                                                    {{ getFutureMealStatus(dayIndex, 'dinner') === 'no-eat' ? '不吃晚餐' : '登记不吃' }}
+                                                    {{ getFutureMealStatus(dayIndex, 'dinner') === 'no-eat' ? '取消登记' : '登记不吃' }}
                                                 </el-button>
                                             </div>
                                         </div>
@@ -994,7 +1000,7 @@
                         <div class="page-header">
                             <h3>⭐ 餐厅评价</h3>
                             <div class="header-actions">
-                                <el-button type="primary" @click="showRatingDialog = true">
+                                <el-button type="primary" @click="rateDish()">
                                     ⭐ 新增评价
                                 </el-button>
                                 <el-select v-model="ratingSortBy" @change="loadRatings" style="width: 150px; margin-left: 10px;">
@@ -1025,13 +1031,23 @@
                                     <p>{{ rating.comment }}</p>
                                 </div>
                                 <div class="rating-actions">
-                                    <el-button 
-                                        :type="rating.userLiked ? 'primary' : 'default'" 
-                                        size="small" 
+                                    <el-button
+                                        :type="rating.userLiked ? 'primary' : 'default'"
+                                        size="small"
                                         @click="toggleLike(rating)"
                                         :loading="rating.likeLoading"
                                     >
                                         👍 {{ rating.likesCount || 0 }}
+                                    </el-button>
+                                    <!-- 只对自己的评价显示删除按钮 -->
+                                    <el-button
+                                        v-if="rating.userId === currentUser?.id"
+                                        type="danger"
+                                        size="small"
+                                        @click="deleteMyRating(rating)"
+                                        :loading="rating.deleteLoading"
+                                    >
+                                        🗑️ 删除
                                     </el-button>
                                 </div>
                             </div>
@@ -1323,7 +1339,7 @@
             computed: {
                 isWorkday() {
                     const today = new Date().getDay();
-                    return today !== 6 && today !== 0;
+                    return today !== 6; // 周日到周五都是工作日，只有周六不是
                 },
                 canModifyLunch() {
                     const now = new Date();
@@ -1334,16 +1350,27 @@
                     return this.isWorkday && now.getHours() < 17;
                 }
             },
-            mounted() {
+            async mounted() {
                 this.loadTodayMenu();
                 this.loadUserPreferences();
-                this.checkUserStatus();
-                
+                await this.checkUserStatus();
+                await this.loadUserMealPreferences();
+                await this.loadWeeklyMealPreferences();
+
                 // 检查URL参数确定当前页面
                 const urlParams = new URLSearchParams(window.location.search);
                 const page = urlParams.get('page');
                 if (page && ['order', 'history', 'rating', 'suggestion'].includes(page)) {
                     this.currentPage = page;
+
+                    // 根据页面加载相应数据
+                    if (page === 'suggestion') {
+                        this.loadSubmissions();
+                    }
+                    if (page === 'rating') {
+                        this.loadRatings();
+                        this.loadRatableDishes();
+                    }
                 }
             },
             methods: {
@@ -1407,9 +1434,9 @@
                     try {
                         const response = await fetch('/api/auth/user');
                         const result = await response.json();
-                        
+
                         if (result.success) {
-                            this.user = {
+                            this.currentUser = {
                                 isLoggedIn: true,
                                 id: result.data.id,
                                 name: result.data.name,
@@ -1421,7 +1448,93 @@
                         console.error('检查用户状态失败:', error);
                     }
                 },
-                
+
+                async loadUserMealPreferences() {
+                    if (!this.user.isLoggedIn) {
+                        console.log('用户未登录，跳过加载餐次偏好');
+                        return;
+                    }
+
+                    console.log('加载用户餐次偏好...');
+
+                    const today = new Date();
+                    const dateStr = today.getFullYear() + '-' +
+                                   String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                                   String(today.getDate()).padStart(2, '0');
+
+                    console.log('检查日期:', dateStr);
+
+                    try {
+                        // 检查午餐状态
+                        const lunchResponse = await fetch(`/api/no-eat/status?mealType=lunch&date=${dateStr}`);
+                        const lunchResult = await lunchResponse.json();
+
+                        if (lunchResult.success) {
+                            this.userPreferences.lunch = lunchResult.data.registered ? 'no-eat' : 'eat';
+                            console.log('午餐状态:', lunchResult.data.registered ? '已登记不吃' : '吃饭');
+                        }
+
+                        // 检查晚餐状态
+                        const dinnerResponse = await fetch(`/api/no-eat/status?mealType=dinner&date=${dateStr}`);
+                        const dinnerResult = await dinnerResponse.json();
+
+                        if (dinnerResult.success) {
+                            this.userPreferences.dinner = dinnerResult.data.registered ? 'no-eat' : 'eat';
+                            console.log('晚餐状态:', dinnerResult.data.registered ? '已登记不吃' : '吃饭');
+                        }
+
+                        console.log('最终用户偏好:', this.userPreferences);
+                    } catch (error) {
+                        console.error('加载用户餐次偏好失败:', error);
+                        // 如果API调用失败，回退到本地存储
+                        const stored = localStorage.getItem('userMealPreferences');
+                        if (stored) {
+                            this.userPreferences = JSON.parse(stored);
+                        }
+                    }
+                },
+
+                async loadWeeklyMealPreferences() {
+                    if (!this.user.isLoggedIn) {
+                        return;
+                    }
+
+                    try {
+                        // 获取本周的日期范围
+                        const today = new Date();
+                        const startOfWeek = new Date(today);
+                        const day = today.getDay();
+                        const diff = today.getDate() - day; // 调整为周日开始
+                        startOfWeek.setDate(diff);
+
+                        // 检查本周每一天的状态
+                        for (let i = 0; i < 7; i++) {
+                            const date = new Date(startOfWeek);
+                            date.setDate(startOfWeek.getDate() + i);
+                            const dateStr = date.getFullYear() + '-' +
+                                           String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                                           String(date.getDate()).padStart(2, '0');
+
+                            // 检查午餐和晚餐状态
+                            for (const mealType of ['lunch', 'dinner']) {
+                                try {
+                                    const response = await fetch(`/api/no-eat/status?mealType=${mealType}&date=${dateStr}`);
+                                    const result = await response.json();
+
+                                    if (result.success) {
+                                        const key = `${i}-${mealType}`;
+                                        this.futureMealPreferences[key] = result.data.registered ? 'no-eat' : 'eat';
+                                    }
+                                } catch (error) {
+                                    console.error(`检查${dateStr}的${mealType}状态失败:`, error);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('加载本周餐次偏好失败:', error);
+                    }
+                },
+
                 async toggleMealPreference(mealType) {
                     if (mealType === 'lunch' && !this.canModifyLunch) {
                         ElMessage.warning('午餐修改时间已截止');
@@ -1432,17 +1545,55 @@
                         return;
                     }
 
+                    const today = new Date();
+                    const dateStr = today.getFullYear() + '-' +
+                                   String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                                   String(today.getDate()).padStart(2, '0');
+
                     try {
                         if (this.userPreferences[mealType] === 'eat') {
-                            await this.registerNoEat(mealType);
-                            this.userPreferences[mealType] = 'no-eat';
+                            // 登记不吃
+                            const response = await fetch('/api/no-eat/register', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.userPreferences[mealType] = 'no-eat';
+                                ElMessage.success(`已登记${mealType === 'lunch' ? '中餐' : '晚餐'}不吃`);
+                                // 重新加载状态确保界面更新
+                                await this.loadUserMealPreferences();
+                            } else {
+                                ElMessage.error(result.message || '登记失败');
+                            }
                         } else {
-                            this.userPreferences[mealType] = 'eat';
-                            ElMessage.success(`已设置${mealType === 'lunch' ? '中餐' : '晚餐'}吃饭`);
+                            // 取消登记不吃
+                            const response = await fetch('/api/no-eat/register', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.userPreferences[mealType] = 'eat';
+                                ElMessage.success(`已设置${mealType === 'lunch' ? '中餐' : '晚餐'}吃饭`);
+                                // 重新加载状态确保界面更新
+                                await this.loadUserMealPreferences();
+                            } else {
+                                ElMessage.error(result.message || '取消登记失败');
+                            }
                         }
-                        
-                        localStorage.setItem('userMealPreferences', JSON.stringify(this.userPreferences));
                     } catch (error) {
+                        console.error('操作失败:', error);
                         ElMessage.error('操作失败，请重试');
                     }
                 },
@@ -1710,9 +1861,24 @@
                             }
                         } else {
                             // 切换到吃饭（取消不吃）
-                            this.futureMealPreferences[key] = 'eat';
-                            ElMessage.success(`已设置${this.getDayName(dayIndex)}${mealType === 'lunch' ? '中餐' : '晚餐'}吃饭`);
-                            // TODO: 调用取消不吃的API
+                            const response = await fetch('/api/no-eat/register', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.futureMealPreferences[key] = 'eat';
+                                ElMessage.success(`已取消${this.getDayName(dayIndex)}${mealType === 'lunch' ? '中餐' : '晚餐'}不吃登记`);
+                                // 重新加载状态以确保界面更新
+                                await this.loadWeeklyMealPreferences();
+                            } else {
+                                ElMessage.error(result.message || '取消登记失败');
+                            }
                         }
                     } catch (error) {
                         ElMessage.error('操作失败，请重试');
@@ -1896,6 +2062,18 @@
                     this.newSubmission.imageUrl = '';
                 },
                 
+                formatDate(dateTime) {
+                    if (!dateTime) return '';
+                    const date = new Date(dateTime);
+                    return date.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+
                 formatDateTime(dateTime) {
                     if (!dateTime) return '';
                     const date = new Date(dateTime);
@@ -1911,7 +2089,7 @@
                 // 评价系统相关方法
                 async loadRatableDishes() {
                     try {
-                        const response = await fetch(`/api/ratings/ratable-dishes?userId=${this.currentUser.id}`);
+                        const response = await fetch('/api/ratings/ratable-dishes');
                         const result = await response.json();
                         if (result.success) {
                             this.ratableDishes = result.data;
@@ -1995,10 +2173,9 @@
                             body: JSON.stringify({
                                 dishId: this.selectedDish.id,
                                 dishName: this.selectedDish.name,
+                                restaurant: this.selectedDish.restaurant,
                                 rating: this.dialogRating,
-                                comment: this.dialogComment.trim(),
-                                userId: this.currentUser.id,
-                                userName: this.currentUser.name
+                                comment: this.dialogComment.trim()
                             })
                         });
                         
@@ -2027,8 +2204,7 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                ratingId: rating.id,
-                                userId: this.currentUser.id
+                                ratingId: rating.id
                             })
                         });
                         
@@ -2047,7 +2223,46 @@
                         ElMessage.error('操作失败，请重试');
                     }
                 },
-                
+
+                async deleteMyRating(rating) {
+                    try {
+                        await this.$confirm('确定要删除这条评价吗？删除后无法恢复。', '确认删除', {
+                            confirmButtonText: '确定删除',
+                            cancelButtonText: '取消',
+                            type: 'warning',
+                        });
+
+                        rating.deleteLoading = true;
+                        const response = await fetch(`/api/ratings/${rating.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success('评价删除成功');
+                            // 从列表中移除该评价
+                            const index = this.ratings.findIndex(r => r.id === rating.id);
+                            if (index > -1) {
+                                this.ratings.splice(index, 1);
+                            }
+                        } else {
+                            ElMessage.error(result.message || '删除失败');
+                        }
+                    } catch (error) {
+                        if (error === 'cancel') {
+                            // 用户取消删除
+                            return;
+                        }
+                        console.error('删除评价失败:', error);
+                        ElMessage.error('删除失败，请重试');
+                    } finally {
+                        rating.deleteLoading = false;
+                    }
+                },
+
                 setDishHover(dish, hover) {
                     this.hoverDish = hover ? dish : null;
                 }

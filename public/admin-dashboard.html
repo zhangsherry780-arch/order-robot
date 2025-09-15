@@ -513,11 +513,18 @@
                         <span class="text">菜品评价记录</span>
                     </div>
                     
-                    <div class="nav-item" 
+                    <div class="nav-item"
                          :class="{ active: currentPage === 'users' }"
                          @click="switchPage('users')">
                         <span class="icon">👥</span>
                         <span class="text">用户管理</span>
+                    </div>
+
+                    <div class="nav-item"
+                         :class="{ active: currentPage === 'settings' }"
+                         @click="switchPage('settings')">
+                        <span class="icon">⚙️</span>
+                        <span class="text">系统设置</span>
                     </div>
                     
                 </div>
@@ -1446,6 +1453,9 @@
                                     <el-button type="primary" @click="showAddEmployeeDialog">
                                         ➕ 添加员工
                                     </el-button>
+                                    <el-button type="warning" @click="populateHistoricalOrders" :loading="populatingOrders">
+                                        🔄 补充历史点餐
+                                    </el-button>
                                     <el-button type="success" @click="exportUserData">
                                         📥 导出用户数据
                                     </el-button>
@@ -1506,9 +1516,131 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <!-- 系统设置页面 -->
+                    <div v-if="currentPage === 'settings'">
+                        <!-- 统计卡片 -->
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ systemConfig.totalEmployees }}</div>
+                                <div class="stat-label">当前总人数</div>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);">
+                                <div class="stat-number">{{ cronTasksCount }}</div>
+                                <div class="stat-label">定时任务数量</div>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <div class="stat-number">{{ systemConfig.lunchPushTime }}</div>
+                                <div class="stat-label">午餐推送时间</div>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                                <div class="stat-number">{{ systemConfig.dinnerPushTime }}</div>
+                                <div class="stat-label">晚餐推送时间</div>
+                            </div>
+                        </div>
+
+                        <div class="page-content">
+                            <h3>⚙️ 系统设置</h3>
+
+                            <!-- 基础设置 -->
+                            <el-card style="margin-bottom: 20px;">
+                                <template #header>
+                                    <h4 style="margin: 0;">👥 基础配置</h4>
+                                </template>
+                                <el-form label-width="150px">
+                                    <el-form-item label="员工总人数:">
+                                        <el-input-number
+                                            v-model="systemConfig.totalEmployees"
+                                            :min="1"
+                                            :max="1000"
+                                            @change="updateSettings">
+                                        </el-input-number>
+                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">设置公司员工总数</span>
+                                    </el-form-item>
+                                </el-form>
+                            </el-card>
+
+                            <!-- 时间设置 -->
+                            <el-card style="margin-bottom: 20px;">
+                                <template #header>
+                                    <h4 style="margin: 0;">⏰ 定时任务时间配置</h4>
+                                </template>
+                                <el-form label-width="150px">
+                                    <el-form-item label="午餐开放时间:">
+                                        <el-time-picker
+                                            v-model="lunchOpenTimeObj"
+                                            format="HH:mm"
+                                            value-format="HH:mm"
+                                            placeholder="选择午餐开放时间"
+                                            @change="updateLunchOpenTime"
+                                            style="width: 200px">
+                                        </el-time-picker>
+                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">每天开放午餐不吃登记的时间</span>
+                                    </el-form-item>
+
+                                    <el-form-item label="晚餐开放时间:">
+                                        <el-time-picker
+                                            v-model="dinnerOpenTimeObj"
+                                            format="HH:mm"
+                                            value-format="HH:mm"
+                                            placeholder="选择晚餐开放时间"
+                                            @change="updateDinnerOpenTime"
+                                            style="width: 200px">
+                                        </el-time-picker>
+                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">每天开放晚餐不吃登记的时间</span>
+                                    </el-form-item>
+
+                                    <el-form-item label="午餐推送时间:">
+                                        <el-time-picker
+                                            v-model="lunchPushTimeObj"
+                                            format="HH:mm"
+                                            value-format="HH:mm"
+                                            placeholder="选择午餐推送时间"
+                                            @change="updateLunchPushTime"
+                                            style="width: 200px">
+                                        </el-time-picker>
+                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">每天推送午餐菜单到飞书群的时间</span>
+                                    </el-form-item>
+
+                                    <el-form-item label="晚餐推送时间:">
+                                        <el-time-picker
+                                            v-model="dinnerPushTimeObj"
+                                            format="HH:mm"
+                                            value-format="HH:mm"
+                                            placeholder="选择晚餐推送时间"
+                                            @change="updateDinnerPushTime"
+                                            style="width: 200px">
+                                        </el-time-picker>
+                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">每天推送晚餐菜单到飞书群的时间</span>
+                                    </el-form-item>
+                                </el-form>
+                            </el-card>
+
+                            <!-- 手动操作 -->
+                            <el-card>
+                                <template #header>
+                                    <h4 style="margin: 0;">🚀 快速操作</h4>
+                                </template>
+                                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                    <el-button type="primary" @click="testLunchPush" :loading="testingPush">
+                                        测试午餐推送
+                                    </el-button>
+                                    <el-button type="warning" @click="testDinnerPush" :loading="testingPush">
+                                        测试晚餐推送
+                                    </el-button>
+                                    <el-button type="success" @click="reloadCronJobs" :loading="reloadingCron">
+                                        重载定时任务
+                                    </el-button>
+                                    <el-button type="info" @click="showCurrentSettings">
+                                        查看当前配置
+                                    </el-button>
+                                </div>
+                            </el-card>
+                        </div>
+                    </div>
+
                 </div>
-                
+
                 <!-- 设置用户角色对话框 -->
                 <el-dialog 
                     title="设置用户角色" 
@@ -1533,13 +1665,13 @@
                         <div style="margin-bottom: 20px;">
                             <strong>选择新角色：</strong>
                             <el-radio-group v-model="newUserRole" style="margin-top: 10px;">
-                                <el-radio value="user">
+                                <el-radio label="user">
                                     <div style="display: flex; flex-direction: column; margin-left: 10px;">
                                         <span style="font-weight: bold;">普通用户</span>
                                         <span style="color: #666; font-size: 12px;">仅能访问用户中心页面，拥有点餐、评价和投稿功能</span>
                                     </div>
                                 </el-radio>
-                                <el-radio value="admin" style="margin-top: 15px;">
+                                <el-radio label="admin" style="margin-top: 15px;">
                                     <div style="display: flex; flex-direction: column; margin-left: 10px;">
                                         <span style="font-weight: bold;">管理员</span>
                                         <span style="color: #666; font-size: 12px;">拥有管理员页面和用户页面的查看编辑权限</span>
@@ -1718,6 +1850,7 @@
                     totalUsers: 0,
                     totalEmployees: 0,
                     activeUsersToday: 0,
+                    populatingOrders: false,
                     
                     // 用户角色管理相关数据
                     showRoleDialog: false,
@@ -1732,9 +1865,24 @@
                             dinner: 45
                         },
                         totalEmployees: 100,
+                        lunchOpenTime: '10:00',
+                        dinnerOpenTime: '16:00',
+                        lunchPushTime: '11:00',
+                        dinnerPushTime: '17:00',
                         createdAt: null,
                         updatedAt: null
-                    }
+                    },
+
+                    // 时间选择器对象
+                    lunchOpenTimeObj: null,
+                    dinnerOpenTimeObj: null,
+                    lunchPushTimeObj: null,
+                    dinnerPushTimeObj: null,
+
+                    // 操作状态
+                    testingPush: false,
+                    reloadingCron: false,
+                    cronTasksCount: 4
                 };
             },
             computed: {
@@ -1761,9 +1909,14 @@
                     this.currentPage = page;
                 }
                 
-                // 如果是点餐记录页面，加载设置数据
+                // 根据当前页面加载对应数据
                 if (this.currentPage === 'orders') {
                     this.loadSettings();
+                    this.loadOrdersData();
+                } else if (this.currentPage === 'ratings') {
+                    this.loadRatingsData();
+                } else if (this.currentPage === 'users') {
+                    this.loadUsersData();
                 }
             },
             methods: {
@@ -1783,6 +1936,8 @@
                         this.loadRatingsData();
                     } else if (page === 'users') {
                         this.loadUsersData();
+                    } else if (page === 'settings') {
+                        this.loadSettings();
                     }
                 },
                 
@@ -3062,7 +3217,10 @@
                     
                     // 计算今日评价数
                     const today = new Date().toISOString().split('T')[0];
-                    this.todayRatings = this.ratingsData.filter(rating => rating.date === today).length;
+                    this.todayRatings = this.ratingsData.filter(rating => {
+                        const ratingDate = new Date(rating.createdAt || rating.timestamp);
+                        return ratingDate.toISOString().split('T')[0] === today;
+                    }).length;
                     
                     // 计算总体平均评分
                     if (this.ratingsData.length > 0) {
@@ -3152,6 +3310,36 @@
                 showAddEmployeeDialog() {
                     ElMessage.info('添加员工功能开发中');
                     // TODO: 实现添加员工弹窗
+                },
+
+                async populateHistoricalOrders() {
+                    this.populatingOrders = true;
+                    try {
+                        const response = await fetch('/api/admin/populate-historical-orders', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const result = await response.json();
+                        if (result.success) {
+                            ElMessage.success(result.message);
+                            ElNotification({
+                                title: '历史点餐记录补充完成',
+                                message: `成功为现有用户补充了 ${result.addedOrdersCount} 条历史点餐记录。用户现在可以对从注册日期开始、没有登记"不吃"的餐次进行评价。`,
+                                type: 'success',
+                                duration: 8000
+                            });
+                        } else {
+                            ElMessage.error(result.message || '补充失败');
+                        }
+                    } catch (error) {
+                        console.error('补充历史点餐记录失败:', error);
+                        ElMessage.error('补充失败，请重试');
+                    } finally {
+                        this.populatingOrders = false;
+                    }
                 },
                 
                 exportUserData() {
@@ -3301,8 +3489,18 @@
                         const result = await response.json();
                         
                         if (result.success) {
-                            if (result.data && typeof result.data.totalEmployees !== 'undefined') {
-                                this.systemConfig.totalEmployees = result.data.totalEmployees;
+                            if (result.data) {
+                                // 更新系统配置
+                                this.systemConfig = {
+                                    ...this.systemConfig,
+                                    ...result.data
+                                };
+
+                                // 初始化时间选择器
+                                this.lunchOpenTimeObj = result.data.lunchOpenTime || '10:00';
+                                this.dinnerOpenTimeObj = result.data.dinnerOpenTime || '16:00';
+                                this.lunchPushTimeObj = result.data.lunchPushTime || '11:00';
+                                this.dinnerPushTimeObj = result.data.dinnerPushTime || '17:00';
                             }
                         }
                     } catch (error) {
@@ -3394,7 +3592,7 @@
                     // 应用分页
                     const start = (this.ratingCurrentPage - 1) * this.ratingPageSize;
                     const end = start + this.ratingPageSize;
-                    this.filteredRatings = filtered.slice(start, end);
+                    this.filteredRatingsData = filtered.slice(start, end);
                 },
 
                 // 关键词搜索
@@ -3527,11 +3725,180 @@
                         ElMessage.error('更新失败');
                     }
                 },
-                
+
+                // =================== 系统设置相关方法 ===================
+
+                // 通用设置更新方法
+                async updateSettings(settingsObject = null) {
+                    try {
+                        const updateData = settingsObject || {
+                            totalEmployees: this.systemConfig.totalEmployees
+                        };
+
+                        const response = await fetch('/api/admin/settings', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            ElMessage.success('设置更新成功');
+                            // 更新本地数据
+                            this.systemConfig = {
+                                ...this.systemConfig,
+                                ...result.data
+                            };
+                        } else {
+                            ElMessage.error(result.message || '更新失败');
+                        }
+                    } catch (error) {
+                        console.error('更新设置失败:', error);
+                        ElMessage.error('更新失败');
+                    }
+                },
+
+                // 时间设置更新方法
+                async updateLunchOpenTime(time) {
+                    if (time) {
+                        await this.updateSettings({ lunchOpenTime: time });
+                    }
+                },
+
+                async updateDinnerOpenTime(time) {
+                    if (time) {
+                        await this.updateSettings({ dinnerOpenTime: time });
+                    }
+                },
+
+                async updateLunchPushTime(time) {
+                    if (time) {
+                        await this.updateSettings({ lunchPushTime: time });
+                    }
+                },
+
+                async updateDinnerPushTime(time) {
+                    if (time) {
+                        await this.updateSettings({ dinnerPushTime: time });
+                    }
+                },
+
+                // 测试推送功能
+                async testLunchPush() {
+                    this.testingPush = true;
+                    try {
+                        const response = await fetch('/api/admin/test-lunch-push', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            }
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            ElMessage.success('午餐推送测试成功');
+                        } else {
+                            ElMessage.error(result.message || '推送测试失败');
+                        }
+                    } catch (error) {
+                        console.error('测试午餐推送失败:', error);
+                        ElMessage.error('推送测试失败');
+                    } finally {
+                        this.testingPush = false;
+                    }
+                },
+
+                async testDinnerPush() {
+                    this.testingPush = true;
+                    try {
+                        const response = await fetch('/api/admin/test-dinner-push', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            }
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            ElMessage.success('晚餐推送测试成功');
+                        } else {
+                            ElMessage.error(result.message || '推送测试失败');
+                        }
+                    } catch (error) {
+                        console.error('测试晚餐推送失败:', error);
+                        ElMessage.error('推送测试失败');
+                    } finally {
+                        this.testingPush = false;
+                    }
+                },
+
+                // 重新加载定时任务
+                async reloadCronJobs() {
+                    this.reloadingCron = true;
+                    try {
+                        const response = await fetch('/api/admin/reload-cron', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            }
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            ElMessage.success('定时任务重新加载成功');
+                        } else {
+                            ElMessage.error(result.message || '重新加载失败');
+                        }
+                    } catch (error) {
+                        console.error('重新加载定时任务失败:', error);
+                        ElMessage.error('重新加载失败');
+                    } finally {
+                        this.reloadingCron = false;
+                    }
+                },
+
+                // 显示当前配置
+                showCurrentSettings() {
+                    const config = {
+                        '员工总数': this.systemConfig.totalEmployees,
+                        '午餐开放时间': this.systemConfig.lunchOpenTime,
+                        '晚餐开放时间': this.systemConfig.dinnerOpenTime,
+                        '午餐推送时间': this.systemConfig.lunchPushTime,
+                        '晚餐推送时间': this.systemConfig.dinnerPushTime
+                    };
+
+                    let message = '当前系统配置：\n\n';
+                    Object.entries(config).forEach(([key, value]) => {
+                        message += `${key}: ${value}\n`;
+                    });
+
+                    ElMessageBox.alert(message, '系统配置详情', {
+                        confirmButtonText: '确定',
+                        type: 'info'
+                    });
+                },
+
                 // 格式化日期时间
                 formatDate(dateStr) {
                     if (!dateStr) return '未知';
-                    return new Date(dateStr).toLocaleString('zh-CN');
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('zh-CN');
+                },
+
+                formatTime(dateStr) {
+                    if (!dateStr) return '未知';
+                    const date = new Date(dateStr);
+                    return date.toLocaleTimeString('zh-CN', { hour12: false });
                 }
             },
             watch: {
