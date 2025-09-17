@@ -30,7 +30,8 @@
       "WebSearch",
       "Bash(echo $FEISHU_TARGET_CHAT_ID)",
       "Bash(PORT=3001 node server.js)",
-      "Bash(cmd.exe:*)"
+      "Bash(cmd.exe:*)",
+      "Bash(start.bat)"
     ],
     "deny": [],
     "ask": []

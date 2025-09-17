@@ -62,22 +62,38 @@ node server.js
 
 ### 启动服务
 ```bash
-# 方法1: 使用npm脚本
+# 方法1: 使用便捷启动脚本（推荐）
+# 自动检查并杀死占用端口3000的进程，然后启动服务
+start.bat
+
+# 方法2: 使用npm脚本
 cd D:\git\order-robot
 npm start
 
-# 方法2: 直接使用Node.js
+# 方法3: 直接使用Node.js
 cd D:\git\order-robot
 node server.js
 
-# 方法3: 指定端口启动
+# 方法4: 指定端口启动
 cd D:\git\order-robot
 set PORT=3001
 npm start
 
-# 方法4: 后台启动(使用PM2)
+# 方法5: 后台启动(使用PM2)
 npm install -g pm2
 pm2 start server.js --name "order-robot"
+```
+
+### 端口占用处理
+```bash
+# 方法1: 使用一键脚本清理端口3000
+kill-port.bat
+
+# 方法2: 手动查找和杀死进程
+# 查找占用端口3000的进程
+netstat -ano | findstr :3000
+# 杀掉对应进程(替换PID为实际进程ID)
+taskkill /PID <PID> /F
 ```
 
 ### 停止服务
@@ -568,6 +584,23 @@ pm2 logs order-robot
 1. 检查端口是否被占用
 2. 确认data目录权限是否正确
 3. 查看系统日志确认定时任务执行情况
+
+### 便捷脚本说明
+
+#### start.bat - 智能启动脚本
+- **功能**: 自动检测端口3000占用情况，如有占用自动杀死进程后启动服务
+- **使用**: 双击运行或在命令行执行 `start.bat`
+- **优势**: 避免"端口已被占用"错误，一键式启动
+
+#### kill-port.bat - 端口清理脚本
+- **功能**: 专门用于清理端口3000占用的进程
+- **使用**: 双击运行或在命令行执行 `kill-port.bat`
+- **场景**: 服务异常退出时端口未释放，使用此脚本清理
+
+#### 注意事项
+- 这两个脚本默认使用端口3000，如需要其他端口请手动修改脚本
+- 脚本会强制终止占用端口的进程，请确保没有其他重要服务使用该端口
+- 推荐日常使用 `start.bat` 启动服务，遇到端口问题时使用 `kill-port.bat`
 
 ## 📝 更新日志
 

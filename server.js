@@ -2954,6 +2954,12 @@ app.post('/api/feishu/webhook', async (req, res) => {
 
               console.log(`添加不吃记录: ${JSON.stringify(newReg)}`);
 
+              // 将不吃记录添加到用户登记记录中（管理员界面显示）
+              await addNoEatToUserRegistrations(today, mealType, userId, user ? user.name : '未知用户', newReg.registeredAt, '通过飞书按钮快速登记');
+
+              // 更新订餐统计
+              await orderManager.updateOrderCount(mealType, today);
+
               // 不发送确认消息，静默登记
               const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
               console.log(`静默登记成功: ${mealName}`);
@@ -4109,6 +4115,9 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
     // 将不吃记录同步到详细点餐记录中
     await syncNoEatToOrderDetails(date, mealType, userId, req.session.user.name, newReg.registeredAt);
 
+    // 将不吃记录添加到用户登记记录中（管理员界面显示）
+    await addNoEatToUserRegistrations(date, mealType, userId, req.session.user.name, newReg.registeredAt);
+
     // 同时更新用户的最后点餐时间（虽然是不吃，但算作参与点餐）
     await updateUserLastOrderTime(userId, newReg.registeredAt);
 
@@ -4215,6 +4224,9 @@ app.delete('/api/no-eat/register', requireAuth, async (req, res) => {
     noEatRegs.splice(regIndex, 1);
     await dataStore.write('no-eat-registrations.json', noEatRegs);
 
+    // 同时从用户登记记录中删除不吃记录（管理员界面显示）
+    await removeNoEatFromUserRegistrations(date, mealType, userId);
+
     // 更新订餐统计
     await orderManager.updateOrderCount(mealType, date);
 
@@ -4285,6 +4297,76 @@ async function syncNoEatToOrderDetails(date, mealType, userId, userName, registe
     }
   } catch (error) {
     console.error('同步不吃记录到详细点餐记录失败:', error);
+  }
+}
+
+// 辅助函数：将不吃记录添加到用户登记记录中（管理员界面显示）
+async function addNoEatToUserRegistrations(date, mealType, userId, userName, registeredAt, note = '通过网页登记') {
+  try {
+    console.log(`[addNoEatToUserRegistrations] 开始添加不吃记录到用户登记: ${date} ${mealType} ${userName}`);
+
+    const userRegistrations = await dataStore.read('user-registrations.json');
+
+    // 检查是否已经存在该用户的记录，避免重复
+    const existingRegIndex = userRegistrations.findIndex(reg =>
+      reg.userId === userId &&
+      reg.date === date &&
+      reg.mealType === mealType &&
+      reg.dishName === '不吃'
+    );
+
+    if (existingRegIndex >= 0) {
+      console.log(`[addNoEatToUserRegistrations] 用户已存在不吃记录，跳过添加: ${userName}`);
+      return;
+    }
+
+    // 生成新的登记记录
+    const newRegistration = {
+      id: Date.now().toString(),
+      userId: userId,
+      date: date,
+      mealType: mealType,
+      dishId: null,
+      dishName: '不吃',
+      restaurantName: '无',
+      price: 0,
+      createdAt: registeredAt,
+      updatedAt: registeredAt,
+      note: note
+    };
+
+    userRegistrations.push(newRegistration);
+    await dataStore.write('user-registrations.json', userRegistrations);
+    console.log(`[addNoEatToUserRegistrations] 不吃记录添加成功: ${userName}`);
+  } catch (error) {
+    console.error('添加不吃记录到用户登记失败:', error);
+  }
+}
+
+// 辅助函数：从用户登记记录中删除不吃记录（管理员界面显示）
+async function removeNoEatFromUserRegistrations(date, mealType, userId) {
+  try {
+    console.log(`[removeNoEatFromUserRegistrations] 开始删除用户登记中的不吃记录: ${date} ${mealType} ${userId}`);
+
+    const userRegistrations = await dataStore.read('user-registrations.json');
+
+    // 找到并删除对应的不吃记录
+    const regIndex = userRegistrations.findIndex(reg =>
+      reg.userId === userId &&
+      reg.date === date &&
+      reg.mealType === mealType &&
+      reg.dishName === '不吃'
+    );
+
+    if (regIndex >= 0) {
+      const deletedReg = userRegistrations.splice(regIndex, 1)[0];
+      await dataStore.write('user-registrations.json', userRegistrations);
+      console.log(`[removeNoEatFromUserRegistrations] 删除不吃记录成功: ${deletedReg.id}`);
+    } else {
+      console.log(`[removeNoEatFromUserRegistrations] 未找到对应的不吃记录`);
+    }
+  } catch (error) {
+    console.error('从用户登记记录中删除不吃记录失败:', error);
   }
 }
 
@@ -4946,6 +5028,12 @@ app.get('/auth/feishu/callback', async (req, res) => {
           noEatRegs.push(newReg);
           await dataStore.write('no-eat-registrations.json', noEatRegs);
           console.log(`✅ 自动完成不吃登记: ${JSON.stringify(newReg)}`);
+
+          // 将不吃记录添加到用户登记记录中（管理员界面显示）
+          await addNoEatToUserRegistrations(today, mealType, userId, req.session.user.name, newReg.registeredAt, '通过外部链接登记');
+
+          // 更新订餐统计
+          await orderManager.updateOrderCount(mealType, today);
         }
 
         // 清除登记意图
