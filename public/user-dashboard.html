@@ -1352,8 +1352,12 @@
             },
             async mounted() {
                 this.loadTodayMenu();
-                this.loadUserPreferences();
+                // 先加载localStorage作为默认值，然后API会覆盖它
+                await this.loadUserPreferences();
                 await this.checkUserStatus();
+                // 处理来自飞书的"不吃登记"意图（简化登录流程）
+                await this.consumeNoEatIntentIfAny();
+                // API数据始终优先于localStorage
                 await this.loadUserMealPreferences();
                 await this.loadWeeklyMealPreferences();
 
@@ -1374,6 +1378,43 @@
                 }
             },
             methods: {
+                async consumeNoEatIntentIfAny() {
+                    try {
+                        const raw = sessionStorage.getItem('noEatIntent');
+                        if (!raw) return;
+                        // 清理以避免重复提交
+                        sessionStorage.removeItem('noEatIntent');
+
+                        let intent;
+                        try { intent = JSON.parse(raw); } catch { intent = null; }
+                        const mealType = intent?.mealType === 'dinner' ? 'dinner' : 'lunch';
+
+                        if (!this.user.isLoggedIn) {
+                            // 未登录则不自动提交，仅提示
+                            ElementPlus.ElMessage.warning('请先登录后再进行不吃登记');
+                            return;
+                        }
+
+                        const now = new Date();
+                        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+                        const resp = await fetch('/api/no-eat/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mealType, date: dateStr })
+                        });
+                        const result = await resp.json();
+                        if (result.success) {
+                            ElementPlus.ElMessage.success(`已登记${mealType === 'lunch' ? '午餐' : '晚餐'}不吃`);
+                            // 刷新本地状态
+                            this.userPreferences[mealType] = 'no-eat';
+                        } else {
+                            ElementPlus.ElMessage.error(result.message || '登记失败');
+                        }
+                    } catch (e) {
+                        console.error('处理不吃登记意图失败:', e);
+                    }
+                },
                 switchPage(page) {
                     this.currentPage = page;
                     // 更新URL但不刷新页面
@@ -1424,9 +1465,14 @@
                 },
                 
                 async loadUserPreferences() {
+                    console.log(`[DEBUG 本地存储] 开始加载localStorage数据`);
                     const savedPrefs = localStorage.getItem('userMealPreferences');
                     if (savedPrefs) {
-                        this.userPreferences = JSON.parse(savedPrefs);
+                        const parsed = JSON.parse(savedPrefs);
+                        this.userPreferences = parsed;
+                        console.log(`[DEBUG 本地存储] 从localStorage加载偏好:`, parsed);
+                    } else {
+                        console.log(`[DEBUG 本地存储] localStorage中没有保存的偏好，使用默认值:`, this.userPreferences);
                     }
                 },
                 
@@ -1450,7 +1496,7 @@
                 },
 
                 async loadUserMealPreferences() {
-                    if (!this.user.isLoggedIn) {
+                    if (!this.currentUser.isLoggedIn) {
                         console.log('用户未登录，跳过加载餐次偏好');
                         return;
                     }
@@ -1465,25 +1511,53 @@
                     console.log('检查日期:', dateStr);
 
                     try {
+                        console.log(`[DEBUG 前端] 开始检查用户餐次偏好，日期: ${dateStr}`);
+
                         // 检查午餐状态
                         const lunchResponse = await fetch(`/api/no-eat/status?mealType=lunch&date=${dateStr}`);
+                        console.log(`[DEBUG 前端] 午餐响应状态: ${lunchResponse.status}, ${lunchResponse.statusText}`);
                         const lunchResult = await lunchResponse.json();
+
+                        console.log(`[DEBUG 前端] 午餐API响应:`, lunchResult);
 
                         if (lunchResult.success) {
                             this.userPreferences.lunch = lunchResult.data.registered ? 'no-eat' : 'eat';
-                            console.log('午餐状态:', lunchResult.data.registered ? '已登记不吃' : '吃饭');
+                            console.log(`[DEBUG 前端] 午餐状态设置为: ${this.userPreferences.lunch}`);
+                        } else {
+                            console.error(`[DEBUG 前端] 午餐API调用失败:`, lunchResult);
+                            // 如果API失败，检查是否是认证问题
+                            if (lunchResult.code === 'UNAUTHORIZED') {
+                                console.error(`[DEBUG 前端] 认证失败，可能需要重新登录`);
+                                // 设置默认值
+                                this.userPreferences.lunch = 'eat';
+                            }
                         }
 
                         // 检查晚餐状态
                         const dinnerResponse = await fetch(`/api/no-eat/status?mealType=dinner&date=${dateStr}`);
+                        console.log(`[DEBUG 前端] 晚餐响应状态: ${dinnerResponse.status}, ${dinnerResponse.statusText}`);
                         const dinnerResult = await dinnerResponse.json();
+
+                        console.log(`[DEBUG 前端] 晚餐API响应:`, dinnerResult);
 
                         if (dinnerResult.success) {
                             this.userPreferences.dinner = dinnerResult.data.registered ? 'no-eat' : 'eat';
-                            console.log('晚餐状态:', dinnerResult.data.registered ? '已登记不吃' : '吃饭');
+                            console.log(`[DEBUG 前端] 晚餐状态设置为: ${this.userPreferences.dinner}`);
+                        } else {
+                            console.error(`[DEBUG 前端] 晚餐API调用失败:`, dinnerResult);
+                            // 如果API失败，检查是否是认证问题
+                            if (dinnerResult.code === 'UNAUTHORIZED') {
+                                console.error(`[DEBUG 前端] 认证失败，可能需要重新登录`);
+                                // 设置默认值
+                                this.userPreferences.dinner = 'eat';
+                            }
                         }
 
-                        console.log('最终用户偏好:', this.userPreferences);
+                        console.log(`[DEBUG API] 最终用户偏好:`, this.userPreferences);
+
+                        // 保存到本地存储，以便下次快速加载
+                        localStorage.setItem('userMealPreferences', JSON.stringify(this.userPreferences));
+                        console.log(`[DEBUG API] 已保存到localStorage:`, this.userPreferences);
                     } catch (error) {
                         console.error('加载用户餐次偏好失败:', error);
                         // 如果API调用失败，回退到本地存储
@@ -1565,11 +1639,20 @@
                             const result = await response.json();
                             if (result.success) {
                                 this.userPreferences[mealType] = 'no-eat';
+                                console.log(`[DEBUG] 登记不吃成功，更新本地状态: ${mealType} = no-eat`);
+                                // 立即保存到localStorage
+                                localStorage.setItem('userMealPreferences', JSON.stringify(this.userPreferences));
                                 ElMessage.success(`已登记${mealType === 'lunch' ? '中餐' : '晚餐'}不吃`);
-                                // 重新加载状态确保界面更新
-                                await this.loadUserMealPreferences();
                             } else {
-                                ElMessage.error(result.message || '登记失败');
+                                // 如果显示"已经登记过不吃了"，说明后端状态与前端不一致，需要修正前端状态
+                                if (result.message && result.message.includes('已经登记')) {
+                                    this.userPreferences[mealType] = 'no-eat';
+                                    console.log(`[DEBUG] 已登记过，更新本地状态: ${mealType} = no-eat`);
+                                    ElMessage.info(`您已经登记过${mealType === 'lunch' ? '中餐' : '晚餐'}不吃了`);
+                                } else {
+                                    console.log(`[DEBUG] 登记失败:`, result);
+                                    ElMessage.error(result.message || '登记失败');
+                                }
                             }
                         } else {
                             // 取消登记不吃
@@ -1585,9 +1668,10 @@
                             const result = await response.json();
                             if (result.success) {
                                 this.userPreferences[mealType] = 'eat';
+                                console.log(`[DEBUG] 取消不吃成功，更新本地状态: ${mealType} = eat`);
+                                // 立即保存到localStorage
+                                localStorage.setItem('userMealPreferences', JSON.stringify(this.userPreferences));
                                 ElMessage.success(`已设置${mealType === 'lunch' ? '中餐' : '晚餐'}吃饭`);
-                                // 重新加载状态确保界面更新
-                                await this.loadUserMealPreferences();
                             } else {
                                 ElMessage.error(result.message || '取消登记失败');
                             }
@@ -1600,10 +1684,10 @@
                 
                 async registerNoEat(mealType) {
                     const today = new Date();
-                    const dateStr = today.getFullYear() + '-' + 
-                                   String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                    const dateStr = today.getFullYear() + '-' +
+                                   String(today.getMonth() + 1).padStart(2, '0') + '-' +
                                    String(today.getDate()).padStart(2, '0');
-                    
+
                     const response = await fetch('/api/no-eat/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1612,9 +1696,12 @@
                             date: dateStr
                         })
                     });
-                    
+
                     const result = await response.json();
                     if (result.success) {
+                        // 更新本地状态
+                        this.userPreferences[mealType] = 'no-eat';
+                        console.log(`[DEBUG] 登记成功后更新本地状态: ${mealType} = no-eat`);
                         ElMessage.success(`已登记${mealType === 'lunch' ? '中餐' : '晚餐'}不吃`);
                     } else {
                         throw new Error(result.message || '登记失败');

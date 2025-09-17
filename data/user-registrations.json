@@ -1,0 +1,80 @@
+[
+  {
+    "id": "1758035101110",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-16",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-16T15:05:01.110Z",
+    "updatedAt": "2025-09-16T15:42:00.478Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758036508617",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-16",
+    "mealType": "dinner",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-16T15:28:28.617Z",
+    "updatedAt": "2025-09-16T15:28:28.617Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758036843074",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-16",
+    "mealType": "dinner",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-16T15:34:03.074Z",
+    "updatedAt": "2025-09-16T15:34:03.074Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758036847399",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-16",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-16T15:34:07.399Z",
+    "updatedAt": "2025-09-16T15:34:07.399Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758037080485",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-16",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-16T15:38:00.485Z",
+    "updatedAt": "2025-09-16T15:38:00.485Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758038923108",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-17",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-16T16:08:43.108Z",
+    "updatedAt": "2025-09-16T16:08:43.108Z",
+    "note": "通过飞书按钮快速登记"
+  }
+]

@@ -31,7 +31,7 @@ chmod +x start.sh
 # 进入项目目录
 cd order-robot
 
-# 安装依赖
+# 安装依赖（已包含飞书官方SDK，用于长连接/IM发送）
 npm install
 
 # 启动服务
@@ -126,3 +126,71 @@ tar -czf backup_$(date +%Y%m%d).tar.gz data/
 - Node.js性能监控
 - 磁盘空间监控
 - API接口可用性监控
+
+## 🤖 飞书机器人配置与环境变量
+
+> 说明：本项目支持“应用机器人 + 消息卡片回调/长连接”的方式在飞书内点击按钮完成“不吃登记”。
+
+### 1) 在飞书开放平台获取 APP_ID / APP_SECRET
+
+1. 访问“飞书开放平台” → 选择你的应用
+2. 左侧“应用凭证”页面可查看：
+   - App ID → 配置为 `APP_ID`
+   - App Secret → 配置为 `APP_SECRET`
+3. 在“应用功能 → 机器人 → 消息卡片”中：
+   - 若使用 HTTP 回调：开启“卡片回调”，填写 `https://你的域名/api/feishu/webhook`
+   - 若使用长连接：可不配置回调 URL（需要在服务端开启长连接）
+
+将以上写入环境（示例 .env.production）：
+```
+APP_ID=cli_xxx
+APP_SECRET=xxxxx
+```
+
+### 2) 获取 FEISHU_TARGET_CHAT_ID（目标群ID）
+
+用于把卡片发送到指定群（测试/日常群）。常见获取方式：
+
+- 简单方式（推荐）：在飞书客户端中打开目标群 → 右上角“...” → 复制群链接，链接中包含 `open_chat_id=oc_********`，将该 `oc_...` 值直接作为 `FEISHU_TARGET_CHAT_ID` 使用。
+  - 在 IM v1 接口中，`receive_id_type=chat_id` 接受以 `oc_` 开头的群ID。
+
+- 或通过 OpenAPI 获取：使用租户 token 调用 `im/v1/chats` 或相关接口查询你需要的群并读取其 `chat_id/open_chat_id`（需要相应权限）。
+
+设置环境变量：
+```
+FEISHU_TARGET_CHAT_ID=oc_************************
+```
+
+### 3) 可选：启用长连接（无需公网回调）
+
+1. 官方 SDK 已在 `package.json` 中声明，`npm install` 会自动安装。
+2. 设置环境变量：
+```
+FEISHU_LONG_CONN_ENABLED=true
+```
+3. 启动服务后，长连接会尝试建立，与飞书保持连接，按钮点击事件将通过长连接抵达服务端。
+
+### 4) 发送测试卡片
+
+调用后端接口发送一张带“登记不吃”按钮的卡片到目标群：
+```
+POST http://<你的服务>/api/feishu/send-card
+Content-Type: application/json
+{
+  "chatId": "oc_************************",  // 也可不传，使用 FEISHU_TARGET_CHAT_ID
+  "mealType": "lunch"                        // lunch | dinner
+}
+```
+
+点击按钮后：
+- 若配置了“卡片回调URL”，则事件以 HTTP 请求到达 `/api/feishu/webhook`
+- 若启用了“长连接”，则事件会通过长连接抵达服务端回调
+
+### 5) 纯通知的 Webhook（可选）
+
+仅用于无回调的文本/富文本通知：
+- 在飞书群中配置“自定义群机器人 Webhook”
+- 设置环境变量 `FEISHU_WEBHOOK_URL` 为该地址
+- 代码中仅将其用于纯通知；带按钮的卡片建议统一走“应用机器人 IM 接口”
+
+> 提醒：不要再使用硬编码 Webhook URL，仓库已默认清空 `feishu-config.js` 中的默认值。

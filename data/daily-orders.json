@@ -964,22 +964,22 @@
     "date": "2025-09-15",
     "mealType": "lunch",
     "totalPeople": 25,
-    "noEatCount": 1,
-    "orderCount": 24,
+    "noEatCount": 0,
+    "orderCount": 25,
     "status": "open",
     "createdAt": "2025-09-13T16:26:30.595Z",
-    "updatedAt": "2025-09-14T16:01:41.548Z"
+    "updatedAt": "2025-09-16T14:50:06.907Z"
   },
   {
     "id": 38,
     "date": "2025-09-15",
     "mealType": "dinner",
     "totalPeople": 25,
-    "noEatCount": 1,
-    "orderCount": 24,
+    "noEatCount": 0,
+    "orderCount": 25,
     "status": "open",
     "createdAt": "2025-09-13T16:26:33.989Z",
-    "updatedAt": "2025-09-15T07:21:38.277Z"
+    "updatedAt": "2025-09-16T16:57:36.772Z"
   },
   {
     "id": 39,
@@ -1050,7 +1050,7 @@
     "orderCount": 25,
     "status": "open",
     "createdAt": "2025-09-14T09:33:08.605Z",
-    "updatedAt": "2025-09-14T10:26:46.837Z"
+    "updatedAt": "2025-09-16T16:09:05.300Z"
   },
   {
     "id": 46,
@@ -1060,7 +1060,8 @@
     "noEatCount": 0,
     "orderCount": 25,
     "status": "open",
-    "createdAt": "2025-09-14T09:33:08.605Z"
+    "createdAt": "2025-09-14T09:33:08.605Z",
+    "updatedAt": "2025-09-16T15:37:54.904Z"
   },
   {
     "id": 47,
@@ -1070,7 +1071,8 @@
     "noEatCount": 0,
     "orderCount": 25,
     "status": "open",
-    "createdAt": "2025-09-14T09:33:08.607Z"
+    "createdAt": "2025-09-14T09:33:08.607Z",
+    "updatedAt": "2025-09-17T00:43:53.071Z"
   },
   {
     "id": 48,
@@ -1080,7 +1082,8 @@
     "noEatCount": 0,
     "orderCount": 25,
     "status": "open",
-    "createdAt": "2025-09-14T09:33:08.607Z"
+    "createdAt": "2025-09-14T09:33:08.607Z",
+    "updatedAt": "2025-09-17T00:43:51.829Z"
   },
   {
     "id": 49,
@@ -1175,6 +1178,58 @@
     "date": "2025-09-13",
     "mealType": "dinner",
     "restaurant": "鹅庄",
+    "dishes": [
+      {
+        "id": 20002,
+        "name": "套餐",
+        "imageUrl": "/images/default-dish.jpg",
+        "orders": [
+          {
+            "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+            "userName": "张雪岩",
+            "quantity": 1,
+            "isNoEat": false,
+            "createdAt": "2025-09-13T15:24:15.050Z"
+          }
+        ]
+      }
+    ],
+    "status": "closed",
+    "createdAt": "2025-09-13T15:24:15.050Z",
+    "openedAt": "2025-09-13T15:24:15.050Z",
+    "closedAt": "2025-09-13T15:24:15.050Z"
+  },
+  {
+    "id": 1757948809545.0056,
+    "date": "2025-09-14",
+    "mealType": "lunch",
+    "restaurant": "绿茶",
+    "dishes": [
+      {
+        "id": 10001,
+        "name": "套餐",
+        "imageUrl": "/images/default-dish.jpg",
+        "orders": [
+          {
+            "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+            "userName": "张雪岩",
+            "quantity": 1,
+            "isNoEat": false,
+            "createdAt": "2025-09-13T15:24:15.050Z"
+          }
+        ]
+      }
+    ],
+    "status": "closed",
+    "createdAt": "2025-09-13T15:24:15.050Z",
+    "openedAt": "2025-09-13T15:24:15.050Z",
+    "closedAt": "2025-09-13T15:24:15.050Z"
+  },
+  {
+    "id": 1757948809545.6995,
+    "date": "2025-09-14",
+    "mealType": "dinner",
+    "restaurant": "吉野家",
     "dishes": [
       {
         "id": 20002,

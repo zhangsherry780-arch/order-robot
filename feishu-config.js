@@ -1,8 +1,8 @@
 // 飞书OAuth配置
 const FEISHU_CONFIG = {
   // 飞书应用配置
-  APP_ID: 'cli_a829a525a418500d',
-  APP_SECRET: 'LfRLdJsosP9Pwx8hGqeTrpDwD67qVUki',
+  APP_ID: process.env.APP_ID || process.env.FEISHU_APP_ID || 'cli_a829a525a418500d',
+  APP_SECRET: process.env.APP_SECRET || process.env.FEISHU_APP_SECRET || 'LfRLdJsosP9Pwx8hGqeTrpDwD67qVUki',
   
   // OAuth URLs
   AUTHORIZATION_URL: 'https://open.feishu.cn/open-apis/authen/v1/authorize',
@@ -32,16 +32,17 @@ const FEISHU_CONFIG = {
   
   // Webhook机器人配置
   WEBHOOK_CONFIG: {
-    // 群机器人Webhook URL - 需要在飞书群中添加机器人后获取
-    // 示例格式: 'https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-key'
-    WEBHOOK_URL: process.env.FEISHU_WEBHOOK_URL || 'https://open.feishu.cn/open-apis/bot/v2/hook/4418e0bf-66ee-48f9-b5e7-b55aaee5c5a3',
-    
-    // 消息签名密钥 (可选，用于验证消息来源)
+    // 群自定义 Webhook（仅用于纯通知场景）
+    // 默认关闭：不再内置任何固定 URL，需显式通过环境变量提供
+    // 示例：FEISHU_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/xxxx
+    WEBHOOK_URL: process.env.FEISHU_WEBHOOK_URL || '',
+
+    // 消息签名密钥 (可选)
     SECRET: process.env.FEISHU_WEBHOOK_SECRET || '',
-    
+
     // 默认消息模板
     DEFAULT_TITLE: '🍽️ 订餐系统通知',
-    
+
     // 消息类型
     MESSAGE_TYPES: {
       DAILY_MENU: 'daily_menu',      // 每日菜单推送

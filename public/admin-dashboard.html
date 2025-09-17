@@ -1222,7 +1222,47 @@
                                             {{ systemConfig.totalEmployees }}
                                         </template>
                                     </el-table-column>
-                                    <el-table-column prop="noEatCount" label="不吃人数" width="100">
+                                    <el-table-column prop="noEatCount" label="不吃人数" width="120">
+                                        <template #default="scope">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span :style="{
+                                                    fontWeight: 'bold',
+                                                    color: scope.row.noEatCount > 0 ? '#e6a23c' : '#67c23a'
+                                                }">
+                                                    {{ scope.row.noEatCount || 0 }}
+                                                </span>
+                                                <el-popover
+                                                    v-if="scope.row.noEatCount > 0 && scope.row.noEatUsers && scope.row.noEatUsers.length > 0"
+                                                    placement="top"
+                                                    trigger="hover"
+                                                    width="300">
+                                                    <template #reference>
+                                                        <el-icon style="color: #909399; cursor: help;">
+                                                            <InfoFilled />
+                                                        </el-icon>
+                                                    </template>
+                                                    <div>
+                                                        <div style="font-weight: bold; margin-bottom: 8px; color: #409EFF;">
+                                                            不吃用户详情 ({{ scope.row.noEatUsers.length }}人)
+                                                        </div>
+                                                        <div style="max-height: 200px; overflow-y: auto;">
+                                                            <div
+                                                                v-for="user in scope.row.noEatUsers"
+                                                                :key="user.userId"
+                                                                style="padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px;"
+                                                            >
+                                                                <div style="font-weight: bold; color: #303133;">
+                                                                    {{ user.userName }}
+                                                                </div>
+                                                                <div style="color: #909399; font-size: 11px;">
+                                                                    {{ formatTime(user.registrationTime) }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </el-popover>
+                                            </div>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column prop="orderCount" label="点餐人数" width="100">
                                         <template #default="scope">
@@ -1498,7 +1538,7 @@
                                     </el-table-column>
                                     <el-table-column prop="lastLoginFormatted" label="最后登录" width="120">
                                     </el-table-column>
-                                    <el-table-column label="操作" width="260">
+                                    <el-table-column label="操作" width="340">
                                         <template #default="scope">
                                             <el-button size="small" @click="viewUserDetail(scope.row)">
                                                 查看详情
@@ -1509,6 +1549,11 @@
                                             </el-button>
                                             <el-button size="small" type="warning" @click="editUser(scope.row)" v-if="scope.row.isEmployee">
                                                 编辑
+                                            </el-button>
+                                            <el-button size="small" type="danger" @click="confirmDeleteUser(scope.row)"
+                                                       :disabled="scope.row.isDefaultAdmin"
+                                                       plain>
+                                                删除
                                             </el-button>
                                         </template>
                                     </el-table-column>
@@ -1706,7 +1751,7 @@
     <script>
         const { createApp } = Vue;
         const { ElMessage, ElMessageBox } = ElementPlus;
-        const { Plus } = ElementPlusIconsVue;
+        const { Plus, InfoFilled } = ElementPlusIconsVue;
 
         createApp({
             data() {
@@ -1901,6 +1946,8 @@
                 this.loadDishesData();
                 this.loadMenuForPeriod(); // 初始化菜单数据
                 this.loadCurrentMenu(); // 加载当前菜单显示
+                // 处理来自飞书的“不吃登记”意图（简化登录流程）
+                this.consumeNoEatIntentIfAny();
                 
                 // 检查URL参数确定当前页面
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1920,6 +1967,34 @@
                 }
             },
             methods: {
+                async consumeNoEatIntentIfAny() {
+                    try {
+                        const raw = sessionStorage.getItem('noEatIntent');
+                        if (!raw) return;
+                        sessionStorage.removeItem('noEatIntent');
+
+                        let intent;
+                        try { intent = JSON.parse(raw); } catch { intent = null; }
+                        const mealType = intent?.mealType === 'dinner' ? 'dinner' : 'lunch';
+
+                        const now = new Date();
+                        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+                        const resp = await fetch('/api/no-eat/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mealType, date: dateStr })
+                        });
+                        const result = await resp.json();
+                        if (result.success) {
+                            ElementPlus.ElMessage.success(`已登记${mealType === 'lunch' ? '午餐' : '晚餐'}不吃`);
+                        } else {
+                            ElementPlus.ElMessage.error(result.message || '登记失败');
+                        }
+                    } catch (e) {
+                        console.error('处理不吃登记意图失败:', e);
+                    }
+                },
                 switchPage(page) {
                     this.currentPage = page;
                     // 更新URL但不刷新页面
@@ -3055,6 +3130,11 @@
                 
                 async toggleOrderStatus(order) {
                     try {
+                        // 防止重复点击
+                        if (order.loading) {
+                            return;
+                        }
+
                         // 设置loading状态
                         order.loading = true;
                         
@@ -3076,6 +3156,8 @@
                             order.status = result.data.status;
                             order.statusText = order.status === 'open' ? '开放点餐' : '已关闭';
                             ElMessage.success(result.message);
+
+                            console.log('状态切换成功:', result.data);
                         } else {
                             ElMessage.error(result.message || '操作失败');
                         }
@@ -3280,6 +3362,38 @@
                     } catch (error) {
                         console.error('加载用户数据失败:', error);
                         ElMessage.error('加载用户数据失败');
+                    }
+                },
+
+                async confirmDeleteUser(user) {
+                    try {
+                        await ElMessageBox.confirm(
+                            `确定要删除用户「${user.name || user.id}」吗？该操作不可撤销。`,
+                            '确认删除',
+                            {
+                                confirmButtonText: '删除',
+                                cancelButtonText: '取消',
+                                type: 'warning',
+                                confirmButtonClass: 'el-button--danger'
+                            }
+                        );
+
+                        const resp = await fetch(`/api/admin/users/${encodeURIComponent(user.id)}`, {
+                            method: 'DELETE'
+                        });
+                        const result = await resp.json();
+
+                        if (result.success) {
+                            ElMessage.success('用户删除成功');
+                            await this.loadUsersData();
+                        } else {
+                            ElMessage.error(result.message || '用户删除失败');
+                        }
+                    } catch (error) {
+                        if (error !== 'cancel' && error !== 'close') {
+                            console.error('删除用户失败:', error);
+                            ElMessage.error('删除用户失败');
+                        }
                     }
                 },
                 
@@ -3908,7 +4022,7 @@
                     }
                 }
             }
-        }).use(ElementPlus).component('Plus', Plus).mount('#app');
+        }).use(ElementPlus).component('Plus', Plus).component('InfoFilled', InfoFilled).mount('#app');
     </script>
 </body>
 </html>

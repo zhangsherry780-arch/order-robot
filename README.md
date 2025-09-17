@@ -425,6 +425,101 @@ order-robot/
 - **前端**: Vue 3 + Element Plus + 响应式设计
 - **定时任务**: node-cron
 - **工具库**: moment.js, fs-extra
+- **飞书集成**: @larksuiteoapi/node-sdk + WebSocket长连接
+
+### ⚠️ 重要技术限制 - 飞书SDK按钮交互
+
+#### 问题描述
+**@larksuiteoapi/node-sdk v1.55.0 会自动删除交互式按钮的 `value` 属性**
+
+当使用Feishu SDK的 `client.im.message.create()` 方法发送带有交互式按钮的卡片时，SDK会自动剥离按钮的 `value` 属性，导致：
+- `card.action.trigger` 事件中无法获取按钮的 `action.value`
+- 无法区分用户点击了哪个按钮
+- 按钮交互功能失效
+
+#### 解决方案
+**🔧 方案1: 通过按钮文本识别操作（推荐）**
+```javascript
+// 按钮定义 - 不使用value属性
+{
+  tag: 'button',
+  text: {
+    tag: 'plain_text',
+    content: '🚫 登记不吃午餐'  // 通过文本识别
+  },
+  type: 'primary'
+  // 不使用 value 属性
+}
+
+// 事件处理 - 通过按钮文本识别
+const buttonText = action.text?.content || action.text || '';
+if (buttonText.includes('登记不吃')) {
+  if (buttonText.includes('午餐')) {
+    mealType = 'lunch';
+  } else if (buttonText.includes('晚餐')) {
+    mealType = 'dinner';
+  }
+}
+```
+
+**🔧 方案2: URL跳转方案（不推荐）**
+```javascript
+// 使用URL属性跳转到OAuth流程
+{
+  tag: 'button',
+  text: { tag: 'plain_text', content: '🚫 登记不吃午餐' },
+  type: 'primary',
+  url: 'http://localhost:3000/api/no-eat/lunch?auto_redirect=true'
+}
+```
+
+#### 技术细节
+- **影响版本**: @larksuiteoapi/node-sdk v1.55.0
+- **影响方法**: `client.im.message.create()`
+- **表现**: 发送的交互式按钮缺少 `value` 属性
+- **根本原因**: SDK内部会过滤/清理按钮属性
+
+#### 避免此问题的最佳实践
+1. ✅ **使用按钮文本内容来识别操作**（当前采用方案）
+2. ✅ **在按钮文本中包含足够的识别信息**
+3. ✅ **统一按钮文本格式和解析逻辑**
+4. ❌ **不要依赖按钮的 `value` 属性**
+5. ❌ **不要使用复杂的JSON数据在按钮中传递**
+
+#### 代码位置
+- 按钮生成: `server.js:1761` - `FeishuMessageTemplates.getMenuPushActions()`
+- 事件处理: `server.js:2816` - `card.action.trigger` 事件处理器
+- 文本解析: `server.js:2857` - 按钮文本识别逻辑
+
+**⚠️ 重要**: 如果将来升级 @larksuiteoapi/node-sdk 版本，需要重新测试按钮交互功能是否正常。
+
+### ⚠️ 重要技术限制 - 飞书SDK UTF-8编码问题
+
+#### 问题描述
+**在 `libs/feishu-longconn.js` 中对中文字符进行不必要的UTF-8编码转换会导致乱码**
+
+当使用 `Buffer.from(str, 'utf8').toString('utf8')` 对中文字符串进行编码转换时，会导致中文按钮文本在飞书消息中显示为乱码，如：
+- 原文本：`"🚫 登记不吃午餐"`
+- 乱码显示：`"�Ǽǲ������"`
+
+#### 解决方案
+**🔧 方案1: 简化编码处理（已采用）**
+```javascript
+// 在 libs/feishu-longconn.js 中的 ensureUtf8 函数
+const ensureUtf8 = (str) => {
+  if (typeof str !== 'string') return str;
+  return str; // 直接返回原字符串，不做额外处理
+};
+```
+
+#### 避免此问题的最佳实践
+1. ✅ **不要对已经是正确UTF-8编码的中文字符串进行二次编码**
+2. ✅ **Node.js字符串默认就是UTF-8编码，通常不需要额外处理**
+3. ❌ **避免使用 `Buffer.from().toString()` 对中文字符串进行"修复"**
+
+#### 代码位置
+- 修复位置: `libs/feishu-longconn.js:139-143` - `ensureUtf8()` 函数
+- 影响范围: 所有通过长连接发送的飞书卡片消息
 
 ### API接口文档
 

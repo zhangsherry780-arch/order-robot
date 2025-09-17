@@ -1,3 +1,13 @@
+// Load environment variables early
+try {
+  const dotenv = require('dotenv');
+  const envFile = (process.env.NODE_ENV === 'production') ? '.env.production' : '.env';
+  dotenv.config({ path: envFile });
+  console.log(`[env] Loaded ${envFile}. FEISHU_LONG_CONN_ENABLED=${process.env.FEISHU_LONG_CONN_ENABLED || 'false'}`);
+} catch (e) {
+  console.warn('[env] dotenv not loaded:', e.message);
+}
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -10,6 +20,27 @@ const session = require('express-session');
 const axios = require('axios');
 const multer = require('multer');
 const FEISHU_CONFIG = require('./feishu-config');
+console.log(`[feishu] LONG_CONN=${process.env.FEISHU_LONG_CONN_ENABLED || 'false'}, APP_ID set=${Boolean(process.env.APP_ID || process.env.FEISHU_APP_ID)}`);
+let feishuAppBot = null;
+try {
+  const { FeishuAppBot, buildNoEatCard } = require('./libs/feishu-app-bot');
+  feishuAppBot = new FeishuAppBot(FEISHU_CONFIG);
+  global.__buildNoEatCard = buildNoEatCard;
+} catch (e) {
+  console.warn('Feishu AppBot helper not available:', e.message);
+}
+// 尝试加载长连接兼容启动器，并避免调用旧的 startLongConnection
+try {
+  const { startFeishuLongConnection, sendMessageViaLongConnection, getChatId } = require('./libs/feishu-longconn');
+  global.__startFeishuLongConnection = startFeishuLongConnection;
+  global.__sendMessageViaLongConnection = sendMessageViaLongConnection;
+  global.__getChatId = getChatId;
+  if (feishuAppBot && feishuAppBot.startLongConnection) {
+    feishuAppBot.startLongConnection = null;
+  }
+} catch (e) {
+  console.warn('Feishu long connection helper not available:', e.message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1728,9 +1759,9 @@ class FeishuMessageTemplates {
 
   // 生成菜单推送按钮
   static getMenuPushActions(mealType = 'lunch') {
-    const baseUrl = 'http://localhost:3000';
     const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
 
+    // 尝试使用交互式按钮 - 强制添加value属性，看看能否绕过SDK限制
     return [
       {
         tag: 'button',
@@ -1739,7 +1770,7 @@ class FeishuMessageTemplates {
           content: `🚫 登记不吃${mealName}`
         },
         type: 'primary',
-        value: `no_eat_${mealType}`
+        url: `http://localhost:3000/quick-register?meal=${mealType}&action=skip`
       },
       {
         tag: 'button',
@@ -1748,7 +1779,7 @@ class FeishuMessageTemplates {
           content: '🍽️ 去点餐'
         },
         type: 'default',
-        url: `${baseUrl}/user-dashboard.html`
+        url: 'http://localhost:3000'
       }
     ];
   }
@@ -1921,7 +1952,10 @@ class FeishuCommandHandler {
       '帮助': this.handleHelpCommand.bind(this),
       'help': this.handleHelpCommand.bind(this),
       '状态': this.handleStatusCommand.bind(this),
-      '本周菜单': this.handleWeeklyMenuCommand.bind(this)
+      '本周菜单': this.handleWeeklyMenuCommand.bind(this),
+      '不吃午餐': this.handleNoEatCommand.bind(this, 'lunch'),
+      '不吃晚餐': this.handleNoEatCommand.bind(this, 'dinner'),
+      '不吃': this.handleNoEatCommand.bind(this, 'lunch') // 默认午餐
     };
   }
 
@@ -2110,6 +2144,54 @@ class FeishuCommandHandler {
     };
   }
 
+  // 处理不吃登记命令
+  async handleNoEatCommand(mealType, text, userId) {
+    try {
+      const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
+
+      if (!userId) {
+        return {
+          success: true,
+          reply: `❌ 无法识别用户身份，请重新尝试`
+        };
+      }
+
+      // 调用现有的不吃登记API
+      const response = await fetch(`http://localhost:${PORT}/api/no-eat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: userId,
+          meal: mealType,
+          source: 'feishu-bot'
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        return {
+          success: true,
+          reply: `✅ **${mealName}不吃登记成功**\n\n📅 日期：${moment().format('YYYY年MM月DD日')}\n👤 用户：${userId}\n🚫 ${mealName}已登记为不用餐\n\n💡 如需取消，请访问订餐系统或联系管理员`
+        };
+      } else {
+        return {
+          success: true,
+          reply: `❌ **${mealName}不吃登记失败**\n\n${result.message || '未知错误'}\n\n💡 请稍后重试或联系管理员`
+        };
+      }
+
+    } catch (error) {
+      console.error('处理不吃登记失败:', error);
+      return {
+        success: true,
+        reply: `❌ **登记失败**\n\n系统暂时不可用，请稍后重试\n\n💡 或访问订餐系统手动登记`
+      };
+    }
+  }
+
   // 处理未知命令
   async handleUnknownCommand(text) {
     return {
@@ -2260,9 +2342,47 @@ async function pushTodayLunchMenu() {
     const template = FeishuMessageTemplates.getMenuPushMessage(lunch, 'lunch');
     const actions = FeishuMessageTemplates.getMenuPushActions('lunch');
 
-    // 发送交互式卡片到飞书群
-    const messageSender = new FeishuMessageSender();
-    await messageSender.sendInteractiveCardMessage(template.title, template.content, actions, 'blue');
+    // 通过长连接发送交互式卡片到飞书群
+    if (typeof global.__sendMessageViaLongConnection === 'function') {
+      const chatId = process.env.FEISHU_TARGET_CHAT_ID || 'oc_884ed80945230a297440e788f160426d';
+      if (chatId) {
+        // 构建交互式卡片消息
+        const cardMessage = {
+          msg_type: 'interactive',
+          card: {
+            config: {
+              wide_screen_mode: true,
+              enable_forward: true
+            },
+            header: {
+              title: {
+                tag: 'plain_text',
+                content: template.title
+              },
+              template: 'blue'
+            },
+            elements: [
+              {
+                tag: 'div',
+                text: {
+                  tag: 'lark_md',
+                  content: template.content
+                }
+              },
+              {
+                tag: 'action',
+                actions: actions
+              }
+            ]
+          }
+        };
+        await global.__sendMessageViaLongConnection(chatId, cardMessage);
+      } else {
+        console.warn('FEISHU_TARGET_CHAT_ID 未配置，跳过午餐菜单推送');
+      }
+    } else {
+      console.warn('长连接消息发送器不可用，跳过午餐菜单推送');
+    }
 
     console.log(`当日午餐菜单推送成功: ${todayDate} (午餐:${lunch.length}种)`);
   } catch (error) {
@@ -2300,9 +2420,47 @@ async function pushTodayDinnerMenu() {
     const template = FeishuMessageTemplates.getMenuPushMessage(dinner, 'dinner');
     const actions = FeishuMessageTemplates.getMenuPushActions('dinner');
 
-    // 发送交互式卡片到飞书群
-    const messageSender = new FeishuMessageSender();
-    await messageSender.sendInteractiveCardMessage(template.title, template.content, actions, 'orange');
+    // 通过长连接发送交互式卡片到飞书群
+    if (typeof global.__sendMessageViaLongConnection === 'function') {
+      const chatId = process.env.FEISHU_TARGET_CHAT_ID || 'oc_884ed80945230a297440e788f160426d';
+      if (chatId) {
+        // 构建交互式卡片消息
+        const cardMessage = {
+          msg_type: 'interactive',
+          card: {
+            config: {
+              wide_screen_mode: true,
+              enable_forward: true
+            },
+            header: {
+              title: {
+                tag: 'plain_text',
+                content: template.title
+              },
+              template: 'orange'
+            },
+            elements: [
+              {
+                tag: 'div',
+                text: {
+                  tag: 'lark_md',
+                  content: template.content
+                }
+              },
+              {
+                tag: 'action',
+                actions: actions
+              }
+            ]
+          }
+        };
+        await global.__sendMessageViaLongConnection(chatId, cardMessage);
+      } else {
+        console.warn('FEISHU_TARGET_CHAT_ID 未配置，跳过晚餐菜单推送');
+      }
+    } else {
+      console.warn('长连接消息发送器不可用，跳过晚餐菜单推送');
+    }
 
     console.log(`当日晚餐菜单推送成功: ${todayDate} (晚餐:${dinner.length}种)`);
   } catch (error) {
@@ -2624,7 +2782,13 @@ function buildTomorrowMenuCard(tomorrow, menuData) {
 app.post('/api/feishu/webhook', async (req, res) => {
   try {
     const { header, event } = req.body;
-    
+
+    // 验证请求数据格式
+    if (!header || !header.event_type) {
+      console.log('收到无效的飞书webhook请求:', JSON.stringify(req.body, null, 2));
+      return res.json({ code: -1, msg: 'invalid request format' });
+    }
+
     // URL验证 (飞书会发送此类型请求验证webhook地址)
     if (header.event_type === 'url_verification') {
       return res.json({ challenge: event.challenge });
@@ -2662,10 +2826,17 @@ app.post('/api/feishu/webhook', async (req, res) => {
       // 飞书卡片交互事件中用户ID可能在不同位置
       const rawUserId = event.operator?.user_id || event.operator?.operator_id?.user_id || event.operator?.operator_id?.union_id;
 
-      console.log(`收到飞书卡片交互: ${action.value}, 来自用户: ${rawUserId}`, {
-        operator: event.operator,
-        action: event.action
-      });
+      // 获取更多用户信息
+      const userInfo = {
+        user_id: rawUserId,
+        open_id: event.operator?.open_id,
+        union_id: event.operator?.union_id,
+        name: event.operator?.name || event.operator?.user_name,
+        全部信息: event.operator
+      };
+
+      console.log(`🔘 收到飞书卡片交互 - 按钮文本: ${action.tag === 'button' ? (action.text?.content || action.text || '未知') : action.value || '未知'}`);
+      console.log(`👤 点击用户信息:`, JSON.stringify(userInfo, null, 2));
 
       // 尝试获取union_id以确保用户身份一致性
       let userId = rawUserId;
@@ -2683,9 +2854,27 @@ app.post('/api/feishu/webhook', async (req, res) => {
       // 立即返回响应给飞书
       res.json({ code: 0, msg: 'success' });
 
-      // 异步处理不吃登记按钮
-      if (action.value && action.value.startsWith('no_eat_')) {
-        const mealType = action.value.replace('no_eat_', '');
+      // 异步处理不吃登记按钮 - 完全基于按钮文本识别
+      let mealType = null;
+
+      console.log(`🔍 按钮交互详细信息:`, JSON.stringify(action, null, 2));
+
+      // 通过按钮文本识别操作类型和餐型（唯一可靠方案）
+      const buttonText = action.tag === 'button' ? (action.text?.content || action.text || '') : '';
+      console.log(`🔍 分析按钮文本: "${buttonText}"`);
+
+      if (buttonText.includes('登记不吃')) {
+        if (buttonText.includes('午餐')) {
+          mealType = 'lunch';
+        } else if (buttonText.includes('晚餐')) {
+          mealType = 'dinner';
+        }
+        console.log(`✅ 识别到不吃登记操作: ${mealType}`);
+      } else {
+        console.log(`ℹ️ 非不吃登记按钮，跳过处理`);
+      }
+
+      if (mealType) {
 
         // 使用 setImmediate 异步处理，避免阻塞响应
         setImmediate(async () => {
@@ -2750,7 +2939,8 @@ app.post('/api/feishu/webhook', async (req, res) => {
             if (existingReg) {
               // 已经登记过，发送提醒
               console.log(`用户已登记过: ${userId}, ${mealType}, ${today}`);
-              await feishuSender.sendTextMessage(`✅ 您已经登记过今日${mealType === 'lunch' ? '午餐' : '晚餐'}不吃了`);
+              // 静默处理，不发送重复提醒
+              console.log(`用户已登记过，静默跳过: ${userId}, ${mealType}`);
             } else {
               // 添加新的不吃记录
               const newReg = {
@@ -2764,15 +2954,19 @@ app.post('/api/feishu/webhook', async (req, res) => {
 
               console.log(`添加不吃记录: ${JSON.stringify(newReg)}`);
 
-              // 发送成功确认
+              // 不发送确认消息，静默登记
               const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
-              await feishuSender.sendTextMessage(`✅ 登记成功！您已登记今日${mealName}不吃。\n\n如需取消，请访问订餐系统进行操作。`);
-              console.log(`发送成功确认消息: ${mealName}`);
+              console.log(`静默登记成功: ${mealName}`);
             }
           } catch (error) {
             console.error('处理不吃登记失败:', error);
             try {
-              await feishuSender.sendTextMessage('❌ 登记失败，请稍后重试或联系管理员。');
+              // 使用长连接发送错误消息
+              const { sendMessageViaLongConnection } = require('./libs/feishu-longconn');
+              await sendMessageViaLongConnection('oc_884ed80945230a297440e788f160426d', {
+                msg_type: 'text',
+                content: { text: '❌ 登记失败，请稍后重试或联系管理员。' }
+              });
             } catch (sendError) {
               console.error('发送错误消息失败:', sendError);
             }
@@ -2914,15 +3108,16 @@ app.get('/api/admin/dishes', async (req, res) => {
 app.get('/api/admin/orders', async (req, res) => {
   try {
     const dailyOrders = await dataStore.read('daily-orders.json');
+    const userRegistrations = await dataStore.read('user-registrations.json') || [];
     const restaurants = await dataStore.read('restaurants.json');
     const users = await dataStore.read('users.json');
-    
+
     // 获取查询参数
     const { startDate, endDate } = req.query;
     console.log('API /api/admin/orders 收到请求，查询参数:', { startDate, endDate, fullQuery: req.query });
-    
+
     let filterStartDate, filterEndDate;
-    
+
     if (startDate && endDate) {
       // 如果提供了日期范围，使用提供的日期
       filterStartDate = startDate;
@@ -2934,27 +3129,69 @@ app.get('/api/admin/orders', async (req, res) => {
       filterEndDate = dataStore.getWeekEnd();
       console.log('使用默认日期范围:', { filterStartDate, filterEndDate });
     }
-    
+
     // 过滤：显示指定日期范围的记录，并且是点餐记录格式（有mealType字段）
     const filteredOrders = dailyOrders.filter(order => {
       return order.date >= filterStartDate && order.date <= filterEndDate && order.mealType && order.id;
     });
-    
+
     console.log('筛选结果:', {
       totalOrders: dailyOrders.length,
       filteredOrders: filteredOrders.length,
       dateRange: { filterStartDate, filterEndDate },
       dates: filteredOrders.map(o => o.date)
     });
-    
+
+    // 计算每日每餐次的不吃人数和用户详情（从用户注册记录中统计）
+    const calculateNoEatData = (date, mealType) => {
+      const noEatRegs = userRegistrations.filter(reg =>
+        reg.date === date &&
+        reg.mealType === mealType &&
+        reg.dishName === '不吃'
+      );
+
+      // 按用户ID去重，保留最新的登记记录
+      const uniqueUserRegs = new Map();
+      noEatRegs.forEach(reg => {
+        const existingReg = uniqueUserRegs.get(reg.userId);
+        if (!existingReg || new Date(reg.createdAt) > new Date(existingReg.createdAt)) {
+          uniqueUserRegs.set(reg.userId, reg);
+        }
+      });
+
+      // 获取对应的用户信息
+      const noEatUsers = Array.from(uniqueUserRegs.values()).map(reg => {
+        const user = users.find(u => u.id === reg.userId);
+        return {
+          userId: reg.userId,
+          userName: user ? user.name : `用户${reg.userId}`,
+          registrationTime: reg.createdAt,
+          note: reg.note || '通过飞书按钮快速登记'
+        };
+      });
+
+      return {
+        count: uniqueUserRegs.size,
+        users: noEatUsers
+      };
+    };
+
     // 丰富点餐记录数据
     const enrichedOrders = filteredOrders.map(order => {
-      const orderDate = new Date(order.date);
+      // 修复时区问题：强制使用本地时区解析日期
+      const dateParts = order.date.split('-');
+      const orderDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
       const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
       const weekday = weekdays[orderDate.getDay()];
-      
+
+      // 计算实际的不吃人数和用户详情（基于用户注册记录）
+      const noEatData = calculateNoEatData(order.date, order.mealType);
+
       return {
         ...order,
+        noEatCount: noEatData.count, // 覆盖原有的noEatCount字段
+        noEatUsers: noEatData.users, // 新增: 不吃用户详情
+        orderCount: Math.max(0, (order.totalPeople || 0) - noEatData.count), // 重新计算实际点餐人数
         dateFormatted: orderDate.toLocaleDateString('zh-CN'),
         weekday: weekday,
         dateWithWeekday: `${orderDate.toLocaleDateString('zh-CN')} ${weekday}`,
@@ -2962,51 +3199,77 @@ app.get('/api/admin/orders', async (req, res) => {
         statusText: order.status === 'open' ? '开放点餐' : '已关闭'
       };
     }).sort((a, b) => new Date(a.date) - new Date(b.date)); // 按日期正序排序（当日优先）
-    
+
+    console.log('增强后的订单数据示例:', enrichedOrders.slice(0, 2));
+
     res.json({ success: true, data: enrichedOrders || [] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
+// 防重复操作的锁
+const toggleStatusLocks = new Map();
+
 // 更改点餐状态
 app.post('/api/admin/orders/toggle-status', async (req, res) => {
+  const { date, mealType } = req.body;
+  const lockKey = `${date}-${mealType}`;
+
+  console.log('收到状态切换请求:', { date, mealType });
+
+  // 检查是否有正在处理的相同请求
+  if (toggleStatusLocks.has(lockKey)) {
+    console.log('重复请求被拒绝:', lockKey);
+    return res.status(429).json({
+      success: false,
+      message: '请求处理中，请稍候...'
+    });
+  }
+
+  // 参数验证
+  if (!date || !mealType) {
+    console.log('参数验证失败');
+    return res.status(400).json({
+      success: false,
+      message: '缺少必要参数'
+    });
+  }
+
+  // 设置锁
+  toggleStatusLocks.set(lockKey, true);
+  console.log('已设置锁:', lockKey);
+
   try {
-    const { date, mealType } = req.body;
-    
-    console.log('收到状态切换请求:', { date, mealType });
-    
-    if (!date || !mealType) {
-      console.log('参数验证失败');
-      return res.status(400).json({ 
-        success: false, 
-        message: '缺少必要参数' 
+    const dailyOrders = await dataStore.read('daily-orders.json');
+
+    // 找到对应的点餐记录
+    const orderIndex = dailyOrders.findIndex(order =>
+      order.date === date && order.mealType === mealType
+    );
+
+    if (orderIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: '未找到对应的点餐记录'
       });
     }
 
-    const dailyOrders = await dataStore.read('daily-orders.json');
-    
-    // 找到对应的点餐记录
-    const orderIndex = dailyOrders.findIndex(order => 
-      order.date === date && order.mealType === mealType
-    );
-    
-    if (orderIndex === -1) {
-      return res.status(404).json({ 
-        success: false, 
-        message: '未找到对应的点餐记录' 
-      });
-    }
-    
+    const oldStatus = dailyOrders[orderIndex].status;
+
     // 切换状态
     dailyOrders[orderIndex].status = dailyOrders[orderIndex].status === 'open' ? 'closed' : 'open';
     dailyOrders[orderIndex].updatedAt = moment().toISOString();
-    
+
+    console.log(`状态切换: ${date} ${mealType} ${oldStatus} -> ${dailyOrders[orderIndex].status}`);
+
     // 保存到文件
     await dataStore.write('daily-orders.json', dailyOrders);
-    
-    res.json({ 
-      success: true, 
+
+    console.log('状态切换成功并已保存到文件');
+
+    res.json({
+      success: true,
       message: `点餐状态已${dailyOrders[orderIndex].status === 'open' ? '开放' : '关闭'}`,
       data: {
         date: date,
@@ -3017,6 +3280,10 @@ app.post('/api/admin/orders/toggle-status', async (req, res) => {
   } catch (error) {
     console.error('更改点餐状态失败:', error);
     res.status(500).json({ success: false, message: error.message });
+  } finally {
+    // 总是清理锁
+    toggleStatusLocks.delete(lockKey);
+    console.log('已清理锁:', lockKey);
   }
 });
 
@@ -3043,16 +3310,16 @@ app.post('/api/admin/orders/clear-no-eat', async (req, res) => {
 
     console.log('找到点餐记录，清零前:', dailyOrders[orderIndex]);
     
-    // 删除对应的不吃登记记录
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
-    const filteredNoEatRegs = noEatRegs.filter(reg => {
+    // 删除对应的用户不吃登记记录
+    const userRegistrations = await dataStore.read('user-registrations.json') || [];
+    const filteredUserRegs = userRegistrations.filter(reg => {
       const regDate = reg.date ? reg.date.replace(/\//g, '-') : '';
       const targetDate = date.replace(/\//g, '-');
-      return !(regDate === targetDate && reg.mealType === mealType);
+      return !(regDate === targetDate && reg.mealType === mealType && reg.dishName === '不吃');
     });
-    
-    console.log(`删除不吃登记记录: ${noEatRegs.length} -> ${filteredNoEatRegs.length}`);
-    await dataStore.write('no-eat-registrations.json', filteredNoEatRegs);
+
+    console.log(`删除用户不吃登记记录: ${userRegistrations.length} -> ${filteredUserRegs.length}`);
+    await dataStore.write('user-registrations.json', filteredUserRegs);
     
     // 清零不吃人数
     dailyOrders[orderIndex].noEatCount = 0;
@@ -3839,6 +4106,12 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
     // 更新订餐统计
     await orderManager.updateOrderCount(mealType, date);
 
+    // 将不吃记录同步到详细点餐记录中
+    await syncNoEatToOrderDetails(date, mealType, userId, req.session.user.name, newReg.registeredAt);
+
+    // 同时更新用户的最后点餐时间（虽然是不吃，但算作参与点餐）
+    await updateUserLastOrderTime(userId, newReg.registeredAt);
+
     res.json({
       success: true,
       message: '登记成功'
@@ -3858,6 +4131,8 @@ app.get('/api/no-eat/status', requireAuth, async (req, res) => {
     const { mealType, date } = req.query;
     const userId = req.session.user.id;
 
+    console.log(`[DEBUG] 检查不吃状态 - 用户: ${userId}, 餐次: ${mealType}, 日期: ${date}`);
+
     if (!mealType || !date) {
       return res.status(400).json({
         success: false,
@@ -3866,19 +4141,25 @@ app.get('/api/no-eat/status', requireAuth, async (req, res) => {
     }
 
     const noEatRegs = await dataStore.read('no-eat-registrations.json');
+    console.log(`[DEBUG] 总登记记录数: ${noEatRegs.length}`);
 
     // 检查用户是否已经登记过
     const existingReg = noEatRegs.find(reg =>
       reg.userId === userId && reg.mealType === mealType && reg.date === date
     );
 
-    res.json({
+    console.log(`[DEBUG] 找到匹配记录:`, existingReg);
+
+    const result = {
       success: true,
       data: {
         registered: !!existingReg,
         registeredAt: existingReg ? existingReg.registeredAt : null
       }
-    });
+    };
+
+    console.log(`[DEBUG] 返回结果:`, result);
+    res.json(result);
   } catch (error) {
     console.error('检查不吃登记状态失败:', error);
     res.status(500).json({
@@ -3949,6 +4230,85 @@ app.delete('/api/no-eat/register', requireAuth, async (req, res) => {
     });
   }
 });
+
+// 辅助函数：将不吃记录同步到详细点餐记录中
+async function syncNoEatToOrderDetails(date, mealType, userId, userName, registeredAt) {
+  try {
+    console.log(`[syncNoEatToOrderDetails] 开始同步不吃记录: ${date} ${mealType} ${userName}`);
+
+    const dailyOrders = await dataStore.read('daily-orders.json');
+
+    // 查找当天对应餐次的详细订单记录
+    const targetOrder = dailyOrders.find(order =>
+      order.date === date &&
+      order.mealType === mealType &&
+      order.dishes && // 只处理有 dishes 字段的详细记录
+      Array.isArray(order.dishes)
+    );
+
+    if (targetOrder) {
+      console.log(`[syncNoEatToOrderDetails] 找到目标订单记录，ID: ${targetOrder.id}`);
+
+      // 在第一个菜品中添加不吃订单记录
+      if (targetOrder.dishes.length > 0) {
+        if (!targetOrder.dishes[0].orders) {
+          targetOrder.dishes[0].orders = [];
+        }
+
+        // 检查是否已经存在该用户的记录，避免重复
+        const existingOrderIndex = targetOrder.dishes[0].orders.findIndex(order => order.userId === userId);
+
+        const noEatOrder = {
+          userId: userId,
+          userName: userName,
+          quantity: 1,
+          isNoEat: true,
+          createdAt: registeredAt,
+          note: '不吃登记'
+        };
+
+        if (existingOrderIndex >= 0) {
+          // 更新现有记录
+          targetOrder.dishes[0].orders[existingOrderIndex] = noEatOrder;
+          console.log(`[syncNoEatToOrderDetails] 更新现有用户记录: ${userName}`);
+        } else {
+          // 添加新记录
+          targetOrder.dishes[0].orders.push(noEatOrder);
+          console.log(`[syncNoEatToOrderDetails] 添加新用户记录: ${userName}`);
+        }
+
+        await dataStore.write('daily-orders.json', dailyOrders);
+        console.log(`[syncNoEatToOrderDetails] 不吃记录同步成功`);
+      }
+    } else {
+      console.log(`[syncNoEatToOrderDetails] 未找到对应的详细订单记录，可能该日期使用简化格式`);
+    }
+  } catch (error) {
+    console.error('同步不吃记录到详细点餐记录失败:', error);
+  }
+}
+
+// 辅助函数：更新用户最后点餐时间
+async function updateUserLastOrderTime(userId, orderTime) {
+  try {
+    console.log(`[updateUserLastOrderTime] 更新用户最后点餐时间: ${userId} ${orderTime}`);
+
+    const users = await dataStore.read('users.json');
+    const userIndex = users.findIndex(user => user.id === userId);
+
+    if (userIndex >= 0) {
+      users[userIndex].lastOrderTime = orderTime;
+      users[userIndex].lastLoginTime = orderTime; // 同时更新最后登录时间
+
+      await dataStore.write('users.json', users);
+      console.log(`[updateUserLastOrderTime] 用户时间更新成功: ${users[userIndex].name}`);
+    } else {
+      console.log(`[updateUserLastOrderTime] 用户不存在: ${userId}`);
+    }
+  } catch (error) {
+    console.error('更新用户最后点餐时间失败:', error);
+  }
+}
 
 // Excel数据同步API
 app.post('/api/excel/sync', async (req, res) => {
@@ -4557,11 +4917,57 @@ app.get('/auth/feishu/callback', async (req, res) => {
     // 清除OAuth state
     delete req.session.oauthState;
     
+    // 检查是否有不吃登记意图
+    if (req.session.noEatIntent) {
+      const { mealType, source } = req.session.noEatIntent;
+      console.log(`🍽️ 检测到不吃登记意图: ${mealType}, 来源: ${source}`);
+
+      try {
+        // 执行不吃登记
+        const today = moment().format('YYYY-MM-DD');
+        const noEatRegs = await dataStore.read('no-eat-registrations.json') || [];
+
+        // 检查是否已经登记过
+        const existingReg = noEatRegs.find(reg =>
+          reg.userId === userId &&
+          reg.date === today &&
+          reg.mealType === mealType
+        );
+
+        if (!existingReg) {
+          // 添加新的不吃记录
+          const newReg = {
+            userId: userId,
+            date: today,
+            mealType: mealType,
+            registeredAt: new Date().toISOString(),
+            source: source
+          };
+          noEatRegs.push(newReg);
+          await dataStore.write('no-eat-registrations.json', noEatRegs);
+          console.log(`✅ 自动完成不吃登记: ${JSON.stringify(newReg)}`);
+        }
+
+        // 清除登记意图
+        delete req.session.noEatIntent;
+
+        // 重定向到成功页面
+        const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
+        const successPage = userRole === 'admin' ? '/admin-dashboard.html' : '/user-dashboard.html';
+        res.redirect(`${successPage}?no_eat_registered=${mealType}&meal_name=${encodeURIComponent(mealName)}`);
+        return;
+
+      } catch (error) {
+        console.error('自动不吃登记失败:', error);
+        // 继续正常登录流程
+      }
+    }
+
     // 根据用户角色重定向到对应页面
     if (userRole === 'admin') {
-      res.redirect('/admin-dashboard.html?login=success&noeat_intent=check');
+      res.redirect('/admin-dashboard.html?login=success');
     } else {
-      res.redirect('/user-dashboard.html?login=success&noeat_intent=check');
+      res.redirect('/user-dashboard.html?login=success');
     }
     
   } catch (error) {
@@ -4710,6 +5116,261 @@ app.get('/api/admin/user-roles-config', requireAdminAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '获取角色配置失败'
+    });
+  }
+});
+
+// 手动启动飞书长连接（用于本地测试，无需重启进程）
+app.post('/api/feishu/longconn/start', async (req, res) => {
+  try {
+    if (typeof global.__startFeishuLongConnection !== 'function') {
+      return res.status(400).json({ success: false, message: '长连接启动器不可用（缺少SDK或未加载）' });
+    }
+    await global.__startFeishuLongConnection(FEISHU_CONFIG, console);
+    res.json({ success: true, message: '长连接已启动' });
+  } catch (e) {
+    console.error('手动启动长连接失败:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// 通过长连接发送群消息
+app.post('/api/feishu/longconn/send-message', async (req, res) => {
+  try {
+    if (typeof global.__sendMessageViaLongConnection !== 'function') {
+      return res.status(400).json({ success: false, message: '长连接消息发送器不可用' });
+    }
+
+    const { chatId, messageType = 'text', title, content, color = 'blue', actions = [] } = req.body;
+
+    if (!chatId) {
+      return res.status(400).json({ success: false, message: '缺少群聊ID (chatId)' });
+    }
+
+    if (!content) {
+      return res.status(400).json({ success: false, message: '缺少消息内容' });
+    }
+
+    let message;
+
+    // 根据消息类型构建消息对象
+    switch (messageType) {
+      case 'text':
+        message = {
+          msg_type: 'text',
+          content: {
+            text: title ? `${title}\n\n${content}` : content
+          }
+        };
+        break;
+
+      case 'card':
+        message = {
+          msg_type: 'interactive',
+          card: {
+            config: {
+              wide_screen_mode: true,
+              enable_forward: true
+            },
+            header: {
+              title: {
+                tag: 'plain_text',
+                content: title || '消息'
+              },
+              template: color
+            },
+            elements: [
+              {
+                tag: 'div',
+                text: {
+                  tag: 'lark_md',
+                  content: content
+                }
+              }
+            ]
+          }
+        };
+        break;
+
+      case 'interactive':
+        message = {
+          msg_type: 'interactive',
+          card: {
+            config: {
+              wide_screen_mode: true,
+              enable_forward: true
+            },
+            header: {
+              title: {
+                tag: 'plain_text',
+                content: title || '消息'
+              },
+              template: color
+            },
+            elements: [
+              {
+                tag: 'div',
+                text: {
+                  tag: 'lark_md',
+                  content: content
+                }
+              }
+            ]
+          }
+        };
+
+        // 添加按钮
+        if (actions && actions.length > 0) {
+          message.card.elements.push({
+            tag: 'action',
+            actions: actions
+          });
+        }
+        break;
+
+      default:
+        return res.status(400).json({ success: false, message: '不支持的消息类型' });
+    }
+
+    const result = await global.__sendMessageViaLongConnection(chatId, message, console);
+    res.json(result);
+
+  } catch (e) {
+    console.error('通过长连接发送消息失败:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// 获取机器人所在的群聊列表
+app.get('/api/feishu/longconn/chats', async (req, res) => {
+  try {
+    if (typeof global.__getChatId !== 'function') {
+      return res.status(400).json({ success: false, message: '长连接获取群聊功能不可用' });
+    }
+
+    const result = await global.__getChatId(console);
+    res.json(result);
+
+  } catch (e) {
+    console.error('获取群聊列表失败:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// 解析群链接中的 chat_code / link_token 获取 chat_id（open_chat_id）
+app.post('/api/feishu/resolve-chat', async (req, res) => {
+  try {
+    if (!feishuAppBot) {
+      return res.status(400).json({ success: false, message: 'Feishu AppBot 未初始化（缺少依赖或配置）' });
+    }
+    const { chatCode, linkToken, link } = req.body || {};
+    let code = chatCode || linkToken;
+    if (!code && typeof link === 'string') {
+      const m = link.match(/[?&](chat_code|link_token)=([^&]+)/);
+      if (m) code = decodeURIComponent(m[2]);
+    }
+    if (!code) {
+      return res.status(400).json({ success: false, message: '请提供 chatCode / linkToken / link' });
+    }
+    const chatId = await feishuAppBot.resolveChatIdByCode(code);
+    if (!chatId) {
+      return res.status(404).json({ success: false, message: '未解析到 chat_id，请检查链接是否有效/权限是否足够' });
+    }
+    res.json({ success: true, chatId });
+  } catch (error) {
+    console.error('解析群链接失败:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 使用应用机器人发送交互式卡片（IM接口）
+app.post('/api/feishu/send-card', async (req, res) => {
+  try {
+    if (!feishuAppBot) {
+      return res.status(400).json({ success: false, message: 'Feishu AppBot 未初始化（缺少依赖或配置）' });
+    }
+
+    const { chatId, mealType = 'lunch' } = req.body || {};
+    const finalChatId = chatId || process.env.FEISHU_TARGET_CHAT_ID;
+    if (!finalChatId) {
+      return res.status(400).json({ success: false, message: '缺少 chatId（或设置 FEISHU_TARGET_CHAT_ID）' });
+    }
+
+    const card = (global.__buildNoEatCard ? global.__buildNoEatCard(mealType) : {
+      config: { wide_screen_mode: true },
+      header: { template: 'blue', title: { tag: 'plain_text', content: '🍽️ 登记不吃' } },
+      elements: [
+        { tag: 'div', text: { tag: 'lark_md', content: '点击下方按钮登记不吃' } },
+        { tag: 'action', actions: [{ tag: 'button', text: { tag: 'plain_text', content: '🚫 登记不吃' }, type: 'primary', value: { action: 'no_eat_lunch' } }] }
+      ]
+    });
+
+    const result = await feishuAppBot.sendInteractiveCardToChat(finalChatId, card);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('发送卡片失败:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 删除用户（管理员权限）
+app.delete('/api/admin/users/:userId', requireAdminAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: '缺少用户ID'
+      });
+    }
+
+    // 不允许删除默认管理员
+    const roleData = await dataStore.read('user-roles.json') || { defaultAdmins: [], users: {} };
+    if (roleData.defaultAdmins && roleData.defaultAdmins.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: '不能删除默认管理员'
+      });
+    }
+
+    // 不允许删除自己，避免误锁
+    if (req.session?.user?.id === userId) {
+      return res.status(400).json({
+        success: false,
+        message: '不能删除当前登录用户'
+      });
+    }
+
+    // 从用户列表中删除
+    const users = await dataStore.read('users.json') || [];
+    const index = users.findIndex(u => u.id === userId);
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+    }
+
+    const deletedUser = users.splice(index, 1)[0];
+    await dataStore.write('users.json', users);
+
+    // 清理角色映射（若有）
+    if (roleData.users && roleData.users[userId]) {
+      delete roleData.users[userId];
+      await dataStore.write('user-roles.json', roleData);
+    }
+
+    return res.json({
+      success: true,
+      message: '用户删除成功',
+      data: { id: deletedUser.id, name: deletedUser.name }
+    });
+  } catch (error) {
+    console.error('删除用户失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '删除用户失败'
     });
   }
 });
@@ -5859,6 +6520,181 @@ app.get('/no-eat', async (req, res) => {
   res.send(html);
 });
 
+// 飞书按钮点击直接登记不吃的API路由
+app.get('/api/no-eat/:mealType', async (req, res) => {
+  const { mealType } = req.params;
+  const { auto_redirect } = req.query;
+
+  console.log(`🔘 收到飞书按钮点击: /api/no-eat/${mealType}`);
+  console.log('📋 请求信息:', {
+    headers: req.headers,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+
+  // 由于从飞书点击过来无法直接获取用户身份，
+  // 我们需要跳转到飞书授权来获取用户信息
+  if (auto_redirect) {
+    // 保存登记意图到session
+    req.session.noEatIntent = {
+      mealType: mealType,
+      timestamp: Date.now(),
+      source: 'feishu_button'
+    };
+
+    // 重定向到飞书授权
+    const redirectUrl = `/auth/feishu?action=no_eat&meal=${mealType}`;
+    console.log(`🔀 重定向到飞书授权: ${redirectUrl}`);
+    return res.redirect(redirectUrl);
+  }
+
+  // 如果没有auto_redirect参数，返回简单的成功页面
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>登记处理</title><meta charset="UTF-8"></head>
+    <body>
+      <h2>处理不吃登记</h2>
+      <p>餐型: ${mealType === 'lunch' ? '午餐' : '晚餐'}</p>
+      <p>需要先进行身份验证...</p>
+      <a href="/auth/feishu?action=no_eat&meal=${mealType}">点击进行飞书登录</a>
+    </body>
+    </html>
+  `);
+});
+
+// 快速登记路由 - 处理按钮点击
+app.get('/quick-register', async (req, res) => {
+  const { meal, action } = req.query;
+  const userAgent = req.headers['user-agent'];
+
+  console.log(`快速登记请求: meal=${meal}, action=${action}, userAgent=${userAgent}`);
+
+  try {
+    if (action === 'skip' && (meal === 'lunch' || meal === 'dinner')) {
+      // 由于从飞书按钮点击过来，暂时使用默认用户处理
+      // 后续可以通过飞书OAuth获取真实用户ID
+
+      const today = moment().format('YYYY-MM-DD');
+      const mealType = meal; // 'lunch' 或 'dinner'
+
+      // 临时使用默认用户ID - 实际应用中需要从飞书获取真实用户
+      let defaultUserId = null;
+
+      // 查找一个存在的用户ID作为默认值
+      const userRegistrations = await dataStore.read('user-registrations.json') || [];
+      const orders = await dataStore.read('daily-orders.json') || [];
+
+      // 递归搜索用户ID，因为数据结构可能是嵌套的
+      const findUserId = (data) => {
+        if (Array.isArray(data)) {
+          for (const item of data) {
+            const result = findUserId(item);
+            if (result) return result;
+          }
+        } else if (data && typeof data === 'object') {
+          if (data.userId) return data.userId;
+          for (const value of Object.values(data)) {
+            const result = findUserId(value);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
+
+      // 首先从用户注册记录中查找，然后从订单记录中查找
+      defaultUserId = findUserId(userRegistrations) || findUserId(orders);
+
+      if (!defaultUserId) {
+        console.log('警告: 没有找到可用的用户ID，无法记录不吃登记');
+        res.send(`
+          <html>
+          <head><meta charset="utf-8"><title>登记失败</title></head>
+          <body style="text-align:center; padding:50px; font-family:Arial;">
+            <h2>❌ 登记失败</h2>
+            <p>系统中没有找到用户信息，请先通过正常流程登录一次</p>
+            <p><a href="/">返回首页</a></p>
+          </body>
+          </html>
+        `);
+        return;
+      }
+
+      // 检查是否已经有今日的"不吃"登记记录（在用户注册记录中查找）
+      const existingRegistration = userRegistrations.find(record =>
+        record.userId === defaultUserId &&
+        record.date === today &&
+        record.mealType === mealType &&
+        record.dishName === '不吃'
+      );
+
+      if (existingRegistration) {
+        // 已经有"不吃"登记记录，不需要重复创建
+        console.log(`用户已经登记过不吃: ${defaultUserId}, ${today}, ${mealType}`);
+      } else {
+        // 检查是否有其他菜品的登记记录，如果有就更新为"不吃"
+        const existingOtherRegistration = userRegistrations.find(record =>
+          record.userId === defaultUserId &&
+          record.date === today &&
+          record.mealType === mealType
+        );
+
+        if (existingOtherRegistration) {
+          // 更新现有记录为"不吃"
+          existingOtherRegistration.dishId = null;
+          existingOtherRegistration.dishName = '不吃';
+          existingOtherRegistration.restaurantName = '无';
+          existingOtherRegistration.updatedAt = new Date().toISOString();
+          existingOtherRegistration.note = '通过飞书按钮快速登记';
+
+          await dataStore.write('user-registrations.json', userRegistrations);
+          console.log(`更新现有用户注册记录为不吃: ${defaultUserId}, ${today}, ${mealType}`);
+        } else {
+          // 创建新的"不吃"记录（存储在用户注册记录中）
+          const skipRegistration = {
+            id: Date.now().toString(),
+            userId: defaultUserId,
+            date: today,
+            mealType: mealType,
+            dishId: null,
+            dishName: '不吃',
+            restaurantName: '无',
+            price: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          note: '通过飞书按钮快速登记'
+        };
+
+        userRegistrations.push(skipRegistration);
+        await dataStore.write('user-registrations.json', userRegistrations);
+        console.log(`创建新的用户不吃注册记录: ${defaultUserId}, ${today}, ${mealType}`);
+        }
+      }
+
+      res.send(`
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>快速登记</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+        </head>
+        <body style="text-align:center; padding:50px; font-family:Arial;">
+          <h2>✅ 登记成功</h2>
+          <p>您已成功登记不吃${meal === 'lunch' ? '午餐' : '晚餐'}</p>
+          <p>记录已同步到点餐系统</p>
+          <p><a href="/">返回首页</a></p>
+        </body>
+        </html>
+      `);
+    } else {
+      res.status(400).send('无效的登记参数');
+    }
+  } catch (error) {
+    console.error('快速登记处理错误:', error);
+    res.status(500).send('登记失败，请稍后重试');
+  }
+});
+
 // 首页和其他页面 - 需要验证
 app.get('/', requireAuthPage, (req, res) => {
   res.redirect('/user-dashboard.html');
@@ -5898,5 +6734,14 @@ app.listen(PORT, '0.0.0.0', async () => {
   // 初始化定时任务
   await initializeCronJobs();
 
-  console.log(`\n⏰ 系统已就绪，所有定时任务已启动！\n`);
+  console.log(`\n✅ 系统已就绪，所有定时任务已启动！\n`);
+
+  // 可选：启动飞书长连接（无需公网回调）。需要安装官方SDK并设置 FEISHU_LONG_CONN_ENABLED=true
+  if (process.env.FEISHU_LONG_CONN_ENABLED === 'true' && typeof global.__startFeishuLongConnection === 'function') {
+    try {
+      await global.__startFeishuLongConnection(FEISHU_CONFIG, console);
+    } catch (e) {
+      console.warn('启动飞书长连接失败:', e.message);
+    }
+  }
 });

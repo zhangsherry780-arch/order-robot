@@ -23,7 +23,14 @@
       "Bash(findstr:*)",
       "Bash(tasklist:*)",
       "Bash(jq:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:open.feishu.cn)",
+      "WebSearch",
+      "Bash(echo $FEISHU_TARGET_CHAT_ID)",
+      "Bash(PORT=3001 node server.js)",
+      "Bash(cmd.exe:*)"
     ],
     "deny": [],
     "ask": []
