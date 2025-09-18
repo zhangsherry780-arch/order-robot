@@ -32,7 +32,8 @@
       "Bash(PORT=3001 node server.js)",
       "Bash(cmd.exe:*)",
       "Bash(start.bat)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

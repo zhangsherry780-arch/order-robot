@@ -1658,7 +1658,7 @@ class FeishuMessageTemplates {
     if (menuData.lunch && menuData.lunch.length > 0) {
       content += `🥗 **午餐菜单：**\n`;
       menuData.lunch.forEach((dish, index) => {
-        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}（套餐内容以实际为准）\n`;
+        content += `${index + 1}. ${dish.restaurantName} - ${dish.dishName}\n`;
       });
       content += '\n';
     }
@@ -1666,7 +1666,7 @@ class FeishuMessageTemplates {
     if (menuData.dinner && menuData.dinner.length > 0) {
       content += `🍽️ **晚餐菜单：**\n`;
       menuData.dinner.forEach((dish, index) => {
-        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}（套餐内容以实际为准）\n`;
+        content += `${index + 1}. ${dish.restaurantName} - ${dish.dishName}\n`;
       });
     }
     
@@ -1760,9 +1760,10 @@ class FeishuMessageTemplates {
 
     if (menuData && menuData.length > 0) {
       menuData.forEach((dish, index) => {
-        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}（套餐内容以实际为准）\n`;
+        content += `${index + 1}. ${dish.restaurantName} - ${dish.dishName}\n`;
       });
       content += '\n💡 **温馨提示：**\n';
+      content += '• 套餐内容以实际为准\n';
       content += '• 点击下方按钮快速登记不吃\n';
       content += '• 访问系统去点餐或评价菜品\n';
       content += '• 如有疑问请联系管理员';
@@ -1795,7 +1796,7 @@ class FeishuMessageTemplates {
         tag: 'button',
         text: {
           tag: 'plain_text',
-          content: '🍽️ 访问系统'
+          content: '🍽️ 前往订餐系统'
         },
         type: 'default',
         url: 'http://localhost:3000'
@@ -2609,7 +2610,7 @@ function buildMealMenuCardFromMenus(today, menus, mealType) {
 
     Object.keys(menusByRestaurant).forEach(restaurant => {
       menuContent += `🏪 **餐厅**：${restaurant}\n`;
-      menuContent += `🍽️ **菜品**：${menusByRestaurant[restaurant].join('、')}（套餐内容以实际为准）\n\n`;
+      menuContent += `🍽️ **菜品**：${menusByRestaurant[restaurant].join('、')}\n\n`;
     });
   } else {
     menuContent += `${emoji} **${mealName}菜单**（登记不吃截止：${deadline}）\n`;
@@ -2618,6 +2619,7 @@ function buildMealMenuCardFromMenus(today, menus, mealType) {
 
   // 添加操作提示
   menuContent += `💡 **温馨提示**：\n`;
+  menuContent += `• 套餐内容以实际为准\n`;
   menuContent += `• 默认所有人员都会用餐\n`;
   menuContent += `• 如需登记不吃，请访问系统去点餐或评价菜品\n`;
   menuContent += `• ${mealName}登记截止时间：${deadline}`;
@@ -2648,7 +2650,7 @@ function buildTodayMenuCardFromMenus(today, lunchMenus, dinnerMenus) {
 
     Object.keys(lunchByRestaurant).forEach(restaurant => {
       menuContent += `🏪 **餐厅**：${restaurant}\n`;
-      menuContent += `🍽️ **菜品**：${lunchByRestaurant[restaurant].join('、')}（套餐内容以实际为准）\n\n`;
+      menuContent += `🍽️ **菜品**：${lunchByRestaurant[restaurant].join('、')}\n\n`;
     });
   } else {
     menuContent += `👨‍🍳 **午餐菜单**（登记不吃截止：${lunchDeadline}）\n`;
@@ -2670,7 +2672,7 @@ function buildTodayMenuCardFromMenus(today, lunchMenus, dinnerMenus) {
 
     Object.keys(dinnerByRestaurant).forEach(restaurant => {
       menuContent += `🏪 **餐厅**：${restaurant}\n`;
-      menuContent += `🍽️ **菜品**：${dinnerByRestaurant[restaurant].join('、')}（套餐内容以实际为准）\n\n`;
+      menuContent += `🍽️ **菜品**：${dinnerByRestaurant[restaurant].join('、')}\n\n`;
     });
   } else {
     menuContent += `🌙 **晚餐菜单**（登记不吃截止：${dinnerDeadline}）\n`;
@@ -2679,6 +2681,7 @@ function buildTodayMenuCardFromMenus(today, lunchMenus, dinnerMenus) {
 
   // 添加操作提示
   menuContent += `💡 **温馨提示**：\n`;
+  menuContent += `• 套餐内容以实际为准\n`;
   menuContent += `• 默认所有人员都会用餐\n`;
   menuContent += `• 如需登记不吃，请访问系统去点餐或评价菜品\n`;
   menuContent += `• 午餐登记截止时间：${lunchDeadline}\n`;
@@ -6265,9 +6268,19 @@ app.get('/api/ratings/ratable-dishes', requireAuth, async (req, res) => {
             r.userId === userId && r.date === dateStr && r.mealType === meal
           );
 
-          // 获取当天的菜单信息
-          const dayMenu = dailyOrders.find(order => order.date === dateStr);
+          // 获取当天的菜单信息 - 优先选择包含菜单数据的记录
+          const dayMenus = dailyOrders.filter(order => order.date === dateStr);
+          const dayMenu = dayMenus.find(menu => menu[meal] && Array.isArray(menu[meal])) || dayMenus[0];
           const mealMenu = dayMenu && dayMenu[meal] ? dayMenu[meal] : [];
+
+          // 调试日志
+          if (dateStr === '2025-09-18') {
+            console.log(`[DEBUG] 处理日期: ${dateStr}, 餐次: ${meal}`);
+            console.log(`[DEBUG] 用户记录: ${userRecord ? 'found' : 'not found'}`, userRecord);
+            console.log(`[DEBUG] 找到的当天记录数: ${dayMenus.length}`);
+            console.log(`[DEBUG] 当天菜单: ${dayMenu ? 'found' : 'not found'}`);
+            console.log(`[DEBUG] 餐次菜单: ${mealMenu ? mealMenu.length : 0} items`, mealMenu);
+          }
 
           if (userRecord && userRecord.dishName === '不吃') {
             // 用户登记不吃，跳过不添加到点餐记录中
@@ -6302,16 +6315,15 @@ app.get('/api/ratings/ratable-dishes', requireAuth, async (req, res) => {
       date.setDate(date.getDate() + 1);
     }
 
-    // 按餐厅+菜名去重，收集所有用户吃过的菜品
-    const userOrders = [];
+    // 按餐厅+菜名去重，保留最新的记录
+    const dishMap = new Map();
     mealHistory.forEach(record => {
-      // 避免重复添加同一道菜（按餐厅+菜名去重）
-      const alreadyExists = userOrders.some(existingOrder =>
-        existingOrder.restaurant === record.restaurantName && existingOrder.name === record.dishName
-      );
+      const key = `${record.restaurantName}-${record.dishName}`;
+      const existingRecord = dishMap.get(key);
 
-      if (!alreadyExists) {
-        userOrders.push({
+      // 如果没有记录或当前记录更新，则更新
+      if (!existingRecord || new Date(record.createdAt) > new Date(existingRecord.createdAt)) {
+        dishMap.set(key, {
           id: `${record.date}-${record.mealType}-${record.dishName}`,
           name: record.dishName,
           restaurant: record.restaurantName,
@@ -6321,6 +6333,11 @@ app.get('/api/ratings/ratable-dishes', requireAuth, async (req, res) => {
         });
       }
     });
+
+    // 转换为数组并按时间排序（最新的在前）
+    const userOrders = Array.from(dishMap.values()).sort((a, b) =>
+      new Date(b.orderedAt) - new Date(a.orderedAt)
+    );
 
     // 获取已评价的菜品
     const ratings = await dataStore.read('dish-ratings.json') || [];
@@ -6334,6 +6351,7 @@ app.get('/api/ratings/ratable-dishes', requireAuth, async (req, res) => {
     );
 
     console.log(`用户 ${userId} 可评价菜品数量: ${ratableDishes.length}`);
+    console.log('可评价菜品详细列表:', JSON.stringify(ratableDishes, null, 2));
 
     res.json({
       success: true,

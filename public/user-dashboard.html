@@ -1313,7 +1313,7 @@
                                         <el-option
                                             v-for="dish in ratableDishes"
                                             :key="dish.id"
-                                            :label="`${dish.restaurant} - ${dish.name} (${dish.date} ${dish.period === 'lunch' ? '中餐' : '晚餐'})`"
+                                            :label="`${dish.restaurant} - ${dish.name}`"
                                             :value="dish"
                                         >
                                         </el-option>
@@ -2592,8 +2592,10 @@
                     try {
                         const response = await fetch('/api/ratings/ratable-dishes');
                         const result = await response.json();
+                        console.log('前端收到的可评价菜品数据:', result);
                         if (result.success) {
                             this.ratableDishes = result.data;
+                            console.log('设置到ratableDishes的数据:', this.ratableDishes);
                         }
                     } catch (error) {
                         console.error('加载可评价菜品失败:', error);

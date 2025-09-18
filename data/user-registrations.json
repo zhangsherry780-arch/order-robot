@@ -259,5 +259,18 @@
     "createdAt": "2025-09-16T13:42:50.742Z",
     "updatedAt": "2025-09-16T13:42:50.742Z",
     "note": "历史数据同步 - 通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758209514368",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-18",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-18T15:31:54.368Z",
+    "updatedAt": "2025-09-18T15:31:54.368Z",
+    "note": "通过飞书按钮快速登记"
   }
 ]
