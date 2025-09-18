@@ -33,7 +33,8 @@
       "Bash(cmd.exe:*)",
       "Bash(start.bat)",
       "Bash(dir:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
