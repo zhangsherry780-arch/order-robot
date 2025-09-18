@@ -9,5 +9,16 @@
     "userId": "user_001",
     "userName": "当前用户",
     "createdAt": "2025-09-12T14:45:35.349Z"
+  },
+  {
+    "id": 3,
+    "restaurantName": "汉堡王",
+    "dishName": "Hambuger",
+    "tags": [],
+    "imageUrl": "/images/default-dish.jpg",
+    "description": "",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "userName": "张雪岩",
+    "createdAt": "2025-09-17T15:08:46.381Z"
   }
 ]

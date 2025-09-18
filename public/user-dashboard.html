@@ -667,6 +667,143 @@
         .empty-state p {
             margin: 10px 0;
         }
+
+        /* 点餐记录页面样式 */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #67c23a;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .meal-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meal-icon {
+            font-size: 20px;
+        }
+
+        .meal-type {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .meal-date {
+            color: #666;
+            font-size: 14px;
+            background: #f5f7fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .dish-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 8px 0;
+        }
+
+        .restaurant-name {
+            color: #666;
+            font-size: 14px;
+            margin: 0 0 10px 0;
+        }
+
+        .meal-details {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .price {
+            color: #e6a23c;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .created-time {
+            color: #909399;
+            font-size: 12px;
+        }
+
+        .note {
+            margin: 10px 0 0 0;
+            padding: 8px 12px;
+            background: #f0f9ff;
+            border-radius: 6px;
+            color: #666;
+            font-size: 14px;
+            border-left: 3px solid #409eff;
+        }
+
+        .stats-section .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #67c23a;
+            margin-bottom: 5px;
+        }
+
+        .stat-number.stat-success {
+            color: #67c23a;
+        }
+
+        .stat-number.stat-warning {
+            color: #e6a23c;
+        }
+
+        .stat-number.stat-info {
+            color: #909399;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .pagination-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -990,8 +1127,107 @@
                     
                     <!-- 点餐记录页面 -->
                     <div v-if="currentPage === 'history'" class="page-content">
-                        <h3>📊 我的点餐记录</h3>
-                        <p>功能开发中，敬请期待...</p>
+                        <div class="page-header">
+                            <h3>📊 我的点餐记录</h3>
+                            <div class="header-actions">
+                                <el-select v-model="historyFilter" @change="loadMealHistory" style="width: 120px; margin-right: 10px;">
+                                    <el-option label="全部" value=""></el-option>
+                                    <el-option label="午餐" value="lunch"></el-option>
+                                    <el-option label="晚餐" value="dinner"></el-option>
+                                </el-select>
+                                <el-button type="primary" @click="loadMealHistory" :loading="historyLoading">
+                                    🔄 刷新
+                                </el-button>
+                            </div>
+                        </div>
+
+                        <!-- 统计信息 -->
+                        <div v-if="historyStats" class="stats-section" style="margin-bottom: 20px;">
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                <div class="stat-card">
+                                    <div class="stat-number">{{ historyStats.totalMeals }}</div>
+                                    <div class="stat-label">总餐次</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">{{ historyStats.lunchCount }}</div>
+                                    <div class="stat-label">午餐次数</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">{{ historyStats.dinnerCount }}</div>
+                                    <div class="stat-label">晚餐次数</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number stat-success">{{ historyStats.orderedCount || 0 }}</div>
+                                    <div class="stat-label">主动点餐</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number stat-warning">{{ historyStats.defaultCount || 0 }}</div>
+                                    <div class="stat-label">默认点餐</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 加载状态 -->
+                        <div v-if="historyLoading" class="loading-container">
+                            <el-skeleton :rows="5" animated />
+                        </div>
+
+                        <!-- 点餐历史列表 -->
+                        <div v-else-if="mealHistory.length > 0" class="history-list">
+                            <div v-for="record in mealHistory" :key="record.id" class="history-item">
+                                <div class="history-header">
+                                    <div class="meal-info">
+                                        <span class="meal-icon">{{ record.mealType === 'lunch' ? '🌅' : '🌃' }}</span>
+                                        <span class="meal-type">{{ record.mealTypeName }}</span>
+                                        <span class="meal-date">{{ formatHistoryDate(record.date) }}</span>
+                                    </div>
+                                    <div class="meal-status">
+                                        <el-tag
+                                            :type="getStatusTagType(record)"
+                                            size="small"
+                                        >
+                                            {{ getStatusText(record) }}
+                                        </el-tag>
+                                    </div>
+                                </div>
+
+                                <div class="history-content">
+                                    <div class="dish-info">
+                                        <h4 class="dish-name">{{ record.dishName }}</h4>
+                                        <p class="restaurant-name">{{ record.restaurantName }}</p>
+                                        <div class="meal-details">
+                                            <span v-if="!record.isNoEat && record.price > 0" class="price">
+                                                💰 ¥{{ record.price }}
+                                            </span>
+                                            <span class="created-time">
+                                                ⏰ {{ formatDateTime(record.createdAt) }}
+                                            </span>
+                                        </div>
+                                        <p v-if="record.note" class="note">
+                                            📝 {{ record.note }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 空状态 -->
+                        <div v-else class="empty-state">
+                            <p>暂无点餐记录</p>
+                            <p style="font-size: 14px; color: #999;">开始点餐后，您的记录会显示在这里</p>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div v-if="pagination && pagination.totalPages > 1" class="pagination-section">
+                            <el-pagination
+                                v-model:current-page="currentHistoryPage"
+                                :page-size="historyPageSize"
+                                :total="pagination.total"
+                                layout="prev, pager, next, total"
+                                @current-change="handleHistoryPageChange"
+                                small
+                            />
+                        </div>
                     </div>
                     
                     <!-- 餐厅评价页面 -->
@@ -1190,7 +1426,7 @@
                                             <el-button 
                                                 :type="submission.likedByCurrentUser ? 'primary' : 'default'"
                                                 size="small"
-                                                @click="toggleLike(submission)"
+                                                @click="toggleSubmissionLike(submission)"
                                                 :loading="submission.liking">
                                                 <span class="icon">👍</span> {{ submission.likeCount || 0 }}
                                             </el-button>
@@ -1284,8 +1520,12 @@
                         dinner: []
                     },
                     userPreferences: {
-                        lunch: 'eat', 
+                        lunch: 'eat',
                         dinner: 'eat'
+                    },
+                    mealStatus: {
+                        lunch: { status: 'closed', canModify: false },
+                        dinner: { status: 'closed', canModify: false }
                     },
                     user: {
                         isLoggedIn: false,
@@ -1333,7 +1573,15 @@
                     dialogComment: '',
                     submittingRating: false,
                     hoverRating: 0,
-                    hoverDish: null
+                    hoverDish: null,
+                    // 点餐记录相关数据
+                    mealHistory: [],
+                    historyLoading: false,
+                    historyFilter: '',
+                    currentHistoryPage: 1,
+                    historyPageSize: 20,
+                    pagination: null,
+                    historyStats: null
                 };
             },
             computed: {
@@ -1342,18 +1590,17 @@
                     return today !== 6; // 周日到周五都是工作日，只有周六不是
                 },
                 canModifyLunch() {
-                    const now = new Date();
-                    return this.isWorkday && now.getHours() < 11;
+                    return this.isWorkday && this.mealStatus.lunch.canModify;
                 },
                 canModifyDinner() {
-                    const now = new Date();
-                    return this.isWorkday && now.getHours() < 17;
+                    return this.isWorkday && this.mealStatus.dinner.canModify;
                 }
             },
             async mounted() {
                 this.loadTodayMenu();
                 // 先加载localStorage作为默认值，然后API会覆盖它
                 await this.loadUserPreferences();
+                await this.loadMealStatus();
                 await this.checkUserStatus();
                 // 处理来自飞书的"不吃登记"意图（简化登录流程）
                 await this.consumeNoEatIntentIfAny();
@@ -1374,6 +1621,9 @@
                     if (page === 'rating') {
                         this.loadRatings();
                         this.loadRatableDishes();
+                    }
+                    if (page === 'history') {
+                        this.loadMealHistory();
                     }
                 }
             },
@@ -1430,6 +1680,10 @@
                         this.loadRatings();
                         this.loadRatableDishes();
                     }
+                    // 当切换到点餐记录页面时，加载历史数据
+                    if (page === 'history') {
+                        this.loadMealHistory();
+                    }
                 },
                 
                 getPageTitle() {
@@ -1463,7 +1717,133 @@
                         console.error('加载今日菜单失败:', error);
                     }
                 },
-                
+
+                async loadMealStatus() {
+                    try {
+                        const response = await fetch('/api/meal/status');
+                        const result = await response.json();
+                        if (result.success) {
+                            this.mealStatus = result.data;
+                            console.log('[DEBUG] 加载餐次状态:', result.data);
+                        }
+                    } catch (error) {
+                        console.error('加载餐次状态失败:', error);
+                    }
+                },
+
+                // 加载用户点餐历史
+                async loadMealHistory() {
+                    this.historyLoading = true;
+                    try {
+                        const params = new URLSearchParams({
+                            page: this.currentHistoryPage,
+                            limit: this.historyPageSize
+                        });
+
+                        if (this.historyFilter) {
+                            params.append('mealType', this.historyFilter);
+                        }
+
+                        const response = await fetch(`/api/user/meal-history?${params}`);
+                        const result = await response.json();
+
+                        if (result.success) {
+                            this.mealHistory = result.data.history;
+                            this.pagination = result.data.pagination;
+
+                            // 计算统计信息
+                            this.calculateHistoryStats();
+
+                            console.log('[DEBUG] 加载用户点餐历史:', result.data);
+                        } else {
+                            this.$message.error(result.message || '加载点餐记录失败');
+                        }
+                    } catch (error) {
+                        console.error('加载点餐记录失败:', error);
+                        this.$message.error('加载点餐记录失败，请重试');
+                    } finally {
+                        this.historyLoading = false;
+                    }
+                },
+
+                // 计算历史统计信息
+                calculateHistoryStats() {
+                    if (!this.mealHistory.length) {
+                        this.historyStats = {
+                            totalMeals: 0,
+                            lunchCount: 0,
+                            dinnerCount: 0,
+                            orderedCount: 0,
+                            defaultCount: 0
+                        };
+                        return;
+                    }
+
+                    const stats = {
+                        totalMeals: this.mealHistory.length,
+                        lunchCount: this.mealHistory.filter(h => h.mealType === 'lunch').length,
+                        dinnerCount: this.mealHistory.filter(h => h.mealType === 'dinner').length,
+                        orderedCount: this.mealHistory.filter(h => h.status === 'ordered').length,
+                        defaultCount: this.mealHistory.filter(h => h.status === 'default').length
+                    };
+
+                    this.historyStats = stats;
+                },
+
+                // 获取状态标签类型
+                getStatusTagType(record) {
+                    switch(record.status) {
+                        case 'no_eat':
+                            return 'info';
+                        case 'ordered':
+                            return 'success';
+                        case 'default':
+                            return 'warning';
+                        default:
+                            return record.isNoEat ? 'info' : 'success';
+                    }
+                },
+
+                // 获取状态文本
+                getStatusText(record) {
+                    switch(record.status) {
+                        case 'no_eat':
+                            return '不吃';
+                        case 'ordered':
+                            return '已点餐';
+                        case 'default':
+                            return '默认点餐';
+                        default:
+                            return record.isNoEat ? '不吃' : '已点餐';
+                    }
+                },
+
+                // 分页处理
+                handleHistoryPageChange(page) {
+                    this.currentHistoryPage = page;
+                    this.loadMealHistory();
+                },
+
+                // 格式化历史日期
+                formatHistoryDate(dateStr) {
+                    const date = new Date(dateStr);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+
+                    if (date.toDateString() === today.toDateString()) {
+                        return '今天';
+                    } else if (date.toDateString() === yesterday.toDateString()) {
+                        return '昨天';
+                    } else {
+                        return date.toLocaleDateString('zh-CN', {
+                            month: 'long',
+                            day: 'numeric',
+                            weekday: 'short'
+                        });
+                    }
+                },
+
                 async loadUserPreferences() {
                     console.log(`[DEBUG 本地存储] 开始加载localStorage数据`);
                     const savedPrefs = localStorage.getItem('userMealPreferences');
@@ -1610,6 +1990,9 @@
                 },
 
                 async toggleMealPreference(mealType) {
+                    // 先重新加载餐次状态，确保状态是最新的
+                    await this.loadMealStatus();
+
                     if (mealType === 'lunch' && !this.canModifyLunch) {
                         ElMessage.warning('午餐修改时间已截止');
                         return;
@@ -1643,12 +2026,16 @@
                                 // 立即保存到localStorage
                                 localStorage.setItem('userMealPreferences', JSON.stringify(this.userPreferences));
                                 ElMessage.success(`已登记${mealType === 'lunch' ? '中餐' : '晚餐'}不吃`);
+                                // 重新加载餐次状态
+                                await this.loadMealStatus();
                             } else {
                                 // 如果显示"已经登记过不吃了"，说明后端状态与前端不一致，需要修正前端状态
                                 if (result.message && result.message.includes('已经登记')) {
                                     this.userPreferences[mealType] = 'no-eat';
                                     console.log(`[DEBUG] 已登记过，更新本地状态: ${mealType} = no-eat`);
                                     ElMessage.info(`您已经登记过${mealType === 'lunch' ? '中餐' : '晚餐'}不吃了`);
+                                    // 重新加载餐次状态
+                                    await this.loadMealStatus();
                                 } else {
                                     console.log(`[DEBUG] 登记失败:`, result);
                                     ElMessage.error(result.message || '登记失败');
@@ -1672,6 +2059,8 @@
                                 // 立即保存到localStorage
                                 localStorage.setItem('userMealPreferences', JSON.stringify(this.userPreferences));
                                 ElMessage.success(`已设置${mealType === 'lunch' ? '中餐' : '晚餐'}吃饭`);
+                                // 重新加载餐次状态
+                                await this.loadMealStatus();
                             } else {
                                 ElMessage.error(result.message || '取消登记失败');
                             }
@@ -1977,15 +2366,25 @@
                 async loadSubmissions() {
                     try {
                         this.submissionsLoading = true;
-                        const response = await fetch(`/api/submissions?sortBy=${this.submissionSortBy}`);
+                        const userId = this.currentUser?.id;
+                        const url = userId ?
+                            `/api/submissions?sortBy=${this.submissionSortBy}&userId=${encodeURIComponent(userId)}` :
+                            `/api/submissions?sortBy=${this.submissionSortBy}`;
+
+                        console.log(`[前端投稿] 加载投稿列表，用户ID: ${userId}`);
+
+                        const response = await fetch(url);
                         const submissions = await response.json();
-                        
-                        // 计算每个投稿的点赞状态
+
+                        console.log(`[前端投稿] 收到 ${submissions.length} 个投稿数据:`, submissions);
+
+                        // 使用服务器返回的真实点赞状态
                         this.submissions = submissions.map(submission => ({
                             ...submission,
-                            likedByCurrentUser: false, // TODO: 根据当前用户计算实际状态
-                            liking: false
+                            liking: false // 只添加loading状态
                         }));
+
+                        console.log(`[前端投稿] 投稿状态处理完成`);
                     } catch (error) {
                         console.error('加载投稿列表失败:', error);
                         ElMessage.error('加载投稿列表失败');
@@ -1994,11 +2393,14 @@
                     }
                 },
                 
-                async toggleLike(submission) {
+                async toggleSubmissionLike(submission) {
                     try {
                         submission.liking = true;
                         const action = submission.likedByCurrentUser ? 'unlike' : 'like';
-                        
+
+                        console.log(`[前端点赞DEBUG] 开始操作: submissionId=${submission.id}, userId=${this.currentUser.id}, action=${action}`);
+                        console.log(`[前端点赞DEBUG] 当前状态: likedByCurrentUser=${submission.likedByCurrentUser}, likeCount=${submission.likeCount}`);
+
                         const response = await fetch(`/api/submissions/${submission.id}/like`, {
                             method: 'POST',
                             headers: {
@@ -2009,19 +2411,31 @@
                                 action: action
                             })
                         });
-                        
+
+                        console.log(`[前端点赞DEBUG] 服务器响应状态:`, response.status);
+
                         const result = await response.json();
+                        console.log(`[前端点赞DEBUG] 服务器响应结果:`, result);
+
                         if (result.success) {
-                            submission.likedByCurrentUser = !submission.likedByCurrentUser;
+                            const oldLiked = submission.likedByCurrentUser;
+                            const oldCount = submission.likeCount;
+
+                            // Vue 3中直接赋值即可实现响应式更新
+                            submission.likedByCurrentUser = result.likedByCurrentUser;
                             submission.likeCount = result.likeCount;
+
+                            console.log(`[前端点赞DEBUG] 状态更新: ${oldLiked}->${submission.likedByCurrentUser}, ${oldCount}->${submission.likeCount}`);
                         } else {
+                            console.error('[前端点赞DEBUG] 服务器返回失败:', result.message);
                             ElMessage.error(result.message || '操作失败');
                         }
                     } catch (error) {
-                        console.error('点赞操作失败:', error);
+                        console.error('[前端点赞DEBUG] 请求失败:', error);
                         ElMessage.error('操作失败，请重试');
                     } finally {
                         submission.liking = false;
+                        console.log(`[前端点赞DEBUG] 操作完成`);
                     }
                 },
                 

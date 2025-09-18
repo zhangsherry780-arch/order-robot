@@ -107,7 +107,6 @@ class DataStore {
       'restaurants.json': [],
       'weekly-menus.json': [],
       'daily-orders.json': [],
-      'no-eat-registrations.json': [],
       'ratings.json': [],
       'restaurant-suggestions.json': [],
       'restaurant-submissions.json': [],
@@ -207,7 +206,6 @@ class DataStore {
       const dailyOrders = await this.read('daily-orders.json') || [];
       const mealTypes = ['lunch', 'dinner'];
       const settings = await this.read('settings.json') || { totalEmployees: 50 };
-      const noEatRegs = await this.read('no-eat-registrations.json') || [];
 
       let hasChanges = false;
 
@@ -384,7 +382,6 @@ class DataStore {
 
       const filesToMigrate = [
         'daily-orders.json',
-        'no-eat-registrations.json',
         'ratings.json',
         'restaurant-suggestions.json',
         'restaurant-submissions.json',
@@ -868,17 +865,18 @@ class OrderManager {
   // 开放订餐登记
   async openRegistration(mealType) {
     console.log(`开放 ${mealType} 不吃登记...`);
-    
+
     const today = dataStore.getTodayString();
     const dailyOrders = await dataStore.read('daily-orders.json');
     const settings = await dataStore.read('settings.json');
 
-    const orderIndex = dailyOrders.findIndex(order => 
+    const orderIndex = dailyOrders.findIndex(order =>
       order.date === today && order.mealType === mealType
     );
 
     if (orderIndex >= 0) {
       dailyOrders[orderIndex].status = 'open';
+      dailyOrders[orderIndex].updatedAt = moment().toISOString();
     } else {
       dailyOrders.push({
         id: dataStore.generateId(dailyOrders),
@@ -896,17 +894,38 @@ class OrderManager {
     console.log(`${mealType} 登记已开放`);
   }
 
+  // 关闭订餐登记
+  async closeRegistration(mealType) {
+    console.log(`关闭 ${mealType} 不吃登记...`);
+
+    const today = dataStore.getTodayString();
+    const dailyOrders = await dataStore.read('daily-orders.json');
+
+    const orderIndex = dailyOrders.findIndex(order =>
+      order.date === today && order.mealType === mealType
+    );
+
+    if (orderIndex >= 0) {
+      dailyOrders[orderIndex].status = 'closed';
+      dailyOrders[orderIndex].updatedAt = moment().toISOString();
+      await dataStore.write('daily-orders.json', dailyOrders);
+      console.log(`${mealType} 登记已关闭`);
+    } else {
+      console.log(`未找到今日的 ${mealType} 记录，无需关闭`);
+    }
+  }
+
   // 更新订餐统计
   async updateOrderCount(mealType, targetDate = null) {
     const updateDate = targetDate || dataStore.getTodayString();
     const dailyOrders = await dataStore.read('daily-orders.json');
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
-    
-    const targetNoEat = noEatRegs.filter(reg => {
+    const userRegistrations = await dataStore.read('user-registrations.json');
+
+    const targetNoEat = userRegistrations.filter(reg => {
       // 统一日期格式进行比较
       const regDate = reg.date ? reg.date.replace(/\//g, '-') : '';
       const updateDateFormatted = updateDate.replace(/\//g, '-');
-      return regDate === updateDateFormatted && reg.mealType === mealType;
+      return regDate === updateDateFormatted && reg.mealType === mealType && reg.dishName === '不吃';
     }).length;
 
     const orderIndex = dailyOrders.findIndex(order => 
@@ -1187,12 +1206,12 @@ app.post('/api/current-people/set', async (req, res) => {
     
     // 同时设置午餐和晚餐的人数
     const mealTypes = ['lunch', 'dinner'];
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
-    
+    const userRegistrations = await dataStore.read('user-registrations.json');
+
     for (const mealType of mealTypes) {
       // 计算当天该餐次的不吃人数
-      const todayNoEat = noEatRegs.filter(reg => 
-        reg.date === today && reg.mealType === mealType
+      const todayNoEat = userRegistrations.filter(reg =>
+        reg.date === today && reg.mealType === mealType && reg.dishName === '不吃'
       ).length;
       
       const orderIndex = dailyOrders.findIndex(order => 
@@ -1639,7 +1658,7 @@ class FeishuMessageTemplates {
     if (menuData.lunch && menuData.lunch.length > 0) {
       content += `🥗 **午餐菜单：**\n`;
       menuData.lunch.forEach((dish, index) => {
-        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}\n`;
+        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}（套餐内容以实际为准）\n`;
       });
       content += '\n';
     }
@@ -1647,7 +1666,7 @@ class FeishuMessageTemplates {
     if (menuData.dinner && menuData.dinner.length > 0) {
       content += `🍽️ **晚餐菜单：**\n`;
       menuData.dinner.forEach((dish, index) => {
-        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}\n`;
+        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}（套餐内容以实际为准）\n`;
       });
     }
     
@@ -1741,11 +1760,11 @@ class FeishuMessageTemplates {
 
     if (menuData && menuData.length > 0) {
       menuData.forEach((dish, index) => {
-        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}\n`;
+        content += `${index + 1}. ${dish.dishName} - ${dish.restaurantName}（套餐内容以实际为准）\n`;
       });
       content += '\n💡 **温馨提示：**\n';
       content += '• 点击下方按钮快速登记不吃\n';
-      content += '• 或访问订餐系统进行点餐\n';
+      content += '• 访问系统去点餐或评价菜品\n';
       content += '• 如有疑问请联系管理员';
     } else {
       content += '❌ 今日暂无菜单\n\n请联系管理员确认。';
@@ -1776,7 +1795,7 @@ class FeishuMessageTemplates {
         tag: 'button',
         text: {
           tag: 'plain_text',
-          content: '🍽️ 去点餐'
+          content: '🍽️ 访问系统'
         },
         type: 'default',
         url: 'http://localhost:3000'
@@ -2174,7 +2193,7 @@ class FeishuCommandHandler {
       if (result.success) {
         return {
           success: true,
-          reply: `✅ **${mealName}不吃登记成功**\n\n📅 日期：${moment().format('YYYY年MM月DD日')}\n👤 用户：${userId}\n🚫 ${mealName}已登记为不用餐\n\n💡 如需取消，请访问订餐系统或联系管理员`
+          reply: `✅ **${mealName}不吃登记成功**\n\n📅 日期：${moment().format('YYYY年MM月DD日')}\n👤 用户：${userId}\n🚫 ${mealName}已登记为不用餐\n\n💡 如需取消，请访问系统去点餐或评价菜品或联系管理员`
         };
       } else {
         return {
@@ -2187,7 +2206,7 @@ class FeishuCommandHandler {
       console.error('处理不吃登记失败:', error);
       return {
         success: true,
-        reply: `❌ **登记失败**\n\n系统暂时不可用，请稍后重试\n\n💡 或访问订餐系统手动登记`
+        reply: `❌ **登记失败**\n\n系统暂时不可用，请稍后重试\n\n💡 或访问系统去点餐或评价菜品`
       };
     }
   }
@@ -2590,7 +2609,7 @@ function buildMealMenuCardFromMenus(today, menus, mealType) {
 
     Object.keys(menusByRestaurant).forEach(restaurant => {
       menuContent += `🏪 **餐厅**：${restaurant}\n`;
-      menuContent += `🍽️ **菜品**：${menusByRestaurant[restaurant].join('、')}\n\n`;
+      menuContent += `🍽️ **菜品**：${menusByRestaurant[restaurant].join('、')}（套餐内容以实际为准）\n\n`;
     });
   } else {
     menuContent += `${emoji} **${mealName}菜单**（登记不吃截止：${deadline}）\n`;
@@ -2600,7 +2619,7 @@ function buildMealMenuCardFromMenus(today, menus, mealType) {
   // 添加操作提示
   menuContent += `💡 **温馨提示**：\n`;
   menuContent += `• 默认所有人员都会用餐\n`;
-  menuContent += `• 如需登记不吃，请访问订餐系统\n`;
+  menuContent += `• 如需登记不吃，请访问系统去点餐或评价菜品\n`;
   menuContent += `• ${mealName}登记截止时间：${deadline}`;
 
   return menuContent;
@@ -2629,7 +2648,7 @@ function buildTodayMenuCardFromMenus(today, lunchMenus, dinnerMenus) {
 
     Object.keys(lunchByRestaurant).forEach(restaurant => {
       menuContent += `🏪 **餐厅**：${restaurant}\n`;
-      menuContent += `🍽️ **菜品**：${lunchByRestaurant[restaurant].join('、')}\n\n`;
+      menuContent += `🍽️ **菜品**：${lunchByRestaurant[restaurant].join('、')}（套餐内容以实际为准）\n\n`;
     });
   } else {
     menuContent += `👨‍🍳 **午餐菜单**（登记不吃截止：${lunchDeadline}）\n`;
@@ -2651,7 +2670,7 @@ function buildTodayMenuCardFromMenus(today, lunchMenus, dinnerMenus) {
 
     Object.keys(dinnerByRestaurant).forEach(restaurant => {
       menuContent += `🏪 **餐厅**：${restaurant}\n`;
-      menuContent += `🍽️ **菜品**：${dinnerByRestaurant[restaurant].join('、')}\n\n`;
+      menuContent += `🍽️ **菜品**：${dinnerByRestaurant[restaurant].join('、')}（套餐内容以实际为准）\n\n`;
     });
   } else {
     menuContent += `🌙 **晚餐菜单**（登记不吃截止：${dinnerDeadline}）\n`;
@@ -2661,7 +2680,7 @@ function buildTodayMenuCardFromMenus(today, lunchMenus, dinnerMenus) {
   // 添加操作提示
   menuContent += `💡 **温馨提示**：\n`;
   menuContent += `• 默认所有人员都会用餐\n`;
-  menuContent += `• 如需登记不吃，请访问订餐系统\n`;
+  menuContent += `• 如需登记不吃，请访问系统去点餐或评价菜品\n`;
   menuContent += `• 午餐登记截止时间：${lunchDeadline}\n`;
   menuContent += `• 晚餐登记截止时间：${dinnerDeadline}`;
 
@@ -2927,13 +2946,14 @@ app.post('/api/feishu/webhook', async (req, res) => {
 
             // 登记不吃
             const today = moment().format('YYYY-MM-DD');
-            const noEatRegs = await dataStore.read('no-eat-registrations.json') || [];
+            const userRegistrations = await dataStore.read('user-registrations.json');
 
             // 检查是否已经登记过
-            const existingReg = noEatRegs.find(reg =>
+            const existingReg = userRegistrations.find(reg =>
               reg.userId === userId &&
               reg.date === today &&
-              reg.mealType === mealType
+              reg.mealType === mealType &&
+              reg.dishName === '不吃'
             );
 
             if (existingReg) {
@@ -2942,20 +2962,10 @@ app.post('/api/feishu/webhook', async (req, res) => {
               // 静默处理，不发送重复提醒
               console.log(`用户已登记过，静默跳过: ${userId}, ${mealType}`);
             } else {
-              // 添加新的不吃记录
-              const newReg = {
-                userId: userId,
-                date: today,
-                mealType: mealType,
-                registeredAt: new Date().toISOString()
-              };
-              noEatRegs.push(newReg);
-              await dataStore.write('no-eat-registrations.json', noEatRegs);
+              // 只需要添加到用户登记记录中（单一数据源）
+              await addNoEatToUserRegistrations(today, mealType, userId, user ? user.name : '未知用户', new Date().toISOString(), '通过飞书按钮快速登记');
 
-              console.log(`添加不吃记录: ${JSON.stringify(newReg)}`);
-
-              // 将不吃记录添加到用户登记记录中（管理员界面显示）
-              await addNoEatToUserRegistrations(today, mealType, userId, user ? user.name : '未知用户', newReg.registeredAt, '通过飞书按钮快速登记');
+              console.log(`飞书不吃登记成功: userId=${userId}, mealType=${mealType}, date=${today}`);
 
               // 更新订餐统计
               await orderManager.updateOrderCount(mealType, today);
@@ -3111,7 +3121,7 @@ app.get('/api/admin/dishes', async (req, res) => {
 });
 
 // 获取点餐记录
-app.get('/api/admin/orders', async (req, res) => {
+app.get('/api/admin/orders', requireAdminAuth, async (req, res) => {
   try {
     const dailyOrders = await dataStore.read('daily-orders.json');
     const userRegistrations = await dataStore.read('user-registrations.json') || [];
@@ -3141,11 +3151,41 @@ app.get('/api/admin/orders', async (req, res) => {
       return order.date >= filterStartDate && order.date <= filterEndDate && order.mealType && order.id;
     });
 
+    // 去重：确保每个日期和餐次的组合只出现一次，保留最新的记录
+    const deduplicatedOrders = [];
+    const seen = new Map();
+
+    // 按更新时间倒序排序，确保最新的记录优先
+    // 如果没有时间戳，使用订单ID作为备用排序依据（较大的ID表示较新）
+    const sortedOrders = filteredOrders.sort((a, b) => {
+      const timeA = new Date(a.updatedAt || a.createdAt || 0);
+      const timeB = new Date(b.updatedAt || b.createdAt || 0);
+
+      // 如果时间戳相同（都是无效时间），按ID排序（较大的ID优先）
+      if (timeA.getTime() === timeB.getTime()) {
+        return b.id - a.id;
+      }
+
+      return timeB - timeA;
+    });
+
+    for (const order of sortedOrders) {
+      const key = `${order.date}-${order.mealType}`;
+      if (!seen.has(key)) {
+        seen.set(key, true);
+        deduplicatedOrders.push(order);
+      }
+    }
+
+    // 重新按日期正序排序
+    deduplicatedOrders.sort((a, b) => new Date(a.date) - new Date(b.date));
+
     console.log('筛选结果:', {
       totalOrders: dailyOrders.length,
       filteredOrders: filteredOrders.length,
+      deduplicatedOrders: deduplicatedOrders.length,
       dateRange: { filterStartDate, filterEndDate },
-      dates: filteredOrders.map(o => o.date)
+      uniqueDates: [...new Set(deduplicatedOrders.map(o => o.date))].sort()
     });
 
     // 计算每日每餐次的不吃人数和用户详情（从用户注册记录中统计）
@@ -3183,7 +3223,7 @@ app.get('/api/admin/orders', async (req, res) => {
     };
 
     // 丰富点餐记录数据
-    const enrichedOrders = filteredOrders.map(order => {
+    const enrichedOrders = deduplicatedOrders.map(order => {
       // 修复时区问题：强制使用本地时区解析日期
       const dateParts = order.date.split('-');
       const orderDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
@@ -3214,11 +3254,92 @@ app.get('/api/admin/orders', async (req, res) => {
   }
 });
 
+// 测试去重功能的端点（无需认证）
+app.get('/api/test/deduplication', async (req, res) => {
+  try {
+    const dailyOrders = await dataStore.read('daily-orders.json');
+
+    // 使用相同的逻辑
+    const { startDate, endDate } = req.query;
+
+    let filterStartDate, filterEndDate;
+    if (startDate && endDate) {
+      filterStartDate = startDate;
+      filterEndDate = endDate;
+    } else {
+      filterStartDate = dataStore.getWeekStart();
+      filterEndDate = dataStore.getWeekEnd();
+    }
+
+    // 过滤：显示指定日期范围的记录，并且是点餐记录格式（有mealType字段）
+    const filteredOrders = dailyOrders.filter(order => {
+      return order.date >= filterStartDate && order.date <= filterEndDate && order.mealType && order.id;
+    });
+
+    // 去重：确保每个日期和餐次的组合只出现一次，保留最新的记录
+    const deduplicatedOrders = [];
+    const seen = new Map();
+
+    // 按更新时间倒序排序，确保最新的记录优先
+    // 如果没有时间戳，使用订单ID作为备用排序依据（较大的ID表示较新）
+    const sortedOrders = filteredOrders.sort((a, b) => {
+      const timeA = new Date(a.updatedAt || a.createdAt || 0);
+      const timeB = new Date(b.updatedAt || b.createdAt || 0);
+
+      // 如果时间戳相同（都是无效时间），按ID排序（较大的ID优先）
+      if (timeA.getTime() === timeB.getTime()) {
+        return b.id - a.id;
+      }
+
+      return timeB - timeA;
+    });
+
+    for (const order of sortedOrders) {
+      const key = `${order.date}-${order.mealType}`;
+      if (!seen.has(key)) {
+        seen.set(key, true);
+        deduplicatedOrders.push(order);
+      }
+    }
+
+    // 重新按日期正序排序
+    deduplicatedOrders.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    console.log('【测试去重】筛选结果:', {
+      totalOrders: dailyOrders.length,
+      filteredOrders: filteredOrders.length,
+      deduplicatedOrders: deduplicatedOrders.length,
+      dateRange: { filterStartDate, filterEndDate },
+      uniqueDates: [...new Set(deduplicatedOrders.map(o => o.date))].sort(),
+      duplicateDetails: filteredOrders.filter(o => o.date === '2025-09-14').map(o => ({
+        id: o.id,
+        date: o.date,
+        mealType: o.mealType,
+        updatedAt: o.updatedAt,
+        createdAt: o.createdAt
+      }))
+    });
+
+    res.json({
+      success: true,
+      totalOrders: dailyOrders.length,
+      filteredOrders: filteredOrders.length,
+      deduplicatedOrders: deduplicatedOrders.length,
+      dateRange: { filterStartDate, filterEndDate },
+      uniqueDates: [...new Set(deduplicatedOrders.map(o => o.date))].sort(),
+      sept14Details: filteredOrders.filter(o => o.date === '2025-09-14'),
+      deduplicatedSept14: deduplicatedOrders.filter(o => o.date === '2025-09-14')
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // 防重复操作的锁
 const toggleStatusLocks = new Map();
 
 // 更改点餐状态
-app.post('/api/admin/orders/toggle-status', async (req, res) => {
+app.post('/api/admin/orders/toggle-status', requireAdminAuth, async (req, res) => {
   const { date, mealType } = req.body;
   const lockKey = `${date}-${mealType}`;
 
@@ -3294,7 +3415,7 @@ app.post('/api/admin/orders/toggle-status', async (req, res) => {
 });
 
 // 清零不吃人数
-app.post('/api/admin/orders/clear-no-eat', async (req, res) => {
+app.post('/api/admin/orders/clear-no-eat', requireAdminAuth, async (req, res) => {
   try {
     console.log('收到清零不吃请求:', req.body);
     const { date, mealType } = req.body;
@@ -3326,7 +3447,9 @@ app.post('/api/admin/orders/clear-no-eat', async (req, res) => {
 
     console.log(`删除用户不吃登记记录: ${userRegistrations.length} -> ${filteredUserRegs.length}`);
     await dataStore.write('user-registrations.json', filteredUserRegs);
-    
+
+    // 单一数据源，只需要清理用户登记文件即可
+
     // 清零不吃人数
     dailyOrders[orderIndex].noEatCount = 0;
     // 重新计算点餐人数
@@ -3981,27 +4104,27 @@ app.post('/api/no-eat/clear', async (req, res) => {
     }
 
     const today = dataStore.getTodayString();
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
-    
+    const userRegistrations = await dataStore.read('user-registrations.json');
+
     console.log('今日日期:', today);
-    console.log('清零前记录数:', noEatRegs.length);
-    
+    console.log('清零前用户登记记录数:', userRegistrations.length);
+
     // 删除今日指定餐次的所有不吃记录（考虑多种日期格式）
-    const filteredRegs = noEatRegs.filter(reg => {
+    const filteredRegs = userRegistrations.filter(reg => {
       // 统一日期格式进行比较
       const regDate = reg.date ? reg.date.replace(/\//g, '-') : '';
       const todayFormatted = today.replace(/\//g, '-');
-      
-      const shouldKeep = !(regDate === todayFormatted && reg.mealType === mealType);
+
+      const shouldKeep = !(regDate === todayFormatted && reg.mealType === mealType && reg.dishName === '不吃');
       if (!shouldKeep) {
-        console.log('将删除记录:', reg);
+        console.log('将删除不吃记录:', reg);
       }
       return shouldKeep;
     });
-    
-    const removedCount = noEatRegs.length - filteredRegs.length;
-    
-    await dataStore.write('no-eat-registrations.json', filteredRegs);
+
+    const removedCount = userRegistrations.length - filteredRegs.length;
+
+    await dataStore.write('user-registrations.json', filteredRegs);
     
     console.log(`清零${mealType}不吃记录: 删除${removedCount}条记录`);
 
@@ -4028,6 +4151,7 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
     const userId = req.session.user.id;
 
     console.log('收到不吃登记请求:', { mealType, date, userId });
+    console.log('[DEBUG] 开始处理不吃登记，用户会话状态:', !!req.session?.user);
 
     if (!mealType || !date) {
       return res.status(400).json({
@@ -4036,42 +4160,21 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
       });
     }
 
-    // 检查时间限制：登记截止时间是该餐当天的时间
     const now = moment();
     const targetDate = moment(date);
-    const currentHour = now.hour();
-    
-    // 检查是否已经过了该餐的截止时间
-    // 午餐截止时间：目标日期当天11点
-    if (mealType === 'lunch') {
-      const lunchDeadline = moment(date).hour(11).minute(0).second(0);
-      if (now.isAfter(lunchDeadline)) {
-        const dateStr = targetDate.format('MM月DD日');
-        return res.status(400).json({
-          success: false,
-          message: `${dateStr}午餐登记时间已截止（${dateStr}11点后不可登记）`
-        });
-      }
-    }
-    
-    // 晚餐截止时间：目标日期当天17点
-    if (mealType === 'dinner') {
-      const dinnerDeadline = moment(date).hour(17).minute(0).second(0);
-      if (now.isAfter(dinnerDeadline)) {
-        const dateStr = targetDate.format('MM月DD日');
-        return res.status(400).json({
-          success: false,
-          message: `${dateStr}晚餐登记时间已截止（${dateStr}17点后不可登记）`
-        });
-      }
-    }
 
-    // 检查管理员是否已关闭该日期和餐次的点餐
+    console.log('[DEBUG] 当前时间:', now.format('YYYY-MM-DD HH:mm:ss'));
+
+    // 首先检查管理员设置的餐次状态
     const dailyOrders = await dataStore.read('daily-orders.json');
     const orderRecord = dailyOrders.find(order =>
       order.date === date && order.mealType === mealType
     );
 
+    console.log('[DEBUG] 查找管理员状态记录:', { date, mealType });
+    console.log('[DEBUG] 找到的记录:', orderRecord);
+
+    // 如果管理员明确关闭了该餐次，则拒绝操作
     if (orderRecord && orderRecord.status === 'closed') {
       const dateStr = targetDate.format('MM月DD日');
       const mealStr = mealType === 'lunch' ? '午餐' : '晚餐';
@@ -4081,11 +4184,54 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
       });
     }
 
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
+    // 如果管理员明确设置为开启状态，则跳过时间检查
+    // 如果没有管理员设置记录或状态不是'open'，则进行正常的时间检查
+    console.log('[DEBUG] 时间检查逻辑:', {
+      hasRecord: !!orderRecord,
+      status: orderRecord?.status,
+      willCheckTime: !orderRecord || orderRecord.status !== 'open'
+    });
+
+    if (!orderRecord || orderRecord.status !== 'open') {
+      // 检查时间限制：登记截止时间是该餐当天的时间
+      // 午餐截止时间：目标日期当天11点
+      if (mealType === 'lunch') {
+        const lunchDeadline = moment(date).hour(11).minute(0).second(0);
+        console.log('[DEBUG] 午餐时间检查:', {
+          now: now.format('YYYY-MM-DD HH:mm:ss'),
+          deadline: lunchDeadline.format('YYYY-MM-DD HH:mm:ss'),
+          isAfter: now.isAfter(lunchDeadline)
+        });
+        if (now.isAfter(lunchDeadline)) {
+          const dateStr = targetDate.format('MM月DD日');
+          console.log('[DEBUG] 午餐时间检查失败，返回错误');
+          return res.status(400).json({
+            success: false,
+            message: `${dateStr}午餐登记时间已截止（${dateStr}11点后不可登记）`
+          });
+        }
+      }
+
+      // 晚餐截止时间：目标日期当天17点
+      if (mealType === 'dinner') {
+        const dinnerDeadline = moment(date).hour(17).minute(0).second(0);
+        if (now.isAfter(dinnerDeadline)) {
+          const dateStr = targetDate.format('MM月DD日');
+          return res.status(400).json({
+            success: false,
+            message: `${dateStr}晚餐登记时间已截止（${dateStr}17点后不可登记）`
+          });
+        }
+      }
+    }
+
+    console.log('[DEBUG] 读取用户登记数据前');
+    const userRegistrations = await dataStore.read('user-registrations.json');
+    console.log('[DEBUG] 读取用户登记数据后，记录数:', userRegistrations.length);
 
     // 检查用户是否已经登记过
-    const existingReg = noEatRegs.find(reg =>
-      reg.userId === userId && reg.mealType === mealType && reg.date === date
+    const existingReg = userRegistrations.find(reg =>
+      reg.userId === userId && reg.mealType === mealType && reg.date === date && reg.dishName === '不吃'
     );
 
     if (existingReg) {
@@ -4095,31 +4241,17 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
       });
     }
 
-    // 添加新的不吃登记
-    const newReg = {
-      id: dataStore.generateId(noEatRegs),
-      userId: userId,
-      mealType: mealType,
-      date: date,
-      registeredAt: moment().toISOString()
-    };
+    // 使用统一的不吃登记函数（单一数据源）
+    console.log('[DEBUG] 开始调用 addNoEatToUserRegistrations');
+    const userName = req.session.user ? req.session.user.name : '未知用户';
+    const registeredAt = moment().toISOString();
+    await addNoEatToUserRegistrations(date, mealType, userId, userName, registeredAt, '用户界面登记');
+    console.log('[DEBUG] addNoEatToUserRegistrations 调用完成');
 
-    noEatRegs.push(newReg);
-    await dataStore.write('no-eat-registrations.json', noEatRegs);
-    
-    console.log('添加不吃记录:', newReg);
+    console.log('添加不吃记录到用户登记:', { userId, mealType, date, userName });
 
     // 更新订餐统计
     await orderManager.updateOrderCount(mealType, date);
-
-    // 将不吃记录同步到详细点餐记录中
-    await syncNoEatToOrderDetails(date, mealType, userId, req.session.user.name, newReg.registeredAt);
-
-    // 将不吃记录添加到用户登记记录中（管理员界面显示）
-    await addNoEatToUserRegistrations(date, mealType, userId, req.session.user.name, newReg.registeredAt);
-
-    // 同时更新用户的最后点餐时间（虽然是不吃，但算作参与点餐）
-    await updateUserLastOrderTime(userId, newReg.registeredAt);
 
     res.json({
       success: true,
@@ -4130,6 +4262,200 @@ app.post('/api/no-eat/register', requireAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '登记失败，请重试'
+    });
+  }
+});
+
+// 获取餐次开放状态API
+app.get('/api/meal/status', requireAuth, async (req, res) => {
+  try {
+    const { date } = req.query;
+    const targetDate = date || dataStore.getTodayString();
+
+    const dailyOrders = await dataStore.read('daily-orders.json');
+
+    // 查找对应日期的餐次状态
+    const lunchOrder = dailyOrders.find(order =>
+      order.date === targetDate && order.mealType === 'lunch'
+    );
+    const dinnerOrder = dailyOrders.find(order =>
+      order.date === targetDate && order.mealType === 'dinner'
+    );
+
+    res.json({
+      success: true,
+      data: {
+        lunch: {
+          status: lunchOrder ? lunchOrder.status : 'closed',
+          canModify: lunchOrder ? lunchOrder.status === 'open' : false
+        },
+        dinner: {
+          status: dinnerOrder ? dinnerOrder.status : 'closed',
+          canModify: dinnerOrder ? dinnerOrder.status === 'open' : false
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取餐次状态失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取状态失败，请重试'
+    });
+  }
+});
+
+// 获取个人点餐历史API - 新逻辑：默认每顿餐都点餐，除非明确登记不吃
+app.get('/api/user/meal-history', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: '未登录或用户信息无效'
+      });
+    }
+
+    const { page = 1, limit = 20, mealType } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
+
+    // 读取数据
+    const [users, userRegistrations, dailyOrders] = await Promise.all([
+      dataStore.read('users.json') || [],
+      dataStore.read('user-registrations.json') || [],
+      dataStore.read('daily-orders.json') || []
+    ]);
+
+    // 获取用户信息
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '用户信息未找到'
+      });
+    }
+
+    // 获取用户注册时间
+    const userStartDate = new Date(user.firstLoginTime || user.lastLoginTime);
+    const today = new Date();
+
+    // 设置时间为当天开始，避免时区问题
+    userStartDate.setHours(0, 0, 0, 0);
+    today.setHours(23, 59, 59, 999);
+
+    // 生成完整的点餐历史（默认逻辑）
+    const completeHistory = [];
+
+    // 从用户注册日期开始，到今天为止的每一天
+    for (let date = new Date(userStartDate); date.toISOString().split('T')[0] <= today.toISOString().split('T')[0]; ) {
+      const dateStr = date.toISOString().split('T')[0];
+      const dayOfWeek = date.getDay();
+
+      // 只处理工作日（周一到周五，0=周日，1=周一...5=周五，6=周六）
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        // 为每个工作日生成午餐和晚餐记录
+        ['lunch', 'dinner'].forEach(meal => {
+          // 检查用户是否有明确的登记记录
+          const userRecord = userRegistrations.find(r =>
+            r.userId === userId && r.date === dateStr && r.mealType === meal
+          );
+
+          // 获取当天的菜单信息
+          const dayMenu = dailyOrders.find(order => order.date === dateStr);
+          const mealMenu = dayMenu && dayMenu[meal] ? dayMenu[meal] : [];
+
+          let historyRecord = {
+            id: userRecord?.id || `default_${userId}_${dateStr}_${meal}`,
+            date: dateStr,
+            mealType: meal,
+            mealTypeName: meal === 'lunch' ? '午餐' : '晚餐',
+            createdAt: userRecord?.createdAt || new Date(date).toISOString(),
+            updatedAt: userRecord?.updatedAt || userRecord?.createdAt || new Date(date).toISOString()
+          };
+
+          if (userRecord) {
+            // 用户有明确登记
+            if (userRecord.dishName === '不吃') {
+              // 用户登记不吃，跳过不添加到点餐记录中
+              return;
+            } else {
+              // 用户选择了具体菜品
+              historyRecord = {
+                ...historyRecord,
+                dishName: userRecord.dishName,
+                restaurantName: userRecord.restaurantName,
+                price: userRecord.price || 0,
+                note: userRecord.note,
+                isNoEat: false,
+                status: 'ordered'
+              };
+            }
+          } else {
+            // 用户没有明确登记，默认点餐
+            const defaultDish = mealMenu.length > 0 ? mealMenu[0] : null;
+            historyRecord = {
+              ...historyRecord,
+              dishName: defaultDish ? defaultDish.dishName : '默认套餐',
+              restaurantName: defaultDish ? defaultDish.restaurantName : '系统默认',
+              price: defaultDish ? defaultDish.price : 0,
+              note: '系统默认点餐（未明确选择）',
+              isNoEat: false,
+              status: 'default'
+            };
+          }
+
+          completeHistory.push(historyRecord);
+        });
+      }
+
+      // 增加一天
+      date.setDate(date.getDate() + 1);
+    }
+
+    // 按餐次类型过滤（如果指定）
+    let filteredHistory = completeHistory;
+    if (mealType && ['lunch', 'dinner'].includes(mealType)) {
+      filteredHistory = completeHistory.filter(record => record.mealType === mealType);
+    }
+
+    // 按日期倒序排序（最新的在前）
+    filteredHistory.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      if (dateA.getTime() === dateB.getTime()) {
+        // 同一天的话，晚餐排在午餐前
+        if (a.mealType === 'dinner' && b.mealType === 'lunch') return -1;
+        if (a.mealType === 'lunch' && b.mealType === 'dinner') return 1;
+        return 0;
+      }
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    // 分页
+    const total = filteredHistory.length;
+    const paginatedHistory = filteredHistory.slice(offset, offset + limitNum);
+
+    res.json({
+      success: true,
+      data: {
+        history: paginatedHistory,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum),
+          hasNext: (pageNum * limitNum) < total,
+          hasPrev: pageNum > 1
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('获取个人点餐历史失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取点餐历史失败，请重试'
     });
   }
 });
@@ -4149,21 +4475,25 @@ app.get('/api/no-eat/status', requireAuth, async (req, res) => {
       });
     }
 
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
-    console.log(`[DEBUG] 总登记记录数: ${noEatRegs.length}`);
+    // 改为从 user-registrations.json 查询（单一数据源）
+    const userRegistrations = await dataStore.read('user-registrations.json');
+    console.log(`[DEBUG] 总用户登记记录数: ${userRegistrations.length}`);
 
-    // 检查用户是否已经登记过
-    const existingReg = noEatRegs.find(reg =>
-      reg.userId === userId && reg.mealType === mealType && reg.date === date
+    // 检查用户是否已经登记过不吃
+    const existingReg = userRegistrations.find(reg =>
+      reg.userId === userId &&
+      reg.mealType === mealType &&
+      reg.date === date &&
+      reg.dishName === '不吃'
     );
 
-    console.log(`[DEBUG] 找到匹配记录:`, existingReg);
+    console.log(`[DEBUG] 找到匹配的不吃记录:`, existingReg);
 
     const result = {
       success: true,
       data: {
         registered: !!existingReg,
-        registeredAt: existingReg ? existingReg.registeredAt : null
+        registeredAt: existingReg ? existingReg.createdAt : null
       }
     };
 
@@ -4207,24 +4537,20 @@ app.delete('/api/no-eat/register', requireAuth, async (req, res) => {
       });
     }
 
-    const noEatRegs = await dataStore.read('no-eat-registrations.json');
-
-    // 找到并删除用户的登记记录
-    const regIndex = noEatRegs.findIndex(reg =>
-      reg.userId === userId && reg.mealType === mealType && reg.date === date
+    // 检查用户登记记录中是否存在不吃记录
+    const userRegistrations = await dataStore.read('user-registrations.json');
+    const existingReg = userRegistrations.find(reg =>
+      reg.userId === userId && reg.mealType === mealType && reg.date === date && reg.dishName === '不吃'
     );
 
-    if (regIndex === -1) {
+    if (!existingReg) {
       return res.status(400).json({
         success: false,
         message: '未找到登记记录'
       });
     }
 
-    noEatRegs.splice(regIndex, 1);
-    await dataStore.write('no-eat-registrations.json', noEatRegs);
-
-    // 同时从用户登记记录中删除不吃记录（管理员界面显示）
+    // 使用单一数据源，只需要删除用户登记记录中的不吃记录
     await removeNoEatFromUserRegistrations(date, mealType, userId);
 
     // 更新订餐统计
@@ -4340,6 +4666,35 @@ async function addNoEatToUserRegistrations(date, mealType, userId, userName, reg
     console.log(`[addNoEatToUserRegistrations] 不吃记录添加成功: ${userName}`);
   } catch (error) {
     console.error('添加不吃记录到用户登记失败:', error);
+  }
+}
+
+// 辅助函数：验证不吃数据同步状态
+async function verifyNoEatDataSync(userId, date, mealType) {
+  try {
+    console.log(`[verifyNoEatDataSync] 验证数据同步: ${userId} ${date} ${mealType}`);
+
+    // 单一数据源，只需要检查用户登记记录即可
+    const userRegistrations = await dataStore.read('user-registrations.json');
+
+    const userNoEatRecord = userRegistrations.find(reg =>
+      reg.userId === userId &&
+      reg.date === date &&
+      reg.mealType === mealType &&
+      reg.dishName === '不吃'
+    );
+
+    if (userNoEatRecord) {
+      console.log(`✅ [verifyNoEatDataSync] 单一数据源，数据正常: ${userId} ${date} ${mealType}`);
+      return true;
+    } else {
+      console.log(`❌ [verifyNoEatDataSync] 未找到不吃记录: ${userId} ${date} ${mealType}`);
+      return false;
+    }
+
+  } catch (error) {
+    console.error('[verifyNoEatDataSync] 验证数据同步失败:', error);
+    return false;
   }
 }
 
@@ -4480,7 +4835,6 @@ app.get('/api/admin/export/all', async (req, res) => {
       dishes: await dataStore.read('dishes.json'),
       weeklyMenus: await dataStore.read('weekly-menus.json'),
       dailyOrders: await dataStore.read('daily-orders.json'),
-      noEatRegistrations: await dataStore.read('no-eat-registrations.json'),
       ratings: await dataStore.read('ratings.json'),
       settings: await dataStore.read('settings.json'),
       exportTime: moment().toISOString()
@@ -4630,11 +4984,15 @@ async function initializeCronJobs() {
     // 解析时间配置，提供默认值
     const lunchOpenTime = settings.lunchOpenTime || '10:00';
     const dinnerOpenTime = settings.dinnerOpenTime || '16:00';
+    const lunchCloseTime = settings.lunchCloseTime || '12:00';
+    const dinnerCloseTime = settings.dinnerCloseTime || '18:00';
     const lunchPushTime = settings.lunchPushTime || '11:00';
     const dinnerPushTime = settings.dinnerPushTime || '17:00';
 
     const [lunchOpenHour, lunchOpenMin] = lunchOpenTime.split(':');
     const [dinnerOpenHour, dinnerOpenMin] = dinnerOpenTime.split(':');
+    const [lunchCloseHour, lunchCloseMin] = lunchCloseTime.split(':');
+    const [dinnerCloseHour, dinnerCloseMin] = dinnerCloseTime.split(':');
     const [lunchPushHour, lunchPushMin] = lunchPushTime.split(':');
     const [dinnerPushHour, dinnerPushMin] = dinnerPushTime.split(':');
 
@@ -4676,6 +5034,31 @@ async function initializeCronJobs() {
           await pushTodayDinnerMenu();
         } catch (error) {
           console.error('推送当日晚餐菜单失败:', error);
+        }
+      }
+    );
+
+    // 自动关闭任务
+    cronManager.scheduleTask('lunchClose',
+      `${lunchCloseMin} ${lunchCloseHour} * * 0,1,2,3,4,5`,
+      async () => {
+        console.log('执行定时任务: 自动关闭午餐不吃登记');
+        try {
+          await orderManager.closeRegistration('lunch');
+        } catch (error) {
+          console.error('自动关闭午餐登记失败:', error);
+        }
+      }
+    );
+
+    cronManager.scheduleTask('dinnerClose',
+      `${dinnerCloseMin} ${dinnerCloseHour} * * 0,1,2,3,4,5`,
+      async () => {
+        console.log('执行定时任务: 自动关闭晚餐不吃登记');
+        try {
+          await orderManager.closeRegistration('dinner');
+        } catch (error) {
+          console.error('自动关闭晚餐登记失败:', error);
         }
       }
     );
@@ -5007,30 +5390,21 @@ app.get('/auth/feishu/callback', async (req, res) => {
       try {
         // 执行不吃登记
         const today = moment().format('YYYY-MM-DD');
-        const noEatRegs = await dataStore.read('no-eat-registrations.json') || [];
+        const userRegistrations = await dataStore.read('user-registrations.json');
 
-        // 检查是否已经登记过
-        const existingReg = noEatRegs.find(reg =>
+        // 检查是否已经登记过（单一数据源）
+        const existingReg = userRegistrations.find(reg =>
           reg.userId === userId &&
           reg.date === today &&
-          reg.mealType === mealType
+          reg.mealType === mealType &&
+          reg.dishName === '不吃'
         );
 
         if (!existingReg) {
-          // 添加新的不吃记录
-          const newReg = {
-            userId: userId,
-            date: today,
-            mealType: mealType,
-            registeredAt: new Date().toISOString(),
-            source: source
-          };
-          noEatRegs.push(newReg);
-          await dataStore.write('no-eat-registrations.json', noEatRegs);
-          console.log(`✅ 自动完成不吃登记: ${JSON.stringify(newReg)}`);
-
-          // 将不吃记录添加到用户登记记录中（管理员界面显示）
-          await addNoEatToUserRegistrations(today, mealType, userId, req.session.user.name, newReg.registeredAt, '通过外部链接登记');
+          // 使用统一的不吃登记函数（单一数据源）
+          const registeredAt = new Date().toISOString();
+          await addNoEatToUserRegistrations(today, mealType, userId, req.session.user.name, registeredAt, '通过外部链接登记');
+          console.log(`✅ 自动完成不吃登记: ${userId} ${today} ${mealType}`);
 
           // 更新订餐统计
           await orderManager.updateOrderCount(mealType, today);
@@ -5632,28 +6006,39 @@ app.post('/api/upload/submission', upload.single('image'), (req, res) => {
 // 获取投稿列表
 app.get('/api/submissions', async (req, res) => {
   try {
-    const { sortBy = 'time' } = req.query; // 排序方式: 'time' 或 'likes'
-    
+    const { sortBy = 'time', userId } = req.query; // 排序方式: 'time' 或 'likes'
+
     const submissions = await dataStore.read('restaurant-submissions.json') || [];
     const likes = await dataStore.read('submission-likes.json') || [];
-    
-    // 计算每个投稿的点赞数
+
+    console.log(`[投稿API] 获取投稿列表，用户ID: ${userId}, 排序: ${sortBy}`);
+    console.log(`[投稿API DEBUG] 总投稿数: ${submissions.length}, 总点赞数: ${likes.length}`);
+    console.log(`[投稿API DEBUG] 点赞数据样例:`, likes);
+
+    // 计算每个投稿的点赞数和用户点赞状态
     const submissionsWithLikes = submissions.map(submission => {
       const submissionLikes = likes.filter(like => like.submissionId === submission.id);
+      const likedByCurrentUser = userId ? submissionLikes.some(like => like.userId === userId) : false;
+
+      console.log(`[投稿API DEBUG] 投稿ID=${submission.id}, 点赞数=${submissionLikes.length}, 用户${userId}已点赞=${likedByCurrentUser}`);
+      console.log(`[投稿API DEBUG] 该投稿的点赞记录:`, submissionLikes);
+
       return {
         ...submission,
         likeCount: submissionLikes.length,
-        likedByCurrentUser: false // 前端根据用户ID计算
+        likedByCurrentUser
       };
     });
-    
+
+    console.log(`[投稿API] 返回 ${submissionsWithLikes.length} 个投稿，用户 ${userId} 的点赞状态已计算`);
+
     // 排序
     if (sortBy === 'likes') {
       submissionsWithLikes.sort((a, b) => b.likeCount - a.likeCount);
     } else {
       submissionsWithLikes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
-    
+
     res.json(submissionsWithLikes);
   } catch (error) {
     console.error('获取投稿列表失败:', error);
@@ -5666,19 +6051,25 @@ app.post('/api/submissions/:id/like', async (req, res) => {
   try {
     const submissionId = parseInt(req.params.id);
     const { userId, action } = req.body; // action: 'like' 或 'unlike'
-    
+
+    console.log(`[点赞DEBUG] 收到请求: submissionId=${submissionId}, userId=${userId}, action=${action}`);
+
     if (!userId) {
+      console.log('[点赞DEBUG] 用户ID为空');
       return res.status(400).json({ success: false, message: '用户ID不能为空' });
     }
-    
+
     const likes = await dataStore.read('submission-likes.json') || [];
-    
+    console.log(`[点赞DEBUG] 当前点赞数据:`, likes);
+
     if (action === 'like') {
       // 检查是否已点赞
-      const existingLike = likes.find(like => 
+      const existingLike = likes.find(like =>
         like.submissionId === submissionId && like.userId === userId
       );
-      
+
+      console.log(`[点赞DEBUG] 检查已存在点赞:`, existingLike);
+
       if (!existingLike) {
         const newLike = {
           id: dataStore.generateId(likes),
@@ -5687,20 +6078,27 @@ app.post('/api/submissions/:id/like', async (req, res) => {
           createdAt: moment().toISOString()
         };
         likes.push(newLike);
+        console.log(`[点赞DEBUG] 添加新点赞:`, newLike);
         await dataStore.write('submission-likes.json', likes);
+      } else {
+        console.log(`[点赞DEBUG] 用户已点赞，跳过`);
       }
     } else if (action === 'unlike') {
-      const filteredLikes = likes.filter(like => 
+      const originalCount = likes.length;
+      const filteredLikes = likes.filter(like =>
         !(like.submissionId === submissionId && like.userId === userId)
       );
+      console.log(`[点赞DEBUG] 取消点赞: 原数量=${originalCount}, 新数量=${filteredLikes.length}`);
       await dataStore.write('submission-likes.json', filteredLikes);
     }
-    
-    // 返回新的点赞数
+
+    // 返回新的点赞数和用户点赞状态
     const newLikes = await dataStore.read('submission-likes.json') || [];
     const likeCount = newLikes.filter(like => like.submissionId === submissionId).length;
-    
-    res.json({ success: true, likeCount });
+    const likedByCurrentUser = newLikes.some(like => like.submissionId === submissionId && like.userId === userId);
+    console.log(`[点赞DEBUG] 最终点赞数: ${likeCount}, 用户点赞状态: ${likedByCurrentUser}`);
+
+    res.json({ success: true, likeCount, likedByCurrentUser });
   } catch (error) {
     console.error('点赞操作失败:', error);
     res.status(500).json({ success: false, message: '点赞操作失败' });
@@ -5829,48 +6227,103 @@ app.get('/api/ratings/ratable-dishes', requireAuth, async (req, res) => {
       return res.json({ success: false, error: '用户未登录' });
     }
 
-    // 获取用户的历史订单数据
-    const dailyOrders = await dataStore.read('daily-orders.json') || [];
-    const ratings = await dataStore.read('dish-ratings.json') || [];
-    const userOrders = [];
+    // 使用新的点餐记录逻辑获取用户所有点餐记录
+    const [users, userRegistrations, dailyOrders] = await Promise.all([
+      dataStore.read('users.json'),
+      dataStore.read('user-registrations.json'),
+      dataStore.read('daily-orders.json')
+    ]);
 
-    // 获取该用户有订单的所有餐次
-    const userOrderedMeals = dailyOrders.filter(order =>
-      order.dishes && order.dishes.some(dish =>
-        dish.orders && dish.orders.some(orderItem =>
-          orderItem.userId === userId && !orderItem.isNoEat
-        )
-      )
-    );
+    // 获取用户信息
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      return res.json({ success: false, message: '用户信息未找到' });
+    }
 
-    // 收集所有用户吃过的菜品
-    userOrderedMeals.forEach(order => {
-      order.dishes.forEach(dish => {
-        const userOrderItem = dish.orders.find(orderItem =>
-          orderItem.userId === userId && !orderItem.isNoEat
-        );
+    // 获取用户注册时间
+    const userStartDate = new Date(user.firstLoginTime || user.lastLoginTime);
+    const today = new Date();
 
-        if (userOrderItem) {
-          // 避免重复添加同一道菜（按餐厅+菜名去重）
-          const alreadyExists = userOrders.some(existingOrder =>
-            existingOrder.restaurant === order.restaurant && existingOrder.name === dish.name
+    // 设置时间为当天开始，避免时区问题
+    userStartDate.setHours(0, 0, 0, 0);
+    today.setHours(23, 59, 59, 999);
+
+    // 生成用户的所有点餐记录
+    const mealHistory = [];
+
+    // 从用户注册日期开始，到今天为止的每一天
+    for (let date = new Date(userStartDate); date.toISOString().split('T')[0] <= today.toISOString().split('T')[0]; ) {
+      const dateStr = date.toISOString().split('T')[0];
+      const dayOfWeek = date.getDay();
+
+      // 只处理工作日（周一到周五）
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        // 为每个工作日生成午餐和晚餐记录
+        ['lunch', 'dinner'].forEach(meal => {
+          // 检查用户是否有明确的登记记录
+          const userRecord = userRegistrations.find(r =>
+            r.userId === userId && r.date === dateStr && r.mealType === meal
           );
 
-          if (!alreadyExists) {
-            userOrders.push({
-              id: `${order.date}-${order.mealType}-${dish.name}`,
-              name: dish.name,
-              restaurant: order.restaurant,
-              date: order.date,
-              period: order.mealType,
-              orderedAt: userOrderItem.createdAt || order.createdAt
-            });
+          // 获取当天的菜单信息
+          const dayMenu = dailyOrders.find(order => order.date === dateStr);
+          const mealMenu = dayMenu && dayMenu[meal] ? dayMenu[meal] : [];
+
+          if (userRecord && userRecord.dishName === '不吃') {
+            // 用户登记不吃，跳过不添加到点餐记录中
+            return;
           }
-        }
-      });
+
+          let historyRecord = {
+            id: userRecord?.id || `default_${userId}_${dateStr}_${meal}`,
+            date: dateStr,
+            mealType: meal,
+            dishName: null,
+            restaurantName: null,
+            createdAt: userRecord?.createdAt || new Date(date).toISOString()
+          };
+
+          if (userRecord) {
+            // 用户选择了具体菜品
+            historyRecord.dishName = userRecord.dishName;
+            historyRecord.restaurantName = userRecord.restaurantName;
+          } else {
+            // 用户没有明确登记，默认点餐
+            const defaultDish = mealMenu.length > 0 ? mealMenu[0] : null;
+            historyRecord.dishName = defaultDish ? defaultDish.dishName : '默认套餐';
+            historyRecord.restaurantName = defaultDish ? defaultDish.restaurantName : '系统默认';
+          }
+
+          mealHistory.push(historyRecord);
+        });
+      }
+
+      // 增加一天
+      date.setDate(date.getDate() + 1);
+    }
+
+    // 按餐厅+菜名去重，收集所有用户吃过的菜品
+    const userOrders = [];
+    mealHistory.forEach(record => {
+      // 避免重复添加同一道菜（按餐厅+菜名去重）
+      const alreadyExists = userOrders.some(existingOrder =>
+        existingOrder.restaurant === record.restaurantName && existingOrder.name === record.dishName
+      );
+
+      if (!alreadyExists) {
+        userOrders.push({
+          id: `${record.date}-${record.mealType}-${record.dishName}`,
+          name: record.dishName,
+          restaurant: record.restaurantName,
+          date: record.date,
+          period: record.mealType,
+          orderedAt: record.createdAt
+        });
+      }
     });
 
-    // 获取已评价的菜品（按餐厅+菜名去重）
+    // 获取已评价的菜品
+    const ratings = await dataStore.read('dish-ratings.json') || [];
     const ratedRestaurantDishes = ratings
       .filter(rating => rating.userId === userId)
       .map(rating => `${rating.restaurant}-${rating.dishName}`);
@@ -6202,12 +6655,10 @@ app.post('/api/admin/populate-historical-orders', requireAdminAuth, async (req, 
 
     // 读取相关数据
     const weeklyMenus = await dataStore.read('weekly-menus.json') || [];
-    const noEatRegs = await dataStore.read('no-eat-registrations.json') || [];
     let dailyOrders = await dataStore.read('daily-orders.json') || [];
 
     console.log('数据加载情况:', {
       weeklyMenusCount: weeklyMenus.length,
-      noEatRegsCount: noEatRegs.length,
       dailyOrdersCount: dailyOrders.length,
       usersCount: users.length
     });

@@ -1154,6 +1154,13 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h3>📊 点餐记录管理</h3>
                                 <div style="display: flex; align-items: center; gap: 15px;">
+                                    <el-button
+                                        type="primary"
+                                        size="small"
+                                        @click="refreshOrdersData"
+                                        :loading="refreshing">
+                                        🔄 刷新数据
+                                    </el-button>
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <span>总人数:</span>
                                         <el-input-number 
@@ -1858,6 +1865,7 @@
                     
                     // 点餐记录相关数据
                     ordersData: [],
+                    refreshing: false,
                     totalOrderRecords: 0,
                     todayOrderRecords: 0,
                     totalOrderCount: 0,
@@ -3086,8 +3094,21 @@
                         ElMessage.success('数据已刷新');
                     }
                 },
-                
+
                 // 点餐记录管理相关方法
+                async refreshOrdersData() {
+                    this.refreshing = true;
+                    try {
+                        await this.loadOrdersData();
+                        ElMessage.success('数据刷新成功');
+                    } catch (error) {
+                        console.error('刷新数据失败:', error);
+                        ElMessage.error('刷新数据失败');
+                    } finally {
+                        this.refreshing = false;
+                    }
+                },
+
                 async loadOrdersData() {
                     try {
                         let url = '/api/admin/orders';

@@ -3,6 +3,8 @@
     "on_14f113d8579bbc6bda6afdbf0a93b6ec"
   ],
   "users": {
-    "on_14f113d8579bbc6bda6afdbf0a93b6ec": "admin"
+    "on_14f113d8579bbc6bda6afdbf0a93b6ec": "admin",
+    "ou_test123456": "user",
+    "ou_newuser789": "user"
   }
 }

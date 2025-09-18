@@ -31,7 +31,8 @@
       "Bash(echo $FEISHU_TARGET_CHAT_ID)",
       "Bash(PORT=3001 node server.js)",
       "Bash(cmd.exe:*)",
-      "Bash(start.bat)"
+      "Bash(start.bat)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

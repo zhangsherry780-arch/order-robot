@@ -944,9 +944,9 @@
     "totalPeople": 0,
     "noEatCount": 0,
     "orderCount": 0,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-11T16:05:00.000Z",
-    "updatedAt": "2025-09-14T09:44:33.047Z"
+    "updatedAt": "2025-09-17T11:46:24.951Z"
   },
   {
     "id": 36,
@@ -955,9 +955,9 @@
     "totalPeople": 0,
     "noEatCount": 0,
     "orderCount": 0,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-11T16:05:00.000Z",
-    "updatedAt": "2025-09-14T09:44:33.049Z"
+    "updatedAt": "2025-09-17T11:59:57.852Z"
   },
   {
     "id": 37,
@@ -966,9 +966,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-13T16:26:30.595Z",
-    "updatedAt": "2025-09-16T14:50:06.907Z"
+    "updatedAt": "2025-09-17T12:14:08.818Z"
   },
   {
     "id": 38,
@@ -977,9 +977,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-13T16:26:33.989Z",
-    "updatedAt": "2025-09-16T16:57:36.772Z"
+    "updatedAt": "2025-09-17T12:14:08.545Z"
   },
   {
     "id": 39,
@@ -1048,9 +1048,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-14T09:33:08.605Z",
-    "updatedAt": "2025-09-16T16:09:05.300Z"
+    "updatedAt": "2025-09-17T12:14:08.245Z"
   },
   {
     "id": 46,
@@ -1059,9 +1059,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-14T09:33:08.605Z",
-    "updatedAt": "2025-09-16T15:37:54.904Z"
+    "updatedAt": "2025-09-17T12:14:06.909Z"
   },
   {
     "id": 47,
@@ -1072,7 +1072,7 @@
     "orderCount": 25,
     "status": "open",
     "createdAt": "2025-09-14T09:33:08.607Z",
-    "updatedAt": "2025-09-17T02:25:30.098Z"
+    "updatedAt": "2025-09-17T15:33:31.578Z"
   },
   {
     "id": 48,
@@ -1083,7 +1083,7 @@
     "orderCount": 25,
     "status": "open",
     "createdAt": "2025-09-14T09:33:08.607Z",
-    "updatedAt": "2025-09-17T03:13:57.066Z"
+    "updatedAt": "2025-09-17T15:07:46.652Z"
   },
   {
     "id": 49,
@@ -1092,8 +1092,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
-    "createdAt": "2025-09-14T09:33:08.608Z"
+    "status": "closed",
+    "createdAt": "2025-09-14T09:33:08.608Z",
+    "updatedAt": "2025-09-18T04:00:00.904Z"
   },
   {
     "id": 50,
@@ -1102,8 +1103,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
-    "createdAt": "2025-09-14T09:33:08.608Z"
+    "status": "closed",
+    "createdAt": "2025-09-14T09:33:08.608Z",
+    "updatedAt": "2025-09-18T10:00:00.801Z"
   },
   {
     "id": 51,
@@ -1123,7 +1125,8 @@
     "noEatCount": 0,
     "orderCount": 25,
     "status": "open",
-    "createdAt": "2025-09-14T09:33:08.609Z"
+    "createdAt": "2025-09-14T09:33:08.609Z",
+    "updatedAt": "2025-09-17T11:46:59.537Z"
   },
   {
     "id": 53,
