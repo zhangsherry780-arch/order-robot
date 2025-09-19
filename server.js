@@ -8,6 +8,11 @@ try {
   console.warn('[env] dotenv not loaded:', e.message);
 }
 
+// 获取基础URL的工具函数
+function getBaseUrl() {
+  return process.env.SERVER_DOMAIN ? `http://${process.env.SERVER_DOMAIN}:3000` : 'http://localhost:3000';
+}
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -1670,7 +1675,7 @@ class FeishuMessageTemplates {
       });
     }
     
-    content += '\n📱 点击链接进行订餐: http://localhost:3000';
+    content += `\n📱 点击链接进行订餐: ${getBaseUrl()}`;
     
     return {
       title: '🍽️ 每日菜单推送',
@@ -1724,7 +1729,7 @@ class FeishuMessageTemplates {
 
   // 生成不吃按钮
   static getNoEatActions(mealType = 'lunch') {
-    const baseUrl = 'http://localhost:3000'; // 可以从配置中读取
+    const baseUrl = getBaseUrl();
     const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
 
     return [
@@ -1780,6 +1785,7 @@ class FeishuMessageTemplates {
   // 生成菜单推送按钮
   static getMenuPushActions(mealType = 'lunch') {
     const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
+    const baseUrl = getBaseUrl();
 
     // 尝试使用交互式按钮 - 强制添加value属性，看看能否绕过SDK限制
     return [
@@ -1790,7 +1796,7 @@ class FeishuMessageTemplates {
           content: `🚫 登记不吃${mealName}`
         },
         type: 'primary',
-        url: `http://localhost:3000/quick-register?meal=${mealType}&action=skip`
+        url: `${baseUrl}/api/no-eat/${mealType}?auto_redirect=true`
       },
       {
         tag: 'button',
@@ -1799,7 +1805,7 @@ class FeishuMessageTemplates {
           content: '🍽️ 前往订餐系统'
         },
         type: 'default',
-        url: 'http://localhost:3000'
+        url: baseUrl
       }
     ];
   }
@@ -2105,7 +2111,7 @@ class FeishuCommandHandler {
         content += '\n';
       });
       
-      content += '📱 点击链接查看详情: http://localhost:3000';
+      content += `📱 点击链接查看详情: ${getBaseUrl()}`;
       
       return {
         success: true,
@@ -2129,7 +2135,7 @@ class FeishuCommandHandler {
       content += `📅 当前时间: ${today}\n`;
       content += `⏰ 运行时长: ${hours}小时${minutes}分钟\n`;
       content += `🖥️ 系统状态: 正常运行\n`;
-      content += `🔗 访问地址: http://localhost:3000\n\n`;
+      content += `🔗 访问地址: ${getBaseUrl()}\n\n`;
       content += `💡 输入 "帮助" 查看可用命令`;
       
       return {
@@ -2155,7 +2161,7 @@ class FeishuCommandHandler {
     content += `❓ **其他**\n`;
     content += `• "帮助" 或 "help" - 显示此帮助信息\n\n`;
     content += `💡 **提示:** 直接输入关键词即可，不区分大小写\n`;
-    content += `🔗 **网页版:** http://localhost:3000`;
+    content += `🔗 **网页版:** ${getBaseUrl()}`;
     
     return {
       success: true,

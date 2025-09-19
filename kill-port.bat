@@ -1,24 +1,32 @@
 @echo off
-echo 正在检查端口3000是否被占用...
+chcp 65001 >nul
+setlocal enabledelayedexpansion
+echo Checking ports 3000-3010...
+echo.
 
-:: 查找占用端口3000的进程
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000') do (
-    set pid=%%a
-    goto :found
+:: Check ports 3000-3010
+for %%p in (3000 3001 3002 3003 3004 3005 3006 3007 3008 3009 3010) do (
+    echo Checking port %%p...
+    set "found=false"
+
+    :: Find processes using this port
+    for /f "tokens=5" %%a in ('netstat -aon ^| findstr :%%p 2^>nul') do (
+        echo   Found process %%a using port %%p
+        echo   Terminating process...
+        taskkill /PID %%a /F >nul 2>&1
+        if !errorlevel! == 0 (
+            echo   Process terminated successfully
+        ) else (
+            echo   Failed to terminate process
+        )
+        set "found=true"
+    )
+
+    if "!found!" == "false" (
+        echo   Port %%p is free
+    )
+    echo.
 )
 
-echo 端口3000未被占用
-goto :end
-
-:found
-echo 发现进程 %pid% 占用端口3000
-echo 正在终止进程...
-taskkill /PID %pid% /F
-if %errorlevel% == 0 (
-    echo 进程已成功终止
-) else (
-    echo 终止进程失败
-)
-
-:end
+echo All ports checked
 pause

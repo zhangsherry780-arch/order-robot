@@ -15,6 +15,7 @@ COPY server.js ./
 COPY config/ ./config/
 COPY scripts/ ./scripts/
 COPY public/ ./public/
+COPY libs/ ./libs/
 COPY database/ ./database/
 COPY ecosystem.config.js ./
 COPY feishu-config.js ./
