@@ -6,23 +6,32 @@
     ],
     "userIds": [],
     "createdAt": "2025-09-15T12:39:19.995Z",
-    "updatedAt": "2025-09-19T03:29:43.970Z"
+    "updatedAt": "2025-09-22T14:09:22.061Z"
   },
-  "null": {
-    "unionId": null,
+  "on_test_user_12345": {
+    "unionId": "on_test_user_12345",
     "openIds": [
-      "ou_test123456",
-      "ou_newuser789",
-      "ou_finaltest999",
-      "ou_testuser2025"
+      [
+        "ou_test_user_67890"
+      ]
     ],
     "userIds": [
-      "ou_test123456",
-      "ou_newuser789",
-      "ou_finaltest999",
-      "ou_testuser2025"
+      []
     ],
-    "createdAt": "2025-09-16T13:35:36.104Z",
-    "updatedAt": "2025-09-16T13:42:50.741Z"
+    "createdAt": "2025-09-21T09:24:00.998Z",
+    "updatedAt": "2025-09-21T09:24:00.998Z"
+  },
+  "on_test_user_99999": {
+    "unionId": "on_test_user_99999",
+    "openIds": [
+      [
+        "ou_test_user_88888"
+      ]
+    ],
+    "userIds": [
+      []
+    ],
+    "createdAt": "2025-09-21T09:24:41.402Z",
+    "updatedAt": "2025-09-21T09:24:41.402Z"
   }
 }

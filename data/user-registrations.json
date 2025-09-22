@@ -298,5 +298,44 @@
     "createdAt": "2025-09-19T03:32:48.477Z",
     "updatedAt": "2025-09-19T03:32:48.477Z",
     "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758446641003",
+    "userId": "on_test_user_12345",
+    "date": "2025-09-21",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-21T09:24:01.002Z",
+    "updatedAt": "2025-09-21T09:24:01.002Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758446681405",
+    "userId": "on_test_user_99999",
+    "date": "2025-09-21",
+    "mealType": "dinner",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-21T09:24:41.404Z",
+    "updatedAt": "2025-09-21T09:24:41.404Z",
+    "note": "通过飞书按钮快速登记"
+  },
+  {
+    "id": "1758548923670",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-22",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-22T13:48:43.669Z",
+    "updatedAt": "2025-09-22T13:48:43.669Z",
+    "note": "通过外部链接登记"
   }
 ]

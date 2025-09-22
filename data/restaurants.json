@@ -205,5 +205,17 @@
     "tags": [],
     "status": "active",
     "createdAt": "2025-09-17T15:21:45.833Z"
+  },
+  {
+    "id": 27,
+    "name": "测试",
+    "address": "",
+    "phone": "",
+    "description": "来自用户投稿: test",
+    "rating": 0,
+    "imageUrl": "/images/default-restaurant.jpg",
+    "tags": [],
+    "status": "active",
+    "createdAt": "2025-09-22T08:37:10.733Z"
   }
 ]

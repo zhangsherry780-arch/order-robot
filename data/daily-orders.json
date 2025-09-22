@@ -1125,9 +1125,9 @@
     "totalPeople": 25,
     "noEatCount": 0,
     "orderCount": 25,
-    "status": "open",
+    "status": "closed",
     "createdAt": "2025-09-14T09:33:08.609Z",
-    "updatedAt": "2025-09-18T16:26:55.283Z"
+    "updatedAt": "2025-09-19T10:00:00.705Z"
   },
   {
     "id": 53,
@@ -1254,5 +1254,279 @@
     "createdAt": "2025-09-13T15:24:15.050Z",
     "openedAt": "2025-09-13T15:24:15.050Z",
     "closedAt": "2025-09-13T15:24:15.050Z"
+  },
+  {
+    "date": "2025-09-21",
+    "lunch": [
+      {
+        "dishId": 10003,
+        "dishName": "石锅拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10004,
+        "dishName": "烤牛肉拌饭",
+        "restaurantName": "米村拌饭",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10039,
+        "dishName": "大盘鸡",
+        "restaurantName": "耶里夏丽",
+        "rating": 0,
+        "imageUrl": "/uploads/submissions/submission-1757690211152-971718161.png",
+        "tags": []
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-22T07:48:10.645Z"
+  },
+  {
+    "id": 1757948809547.6995,
+    "date": "2025-09-21",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 1,
+    "orderCount": 24,
+    "status": "open",
+    "createdAt": "2025-09-21T09:24:01.008Z"
+  },
+  {
+    "date": "2025-09-22",
+    "lunch": [
+      {
+        "dishId": 10008,
+        "dishName": "跷脚牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "辣"
+        ]
+      },
+      {
+        "dishId": 10009,
+        "dishName": "番茄招牌牛肉粉",
+        "restaurantName": "小满手工粉",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜",
+          "特色"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10012,
+        "dishName": "烤鸡套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10013,
+        "dishName": "糖醋里脊套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10014,
+        "dishName": "烤鱼套餐",
+        "restaurantName": "绿茶餐厅",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-22T07:48:10.648Z"
+  },
+  {
+    "date": "2025-09-23",
+    "lunch": [
+      {
+        "dishId": 10002,
+        "dishName": "米饭套餐",
+        "restaurantName": "喜家德",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10006,
+        "dishName": "烧肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10007,
+        "dishName": "牛肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-22T07:48:10.649Z"
+  },
+  {
+    "date": "2025-09-24",
+    "lunch": [
+      {
+        "dishId": 10037,
+        "dishName": "牛油冒菜锅",
+        "restaurantName": "成都你六姐",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "meat"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10010,
+        "dishName": "油焖元宝虾套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10011,
+        "dishName": "红烧牛肉套餐",
+        "restaurantName": "顺风大酒店",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-22T07:48:10.651Z"
+  },
+  {
+    "date": "2025-09-25",
+    "lunch": [
+      {
+        "dishId": 10038,
+        "dishName": "单人套餐",
+        "restaurantName": "必胜客",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": []
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10017,
+        "dishName": "自选菜套餐",
+        "restaurantName": "大米先生",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-22T07:48:10.653Z"
+  },
+  {
+    "date": "2025-09-26",
+    "lunch": [
+      {
+        "dishId": 10006,
+        "dishName": "烧肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      },
+      {
+        "dishId": 10007,
+        "dishName": "牛肉丼",
+        "restaurantName": "食其家",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "dinner": [
+      {
+        "dishId": 10002,
+        "dishName": "米饭套餐",
+        "restaurantName": "喜家德",
+        "rating": 0,
+        "imageUrl": "/images/default-dish.jpg",
+        "tags": [
+          "荤菜"
+        ]
+      }
+    ],
+    "status": "open",
+    "publishedAt": "2025-09-22T07:48:10.654Z"
+  },
+  {
+    "id": 1757948809548.6995,
+    "date": "2025-09-22",
+    "mealType": "dinner",
+    "totalPeople": 25,
+    "noEatCount": 0,
+    "orderCount": 25,
+    "status": "closed",
+    "createdAt": "2025-09-22T08:00:00.027Z",
+    "updatedAt": "2025-09-22T10:00:00.903Z"
+  },
+  {
+    "id": 1757948809549.6995,
+    "date": "2025-09-22",
+    "mealType": "lunch",
+    "totalPeople": 25,
+    "noEatCount": 1,
+    "orderCount": 24,
+    "status": "closed",
+    "createdAt": "2025-09-22T11:02:35.127Z",
+    "updatedAt": "2025-09-22T13:48:43.672Z"
   }
 ]

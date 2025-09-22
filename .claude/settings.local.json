@@ -35,7 +35,10 @@
       "Bash(dir:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Read(//d/**)",
+      "Bash(ipconfig)",
+      "Bash(shutdown /r /t 5 /c \"重启系统以应用新的服务器配置\")"
     ],
     "deny": [],
     "ask": []

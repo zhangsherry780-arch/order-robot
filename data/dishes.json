@@ -656,5 +656,22 @@
     "restaurantName": "hambuger",
     "createdAt": "2025-09-17T15:21:45.835Z",
     "updatedAt": "2025-09-17T15:21:45.835Z"
+  },
+  {
+    "id": 10042,
+    "name": "test",
+    "description": "",
+    "category": "其他",
+    "price": 0,
+    "restaurantId": 27,
+    "imageUrl": "/images/default-dish.jpg",
+    "rating": 0,
+    "mealType": "lunch",
+    "active": false,
+    "tags": [],
+    "status": "pending",
+    "restaurantName": "测试",
+    "createdAt": "2025-09-22T08:37:10.733Z",
+    "updatedAt": "2025-09-22T08:37:10.733Z"
   }
 ]
