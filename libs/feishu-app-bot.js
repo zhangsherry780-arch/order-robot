@@ -44,7 +44,29 @@ class FeishuAppBot {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
     });
     if (!resp.data || resp.data.code !== 0) {
-      throw new Error('Failed to send card: ' + JSON.stringify(resp.data));
+      const code = resp.data?.code;
+      const msg = resp.data?.msg || resp.data?.message;
+      throw new Error(`Failed to send card: code=${code} msg=${msg}`);
+    }
+    return resp.data;
+  }
+
+  async sendTextToChat(chatId, text) {
+    if (!chatId) throw new Error('chatId is required');
+    const token = await this.getTenantAccessToken();
+    const url = 'https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id';
+    const payload = {
+      receive_id: chatId,
+      msg_type: 'text',
+      content: JSON.stringify({ text })
+    };
+    const resp = await axios.post(url, payload, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+    });
+    if (!resp.data || resp.data.code !== 0) {
+      const code = resp.data?.code;
+      const msg = resp.data?.msg || resp.data?.message;
+      throw new Error(`Failed to send text: code=${code} msg=${msg}`);
     }
     return resp.data;
   }

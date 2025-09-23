@@ -1493,17 +1493,16 @@ class FeishuMessageSender {
   // 发送基础文本消息
   async sendTextMessage(content, title = null) {
     try {
-      if (!this.webhookUrl) {
-        throw new Error('飞书Webhook URL未配置');
+      const chatId = process.env.FEISHU_TARGET_CHAT_ID;
+      if (feishuAppBot && chatId) {
+        const text = title ? `${title}\n\n${content}` : content;
+        const response = await feishuAppBot.sendTextToChat(chatId, text);
+        console.log('飞书消息发送成功(IM)');
+        return { success: true, message: '消息发送成功', data: response };
       }
 
-      const message = {
-        msg_type: 'text',
-        content: {
-          text: title ? `${title}\n\n${content}` : content
-        }
-      };
-
+      if (!this.webhookUrl) throw new Error('飞书Webhook URL未配置');
+      const message = { msg_type: 'text', content: { text: title ? `${title}\n\n${content}` : content } };
       const response = await axios.post(this.webhookUrl, message);
       
       if (response.data.code === 0) {
@@ -1521,22 +1520,16 @@ class FeishuMessageSender {
   // 发送富文本消息
   async sendRichTextMessage(title, content) {
     try {
-      if (!this.webhookUrl) {
-        throw new Error('飞书Webhook URL未配置');
+      const chatId = process.env.FEISHU_TARGET_CHAT_ID;
+      if (feishuAppBot && chatId) {
+        const card = { config: { wide_screen_mode: true }, header: { template: 'blue', title: { tag: 'plain_text', content: title } }, elements: [ { tag: 'div', text: { tag: 'lark_md', content } } ] };
+        const response = await feishuAppBot.sendInteractiveCardToChat(chatId, card);
+        console.log('飞书富文本消息发送成功(IM)');
+        return { success: true, message: '消息发送成功', data: response };
       }
 
-      const message = {
-        msg_type: 'post',
-        content: {
-          post: {
-            zh_cn: {
-              title: title,
-              content: content
-            }
-          }
-        }
-      };
-
+      if (!this.webhookUrl) throw new Error('飞书Webhook URL未配置');
+      const message = { msg_type: 'post', content: { post: { zh_cn: { title, content } } } };
       const response = await axios.post(this.webhookUrl, message);
       
       if (response.data.code === 0) {
@@ -1554,36 +1547,24 @@ class FeishuMessageSender {
   // 发送卡片消息
   async sendCardMessage(title, content, color = 'blue') {
     try {
-      if (!this.webhookUrl) {
-        throw new Error('飞书Webhook URL未配置');
+      const chatId = process.env.FEISHU_TARGET_CHAT_ID;
+      const card = {
+        config: {
+          wide_screen_mode: true,
+          enable_forward: true,
+          update_multi: false
+        },
+        header: { title: { tag: 'plain_text', content: title }, template: color },
+        elements: [ { tag: 'div', text: { tag: 'lark_md', content } } ]
+      };
+      if (feishuAppBot && chatId) {
+        const response = await feishuAppBot.sendInteractiveCardToChat(chatId, card);
+        console.log('飞书卡片消息发送成功(IM)');
+        return { success: true, message: '消息发送成功', data: response };
       }
 
-      const message = {
-        msg_type: 'interactive',
-        card: {
-          config: {
-            wide_screen_mode: true,
-            enable_forward: true
-          },
-          header: {
-            title: {
-              tag: 'plain_text',
-              content: title
-            },
-            template: color
-          },
-          elements: [
-            {
-              tag: 'div',
-              text: {
-                tag: 'lark_md',
-                content: content
-              }
-            }
-          ]
-        }
-      };
-
+      if (!this.webhookUrl) throw new Error('飞书Webhook URL未配置');
+      const message = { msg_type: 'interactive', card };
       const response = await axios.post(this.webhookUrl, message);
       
       if (response.data.code === 0) {
@@ -1599,48 +1580,21 @@ class FeishuMessageSender {
   }
 
   // 发送交互式卡片消息（带按钮）
-  async sendInteractiveCardMessage(title, content, actions = [], color = 'blue') {
+async sendInteractiveCardMessage(title, content, actions = [], color = 'blue') {
     try {
-      if (!this.webhookUrl) {
-        throw new Error('飞书Webhook URL未配置');
+      const chatId = process.env.FEISHU_TARGET_CHAT_ID;
+      const elements = [ { tag: 'div', text: { tag: 'lark_md', content } } ];
+      if (actions && actions.length > 0) elements.push({ tag: 'action', actions });
+      const card = { config: { wide_screen_mode: true, enable_forward: true }, header: { title: { tag: 'plain_text', content: title }, template: color }, elements };
+
+      if (feishuAppBot && chatId) {
+        const response = await feishuAppBot.sendInteractiveCardToChat(chatId, card);
+        console.log('飞书交互式卡片消息发送成功(IM)');
+        return { success: true, message: '交互式消息发送成功', data: response };
       }
 
-      const elements = [
-        {
-          tag: 'div',
-          text: {
-            tag: 'lark_md',
-            content: content
-          }
-        }
-      ];
-
-      // 如果有按钮，添加按钮元素
-      if (actions && actions.length > 0) {
-        elements.push({
-          tag: 'action',
-          actions: actions
-        });
-      }
-
-      const message = {
-        msg_type: 'interactive',
-        card: {
-          config: {
-            wide_screen_mode: true,
-            enable_forward: true
-          },
-          header: {
-            title: {
-              tag: 'plain_text',
-              content: title
-            },
-            template: color
-          },
-          elements: elements
-        }
-      };
-
+      if (!this.webhookUrl) throw new Error('飞书Webhook URL未配置');
+      const message = { msg_type: 'interactive', card };
       const response = await axios.post(this.webhookUrl, message);
 
       if (response.data.code === 0) {
@@ -1747,7 +1701,12 @@ class FeishuMessageTemplates {
           tag: 'plain_text',
           content: `🚫 登记不吃${mealName}`
         },
-        type: 'primary'
+        type: 'primary',
+        value: {
+          action: 'no_eat',
+          mealType: mealType,
+          source: 'reminder'
+        }
       },
       {
         tag: 'button',
@@ -1794,7 +1753,7 @@ class FeishuMessageTemplates {
     const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
     const baseUrl = getBaseUrl();
 
-    // 使用交互式按钮，通过按钮文本识别
+    // 使用交互式按钮，可以获取用户点击回调信息
     return [
       {
         tag: 'button',
@@ -1802,7 +1761,12 @@ class FeishuMessageTemplates {
           tag: 'plain_text',
           content: `🚫 登记不吃${mealName}`
         },
-        type: 'primary'
+        type: 'primary',
+        value: {
+          action: 'no_eat',
+          mealType: mealType,
+          source: 'menu_push'
+        }
       },
       {
         tag: 'button',
@@ -1938,6 +1902,31 @@ app.get('/api/feishu/test', async (req, res) => {
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 检查飞书长连接状态
+app.get('/api/feishu/connection-status', (req, res) => {
+  try {
+    const isConnected = global.__feishu_connection_status ? global.__feishu_connection_status() : false;
+    const hasWsClient = !!global.__feishu_ws_client;
+    const hasClient = !!global.__feishu_client;
+
+    res.json({
+      success: true,
+      data: {
+        isConnected,
+        hasWsClient,
+        hasClient,
+        timestamp: new Date().toISOString(),
+        status: isConnected ? 'connected' : 'disconnected'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '获取连接状态失败: ' + error.message
+    });
   }
 });
 
@@ -2817,21 +2806,29 @@ app.post('/api/feishu/webhook', async (req, res) => {
   try {
     const { header, event } = req.body;
 
+    // 支持新旧两种事件格式
+    // 旧格式: { header: { event_type }, event: {...} }
+    // 新格式: { event_type, action, operator, ... }
+    const eventType = header?.event_type || req.body.event_type;
+    const eventData = event || req.body;
+
     // 验证请求数据格式
-    if (!header || !header.event_type) {
+    if (!eventType) {
       console.log('收到无效的飞书webhook请求:', JSON.stringify(req.body, null, 2));
       return res.json({ code: -1, msg: 'invalid request format' });
     }
 
+    console.log(`收到飞书事件: ${eventType}`);
+
     // URL验证 (飞书会发送此类型请求验证webhook地址)
-    if (header.event_type === 'url_verification') {
-      return res.json({ challenge: event.challenge });
+    if (eventType === 'url_verification') {
+      return res.json({ challenge: eventData.challenge });
     }
-    
+
     // 处理消息事件
-    if (header.event_type === 'im.message.receive_v1') {
-      const message = event.message;
-      const sender = event.sender;
+    if (eventType === 'im.message.receive_v1') {
+      const message = eventData.message;
+      const sender = eventData.sender;
 
       // 只处理文本消息，忽略机器人自己的消息
       if (message.message_type === 'text' && !sender.sender_type === 'app') {
@@ -2855,27 +2852,27 @@ app.post('/api/feishu/webhook', async (req, res) => {
     }
 
     // 处理卡片交互事件
-    if (header.event_type === 'card.action.trigger') {
-      const action = event.action;
+    if (eventType === 'card.action.trigger') {
+      const action = eventData.action;
 
       // 飞书卡片交互事件中用户ID可能在不同位置，优先获取union_id
-      const rawUserId = event.operator?.union_id || event.operator?.user_id || event.operator?.operator_id?.union_id || event.operator?.operator_id?.user_id;
-      const openId = event.operator?.open_id;
+      const rawUserId = eventData.operator?.union_id || eventData.operator?.user_id || eventData.operator?.operator_id?.union_id || eventData.operator?.operator_id?.user_id;
+      const openId = eventData.operator?.open_id;
 
       // 获取更多用户信息
       const userInfo = {
-        user_id: event.operator?.user_id,
+        user_id: eventData.operator?.user_id,
         open_id: openId,
-        union_id: event.operator?.union_id,
-        name: event.operator?.name || event.operator?.user_name,
-        全部信息: event.operator
+        union_id: eventData.operator?.union_id,
+        name: eventData.operator?.name || eventData.operator?.user_name,
+        全部信息: eventData.operator
       };
 
       console.log(`🔘 收到飞书卡片交互 - 按钮文本: ${action.tag === 'button' ? (action.text?.content || action.text || '未知') : action.value || '未知'}`);
       console.log(`👤 点击用户信息:`, JSON.stringify(userInfo, null, 2));
 
       // 确定最终使用的用户ID，优先使用union_id
-      let userId = event.operator?.union_id || openId || rawUserId;
+      let userId = eventData.operator?.union_id || openId || rawUserId;
 
       // 验证用户ID有效性
       if (!userId) {
@@ -2893,19 +2890,36 @@ app.post('/api/feishu/webhook', async (req, res) => {
 
       console.log(`🔍 按钮交互详细信息:`, JSON.stringify(action, null, 2));
 
-      // 通过按钮文本识别操作类型和餐次
-      const buttonText = action.tag === 'button' ? (action.text?.content || action.text || '') : '';
-      console.log(`🔍 分析按钮文本: "${buttonText}"`);
-
-      if (buttonText.includes('登记不吃')) {
-        if (buttonText.includes('午餐') || buttonText.includes('午饭')) {
-          mealType = 'lunch';
-        } else if (buttonText.includes('晚餐') || buttonText.includes('晚饭')) {
-          mealType = 'dinner';
+      // 优先通过value属性获取操作信息
+      if (action.value) {
+        if (typeof action.value === 'object' && action.value.action === 'no_eat') {
+          mealType = action.value.mealType;
+          console.log(`✅ 通过value对象识别到不吃登记操作: ${mealType}, source: ${action.value.source}`);
+        } else if (typeof action.value === 'string' && action.value.startsWith('no_eat_')) {
+          const parts = action.value.split('_');
+          if (parts.length >= 3) {
+            mealType = parts[2]; // no_eat_lunch_menu_push -> lunch
+            const source = parts.slice(3).join('_'); // menu_push 或 reminder
+            console.log(`✅ 通过value字符串识别到不吃登记操作: ${mealType}, source: ${source}`);
+          }
         }
-        console.log(`✅ 通过文本识别到不吃登记操作: ${mealType}`);
-      } else {
-        console.log(`ℹ️ 非不吃登记按钮，跳过处理`);
+      }
+
+      if (!mealType) {
+        // 回退到通过按钮文本识别操作类型和餐次
+        const buttonText = action.tag === 'button' ? (action.text?.content || action.text || '') : '';
+        console.log(`🔍 分析按钮文本: "${buttonText}"`);
+
+        if (buttonText.includes('登记不吃')) {
+          if (buttonText.includes('午餐') || buttonText.includes('午饭')) {
+            mealType = 'lunch';
+          } else if (buttonText.includes('晚餐') || buttonText.includes('晚饭')) {
+            mealType = 'dinner';
+          }
+          console.log(`✅ 通过文本识别到不吃登记操作: ${mealType}`);
+        } else {
+          console.log(`ℹ️ 非不吃登记按钮，跳过处理`);
+        }
       }
 
       if (mealType) {
@@ -2913,10 +2927,17 @@ app.post('/api/feishu/webhook', async (req, res) => {
         // 使用 setImmediate 异步处理，避免阻塞响应
         setImmediate(async () => {
           try {
-            console.log(`开始处理不吃登记: userId=${userId}, mealType=${mealType}`);
+            console.log(`\n=== 🔘 飞书按钮点击回调信息 ===`);
+            console.log(`👤 用户ID: ${userId}`);
+            console.log(`🍽️ 餐次: ${mealType}`);
+            console.log(`📱 用户详细信息:`, JSON.stringify(userInfo, null, 2));
+
+            console.log(`🔍 按钮值信息:`, JSON.stringify(action.value, null, 2));
+            console.log(`=================================\n`);
 
             // 调用新的不吃登记API
-            const response = await fetch(`http://localhost:${PORT}/api/no-eat`, {
+            const currentPort = process.env.PORT || 3000;
+            const response = await fetch(`http://localhost:${currentPort}/api/no-eat`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
@@ -2932,13 +2953,46 @@ app.post('/api/feishu/webhook', async (req, res) => {
 
             if (result.success) {
               const mealName = mealType === 'lunch' ? '午餐' : '晚餐';
-              console.log(`✅ 飞书卡片不吃登记成功: ${result.data?.userName}, ${mealName}`);
-              // 静默处理，不发送确认消息
+
+              // 优先使用飞书回调中的用户名，其次使用API返回的用户名，最后使用默认值
+              let userName = eventData.operator?.name || result.data?.userName || '用户';
+
+              // 如果用户名为空或者是默认值，尝试从用户数据中获取
+              if (!userName || userName === '用户' || userName === 'Unknown') {
+                try {
+                  const usersData = require('./data/users.json');
+                  const user = usersData.find(u => u.id === userId);
+                  if (user && user.name) {
+                    userName = user.name;
+                  }
+                } catch (err) {
+                  console.log('获取用户名失败，使用默认值');
+                }
+              }
+
+              console.log(`✅ 飞书卡片不吃登记成功: ${userName}, ${mealName}`);
+
+              // 发送确认消息到群聊
+              try {
+                const confirmMessage = `✅ ${userName} 已成功登记不吃${mealName}`;
+                await feishuSender.sendTextMessage(confirmMessage);
+                console.log(`📢 已发送确认消息到群聊: ${confirmMessage}`);
+              } catch (msgError) {
+                console.error('❌ 发送确认消息失败:', msgError);
+              }
             } else {
               console.error('❌ 不吃登记API返回失败:', result.message);
+
+              // 发送错误消息
+              try {
+                const errorMessage = `❌ 登记不吃${mealType === 'lunch' ? '午餐' : '晚餐'}失败: ${result.message}`;
+                await feishuSender.sendTextMessage(errorMessage);
+              } catch (msgError) {
+                console.error('❌ 发送错误消息失败:', msgError);
+              }
             }
           } catch (error) {
-            console.error('❌ 调用不吃登记API失败:', error);
+            console.error('❌ 处理按钮点击失败:', error);
             console.error('错误详情:', error.stack);
 
             // 记录错误上下文信息

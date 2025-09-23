@@ -71,36 +71,15 @@ async function startFeishuLongConnection(config, logger = console) {
         try {
           logger.log('Long-conn card action received:', JSON.stringify(data, null, 2));
 
-          // 直接处理按钮点击，不转发到webhook
-          if (data.action && data.operator) {
-            const action = data.action;
-            const buttonText = action.text?.content || action.text || '';
-            logger.log(`长连接按钮点击: "${buttonText}"`);
-
-            // 检查是否是不吃登记按钮
-            if (buttonText.includes('登记不吃')) {
-              let mealType = null;
-              if (buttonText.includes('午餐')) {
-                mealType = 'lunch';
-              } else if (buttonText.includes('晚餐')) {
-                mealType = 'dinner';
-              }
-
-              if (mealType) {
-                logger.log(`长连接识别到不吃登记: ${mealType}`);
-
-                // 转发到本地webhook处理具体的登记逻辑
-                const port = process.env.PORT || 3000;
-                try {
-                  await axios.post(`http://127.0.0.1:${port}/api/feishu/webhook`, data, {
-                    headers: { 'Content-Type': 'application/json' }
-                  });
-                  logger.log('Card action forwarded to local webhook successfully');
-                } catch (err) {
-                  logger.warn('Forward card action to local webhook failed:', err.message);
-                }
-              }
-            }
+          // 直接转发所有卡片交互事件到主代码的webhook处理器
+          const port = process.env.PORT || 3000;
+          try {
+            await axios.post(`http://127.0.0.1:${port}/api/feishu/webhook`, data, {
+              headers: { 'Content-Type': 'application/json' }
+            });
+            logger.log('Card action forwarded to local webhook successfully');
+          } catch (err) {
+            logger.warn('Forward card action to local webhook failed:', err.message);
           }
         } catch (err) {
           logger.error('card.action handler error:', err);
@@ -110,16 +89,96 @@ async function startFeishuLongConnection(config, logger = console) {
 
     logger.log('[feishu-sdk] Starting WebSocket client...');
 
-    // 启动WebSocket长连接
-    await wsClient.start({
-      eventDispatcher: eventDispatcher
-    });
+    // 添加连接状态监控
+    let isConnected = false;
+    let reconnectTimer = null;
+    let heartbeatTimer = null;
 
-    logger.log('✅ Feishu long connection started successfully with WSClient');
+    // 连接状态监控函数
+    const startHeartbeat = () => {
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+      heartbeatTimer = setInterval(() => {
+        if (isConnected) {
+          logger.log('🫀 Feishu长连接心跳检查 - 连接正常');
+        } else {
+          logger.warn('⚠️  Feishu长连接心跳检查 - 连接异常，尝试重连...');
+          attemptReconnect();
+        }
+      }, 30000); // 每30秒检查一次
+    };
+
+    // 重连机制
+    const attemptReconnect = async () => {
+      if (reconnectTimer) return; // 避免重复重连
+
+      logger.warn('🔄 开始重连Feishu长连接...');
+      reconnectTimer = setTimeout(async () => {
+        try {
+          // 重新创建WebSocket客户端
+          const newWsClient = new Lark.WSClient({
+            ...baseConfig,
+            loggerLevel: Lark.LoggerLevel.info
+          });
+
+          await newWsClient.start({
+            eventDispatcher: eventDispatcher
+          });
+
+          // 更新全局引用
+          global.__feishu_ws_client = newWsClient;
+          isConnected = true;
+          reconnectTimer = null;
+
+          logger.log('✅ Feishu长连接重连成功');
+        } catch (error) {
+          logger.error('❌ Feishu长连接重连失败:', error);
+          reconnectTimer = null;
+          isConnected = false;
+          // 5秒后再次尝试重连
+          setTimeout(attemptReconnect, 5000);
+        }
+      }, 2000);
+    };
+
+    // 启动WebSocket长连接
+    try {
+      await wsClient.start({
+        eventDispatcher: eventDispatcher
+      });
+
+      isConnected = true;
+      logger.log('✅ Feishu long connection started successfully with WSClient');
+
+      // 启动心跳监控
+      startHeartbeat();
+
+      // 监听连接错误事件
+      wsClient.on?.('error', (error) => {
+        logger.error('❌ Feishu长连接错误:', error);
+        isConnected = false;
+      });
+
+      wsClient.on?.('close', () => {
+        logger.warn('⚠️  Feishu长连接已关闭');
+        isConnected = false;
+      });
+
+      wsClient.on?.('open', () => {
+        logger.log('✅ Feishu长连接已恢复');
+        isConnected = true;
+      });
+
+    } catch (error) {
+      logger.error('❌ 启动Feishu长连接失败:', error);
+      isConnected = false;
+      // 启动重连机制
+      attemptReconnect();
+    }
 
     // 保存客户端引用以便后续使用
     global.__feishu_ws_client = wsClient;
     global.__feishu_client = client;
+    global.__feishu_connection_status = () => isConnected;
 
   } catch (e) {
     logger.error('Failed to start Feishu long connection:', e);
