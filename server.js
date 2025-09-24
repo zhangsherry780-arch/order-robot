@@ -3206,8 +3206,18 @@ app.get('/api/admin/orders', requireAdminAuth, async (req, res) => {
       }
     }
 
-    // 重新按日期正序排序
-    deduplicatedOrders.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // 重新按日期正序排序，同一天内午餐在前、晚餐在后
+    deduplicatedOrders.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      if (dateA.getTime() === dateB.getTime()) {
+        // 同一天的话，午餐排在晚餐前
+        if (a.mealType === 'lunch' && b.mealType === 'dinner') return -1;
+        if (a.mealType === 'dinner' && b.mealType === 'lunch') return 1;
+        return 0;
+      }
+      return dateA.getTime() - dateB.getTime();
+    });
 
     console.log('筛选结果:', {
       totalOrders: dailyOrders.length,
@@ -5172,6 +5182,24 @@ async function initializeCronJobs() {
       async () => {
         console.log('执行定时任务: 开放午餐不吃登记');
         await ensureDailyOrderRecords();
+
+        // 创建未来一个月的点餐记录
+        const today = moment();
+        let createdCount = 0;
+        for (let i = 1; i <= 30; i++) {
+          const futureDate = today.clone().add(i, 'days');
+          const dayOfWeek = futureDate.day();
+          // 只为工作日创建(周日到周五)
+          if (dayOfWeek >= 0 && dayOfWeek <= 5) {
+            const dateStr = futureDate.format('YYYY-MM-DD');
+            const created = await dataStore.ensureDailyOrderRecord(dateStr);
+            if (created) createdCount++;
+          }
+        }
+        if (createdCount > 0) {
+          console.log(`为未来${createdCount}天创建了点餐记录`);
+        }
+
         orderManager.openRegistration('lunch');
       }
     );
