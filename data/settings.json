@@ -1,12 +1,12 @@
 {
-  "totalEmployees": 25,
+  "totalEmployees": 28,
   "lunchOpenTime": "10:00",
   "dinnerOpenTime": "16:00",
   "lunchCloseTime": "12:00",
   "dinnerCloseTime": "18:00",
   "menuGenerateTime": "09:00",
   "currentWeekStart": null,
-  "updatedAt": "2025-09-22T11:01:53.034Z",
+  "updatedAt": "2025-09-30T06:08:17.988Z",
   "lunchPushTime": "10:50",
   "dinnerPushTime": "17:22"
 }
