@@ -38,8 +38,11 @@ SYNC_ITEMS=(
     "feishu-config.js"
     "auto-sync-monitor.js"
     "fix-data-sync.js"
+    "fix-no-eat-sync.js"
+    "create-future-orders.js"
     "docker-compose.yml"
     "deploy-offline.sh"
+    "fix-permissions.sh"
     "package.json"
     "package-lock.json"
 )

@@ -2,10 +2,10 @@
   {
     "id": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
     "name": "张雪岩",
-    "avatar": "https://s3-imfile.feishucdn.com/static-resource/v1/v3_00pg_eec9a5e6-d923-4af0-852a-4bea7c0335fg~?image_size=72x72&cut_type=&quality=&format=image&sticker_format=.webp",
+    "avatar": "https://s1-imfile.feishucdn.com/static-resource/v1/v3_00pg_eec9a5e6-d923-4af0-852a-4bea7c0335fg~?image_size=72x72&cut_type=&quality=&format=image&sticker_format=.webp",
     "loginMethod": "feishu",
     "firstLoginTime": "2025-09-13T15:24:15.050Z",
-    "lastLoginTime": "2025-09-24T13:15:15.553Z",
+    "lastLoginTime": "2025-09-24T14:40:10.670Z",
     "lastOrderTime": "2025-09-17T13:45:25.823Z"
   },
   {
@@ -70,5 +70,12 @@
     "loginMethod": "feishu",
     "firstLoginTime": "2025-09-23T14:19:57.633Z",
     "lastLoginTime": "2025-09-23T14:19:57.633Z"
+  },
+  {
+    "id": "on_2e951f9ad2ecb46a96d686c3246800d1",
+    "name": "飞书用户_on_2e951",
+    "loginMethod": "feishu",
+    "firstLoginTime": "2025-09-24T14:57:27.424Z",
+    "lastLoginTime": "2025-09-24T14:57:27.424Z"
   }
 ]

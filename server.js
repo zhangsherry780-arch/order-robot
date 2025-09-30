@@ -2937,7 +2937,7 @@ app.post('/api/feishu/webhook', async (req, res) => {
 
             // 调用新的不吃登记API
             const currentPort = process.env.PORT || 3000;
-            const response = await fetch(`http://localhost:${currentPort}/api/no-eat`, {
+            const response = await fetch(`http://127.0.0.1:${currentPort}/api/no-eat`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
@@ -2960,7 +2960,7 @@ app.post('/api/feishu/webhook', async (req, res) => {
               // 如果用户名为空或者是默认值，尝试从用户数据中获取
               if (!userName || userName === '用户' || userName === 'Unknown') {
                 try {
-                  const usersData = require('./data/users.json');
+                  const usersData = await dataStore.read('users.json') || [];
                   const user = usersData.find(u => u.id === userId);
                   if (user && user.name) {
                     userName = user.name;

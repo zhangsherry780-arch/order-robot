@@ -363,5 +363,44 @@
     "createdAt": "2025-09-23T14:19:57.635Z",
     "updatedAt": "2025-09-23T14:19:57.635Z",
     "note": "通过飞书直接登记 (feishu-card)"
+  },
+  {
+    "id": "1758724844326",
+    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
+    "date": "2025-09-24",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-24T14:40:44.325Z",
+    "updatedAt": "2025-09-24T14:40:44.325Z",
+    "note": "通过飞书直接登记 (feishu-card)"
+  },
+  {
+    "id": "1758725847429",
+    "userId": "on_2e951f9ad2ecb46a96d686c3246800d1",
+    "date": "2025-09-24",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-24T14:57:27.428Z",
+    "updatedAt": "2025-09-24T14:57:27.428Z",
+    "note": "通过飞书直接登记 (feishu-card)"
+  },
+  {
+    "id": "1758726309340",
+    "userId": "on_44d901a2e8884441bf6873787a85359a",
+    "date": "2025-09-24",
+    "mealType": "lunch",
+    "dishId": null,
+    "dishName": "不吃",
+    "restaurantName": "无",
+    "price": 0,
+    "createdAt": "2025-09-24T15:05:09.340Z",
+    "updatedAt": "2025-09-24T15:05:09.340Z",
+    "note": "通过飞书直接登记 (feishu-card)"
   }
 ]

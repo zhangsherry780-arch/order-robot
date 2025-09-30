@@ -13,6 +13,7 @@ services:
       - ./public:/app/public:ro
       - ./database:/app/database:ro
       - ./scripts:/app/scripts:ro
+      - ./libs:/app/libs:ro
       - ./data:/app/data:rw
       - ./logs:/app/logs:rw
       # 可选：如果有配置文件需要动态修改
