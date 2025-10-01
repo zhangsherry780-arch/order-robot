@@ -32,7 +32,7 @@ SYNC_ITEMS=(
     "database/"
     "scripts/"
     "libs/"
-    "data/"
+    # "data/"
     ".env.production"
     "ecosystem.config.js"
     "feishu-config.js"

@@ -2343,6 +2343,17 @@ async function pushTodayLunchMenu() {
       return;
     }
 
+    // 检查管理员是否已关闭午餐
+    const dailyOrders = await dataStore.read('daily-orders.json');
+    const lunchOrder = dailyOrders.find(order =>
+      order.date === todayDate && order.mealType === 'lunch'
+    );
+
+    if (lunchOrder && lunchOrder.status === 'closed') {
+      console.log(`午餐已被管理员关闭 (${todayDate})，跳过菜单推送`);
+      return;
+    }
+
     // 使用与今日菜单API相同的逻辑获取菜单数据
     console.log('正在调用getTodayMenuData()...');
     const { lunch } = await getTodayMenuData();
@@ -2426,6 +2437,17 @@ async function pushTodayDinnerMenu() {
     // 周六不推送菜单（不营业）
     if (todayDayOfWeek === 6) {
       console.log('周六不营业，跳过晚餐菜单推送');
+      return;
+    }
+
+    // 检查管理员是否已关闭晚餐
+    const dailyOrders = await dataStore.read('daily-orders.json');
+    const dinnerOrder = dailyOrders.find(order =>
+      order.date === todayDate && order.mealType === 'dinner'
+    );
+
+    if (dinnerOrder && dinnerOrder.status === 'closed') {
+      console.log(`晚餐已被管理员关闭 (${todayDate})，跳过菜单推送`);
       return;
     }
 
