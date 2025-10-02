@@ -1618,30 +1618,6 @@
                                     <h4 style="margin: 0;">⏰ 定时任务时间配置</h4>
                                 </template>
                                 <el-form label-width="150px">
-                                    <el-form-item label="午餐开放时间:">
-                                        <el-time-picker
-                                            v-model="lunchOpenTimeObj"
-                                            format="HH:mm"
-                                            value-format="HH:mm"
-                                            placeholder="选择午餐开放时间"
-                                            @change="updateLunchOpenTime"
-                                            style="width: 200px">
-                                        </el-time-picker>
-                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">每天开放午餐不吃登记的时间</span>
-                                    </el-form-item>
-
-                                    <el-form-item label="晚餐开放时间:">
-                                        <el-time-picker
-                                            v-model="dinnerOpenTimeObj"
-                                            format="HH:mm"
-                                            value-format="HH:mm"
-                                            placeholder="选择晚餐开放时间"
-                                            @change="updateDinnerOpenTime"
-                                            style="width: 200px">
-                                        </el-time-picker>
-                                        <span style="margin-left: 10px; color: #909399; font-size: 12px;">每天开放晚餐不吃登记的时间</span>
-                                    </el-form-item>
-
                                     <el-form-item label="午餐推送时间:">
                                         <el-time-picker
                                             v-model="lunchPushTimeObj"
@@ -1918,8 +1894,6 @@
                             dinner: 45
                         },
                         totalEmployees: 100,
-                        lunchOpenTime: '10:00',
-                        dinnerOpenTime: '16:00',
                         lunchPushTime: '11:00',
                         dinnerPushTime: '17:00',
                         createdAt: null,
@@ -1927,8 +1901,6 @@
                     },
 
                     // 时间选择器对象
-                    lunchOpenTimeObj: null,
-                    dinnerOpenTimeObj: null,
                     lunchPushTimeObj: null,
                     dinnerPushTimeObj: null,
 
@@ -3632,8 +3604,6 @@
                                 };
 
                                 // 初始化时间选择器
-                                this.lunchOpenTimeObj = result.data.lunchOpenTime || '10:00';
-                                this.dinnerOpenTimeObj = result.data.dinnerOpenTime || '16:00';
                                 this.lunchPushTimeObj = result.data.lunchPushTime || '11:00';
                                 this.dinnerPushTimeObj = result.data.dinnerPushTime || '17:00';
                             }
@@ -3898,18 +3868,6 @@
                 },
 
                 // 时间设置更新方法
-                async updateLunchOpenTime(time) {
-                    if (time) {
-                        await this.updateSettings({ lunchOpenTime: time });
-                    }
-                },
-
-                async updateDinnerOpenTime(time) {
-                    if (time) {
-                        await this.updateSettings({ dinnerOpenTime: time });
-                    }
-                },
-
                 async updateLunchPushTime(time) {
                     if (time) {
                         await this.updateSettings({ lunchPushTime: time });
