@@ -886,37 +886,6 @@ class OrderManager {
     return todayOrder;
   }
 
-  // 开放订餐登记
-  async openRegistration(mealType) {
-    console.log(`开放 ${mealType} 不吃登记...`);
-
-    const today = dataStore.getTodayString();
-    const dailyOrders = await dataStore.read('daily-orders.json');
-    const settings = await dataStore.read('settings.json');
-
-    const orderIndex = dailyOrders.findIndex(order =>
-      order.date === today && order.mealType === mealType
-    );
-
-    if (orderIndex >= 0) {
-      dailyOrders[orderIndex].status = 'open';
-      dailyOrders[orderIndex].updatedAt = moment().toISOString();
-    } else {
-      dailyOrders.push({
-        id: dataStore.generateId(dailyOrders),
-        date: today,
-        mealType,
-        totalPeople: settings.totalEmployees,
-        noEatCount: 0,
-        orderCount: settings.totalEmployees,
-        status: 'open',
-        createdAt: moment().toISOString()
-      });
-    }
-
-    await dataStore.write('daily-orders.json', dailyOrders);
-    console.log(`${mealType} 登记已开放`);
-  }
 
   // 关闭订餐登记
   async closeRegistration(mealType) {
@@ -5827,40 +5796,6 @@ async function initializeCronJobs() {
     const [dinnerPushHour, dinnerPushMin] = dinnerPushTime.split(':');
 
     // 动态配置的定时任务
-    cronManager.scheduleTask('lunchRegistration',
-      `${lunchOpenMin} ${lunchOpenHour} * * 0,1,2,3,4,5`,
-      async () => {
-        console.log('执行定时任务: 开放午餐不吃登记');
-        await ensureDailyOrderRecords();
-
-        // 创建未来一个月的点餐记录
-        const today = moment();
-        let createdCount = 0;
-        for (let i = 1; i <= 30; i++) {
-          const futureDate = today.clone().add(i, 'days');
-          const dayOfWeek = futureDate.day();
-          // 只为工作日创建(周日到周五)
-          if (dayOfWeek >= 0 && dayOfWeek <= 5) {
-            const dateStr = futureDate.format('YYYY-MM-DD');
-            const created = await dataStore.ensureDailyOrderRecord(dateStr);
-            if (created) createdCount++;
-          }
-        }
-        if (createdCount > 0) {
-          console.log(`为未来${createdCount}天创建了点餐记录`);
-        }
-
-        orderManager.openRegistration('lunch');
-      }
-    );
-
-    cronManager.scheduleTask('dinnerRegistration',
-      `${dinnerOpenMin} ${dinnerOpenHour} * * 0,1,2,3,4,5`,
-      () => {
-        console.log('执行定时任务: 开放晚餐不吃登记');
-        orderManager.openRegistration('dinner');
-      }
-    );
 
     cronManager.scheduleTask('lunchPush',
       `${lunchPushMin} ${lunchPushHour} * * 0,1,2,3,4,5`,
@@ -7386,37 +7321,6 @@ app.post('/api/admin/ensure-menu-order-records', requireAdminAuth, async (req, r
   }
 });
 
-// 管理员手动开放点餐登记
-app.post('/api/admin/open-registration', requireAdminAuth, async (req, res) => {
-  try {
-    const { mealType, date } = req.body;
-
-    if (!mealType || !['lunch', 'dinner'].includes(mealType)) {
-      return res.status(400).json({ success: false, message: '无效的餐次类型' });
-    }
-
-    console.log(`管理员手动开放${date || '今日'}的${mealType === 'lunch' ? '午餐' : '晚餐'}登记...`);
-
-    // 如果指定了日期，临时设置目标日期
-    if (date) {
-      const originalGetTodayString = dataStore.getTodayString;
-      dataStore.getTodayString = () => date;
-      await orderManager.openRegistration(mealType);
-      dataStore.getTodayString = originalGetTodayString;
-    } else {
-      await ensureDailyOrderRecords();
-      await orderManager.openRegistration(mealType);
-    }
-
-    res.json({
-      success: true,
-      message: `成功开放${date || '今日'}的${mealType === 'lunch' ? '午餐' : '晚餐'}登记`
-    });
-  } catch (error) {
-    console.error('开放点餐登记失败:', error);
-    res.status(500).json({ success: false, message: '操作失败: ' + error.message });
-  }
-});
 
 // 新版管理员界面 - 需要管理员权限验证
 app.get('/admin-dashboard.html', requireAdminPage, (req, res) => {
