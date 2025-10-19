@@ -1737,5 +1737,1047 @@
     },
     "status": "draft",
     "savedAt": "2025-09-15T06:37:32.766Z"
+  },
+  {
+    "weekStart": "2025-10-05",
+    "menu": {
+      "monday": {
+        "lunch": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "食其家",
+            "dishes": [
+              {
+                "id": 10006,
+                "name": "烧肉丼",
+                "tags": [
+                  "荤菜"
+                ]
+              },
+              {
+                "id": 10007,
+                "name": "牛肉丼",
+                "tags": [
+                  "荤菜"
+                ]
+              }
+            ]
+          }
+        ],
+        "dinner": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "喜家德",
+            "dishes": [
+              {
+                "id": 10002,
+                "name": "米饭套餐",
+                "tags": [
+                  "荤菜"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "tuesday": {
+        "lunch": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "米村拌饭",
+            "dishes": [
+              {
+                "id": 10003,
+                "name": "石锅拌饭",
+                "tags": [
+                  "荤菜"
+                ]
+              },
+              {
+                "id": 10004,
+                "name": "烤牛肉拌饭",
+                "tags": [
+                  "荤菜"
+                ]
+              }
+            ]
+          }
+        ],
+        "dinner": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "耶里夏丽",
+            "dishes": [
+              {
+                "id": 10039,
+                "name": "大盘鸡",
+                "tags": []
+              }
+            ]
+          }
+        ]
+      },
+      "wednesday": {
+        "lunch": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "小满手工粉",
+            "dishes": [
+              {
+                "id": 10008,
+                "name": "跷脚牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "辣"
+                ]
+              },
+              {
+                "id": 10009,
+                "name": "番茄招牌牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "特色"
+                ]
+              }
+            ]
+          }
+        ],
+        "dinner": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "绿茶餐厅",
+            "dishes": [
+              {
+                "id": 10012,
+                "name": "烤鸡套餐",
+                "tags": [
+                  "荤菜"
+                ]
+              },
+              {
+                "id": 10013,
+                "name": "糖醋里脊套餐",
+                "tags": [
+                  "荤菜"
+                ]
+              },
+              {
+                "id": 10014,
+                "name": "烤鱼套餐",
+                "tags": [
+                  "荤菜"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "thursday": {
+        "lunch": [
+          {
+            "id": 10017,
+            "name": "自选菜套餐",
+            "description": "",
+            "category": "其他",
+            "price": 0,
+            "restaurantId": 10,
+            "imageUrl": "/images/default-dish.jpg",
+            "rating": 0,
+            "mealType": "lunch",
+            "active": true,
+            "tags": [
+              "荤菜"
+            ],
+            "status": "active",
+            "restaurantName": "大米先生"
+          }
+        ],
+        "dinner": [
+          {
+            "id": 10003,
+            "name": "石锅拌饭",
+            "description": "",
+            "category": "其他",
+            "price": 0,
+            "restaurantId": 2,
+            "imageUrl": "/images/default-dish.jpg",
+            "rating": 0,
+            "mealType": "lunch",
+            "active": true,
+            "tags": [
+              "荤菜"
+            ],
+            "status": "active",
+            "restaurantName": "米村拌饭"
+          }
+        ]
+      },
+      "friday": {
+        "lunch": [
+          {
+            "id": 10049,
+            "name": "土豆丝+黯然销魂炒饭",
+            "description": "",
+            "category": "荤菜",
+            "price": 0,
+            "restaurantName": "半步颠",
+            "tags": [],
+            "imageUrl": "/images/default-dish.jpg",
+            "rating": 0,
+            "active": true,
+            "status": "active",
+            "createdAt": "2025-10-09T12:55:28.274Z"
+          },
+          {
+            "id": 10050,
+            "name": "孙二娘拿手菜",
+            "description": "",
+            "category": "荤菜",
+            "price": 0,
+            "restaurantName": "半步颠",
+            "tags": [],
+            "imageUrl": "/images/default-dish.jpg",
+            "rating": 0,
+            "active": true,
+            "status": "active",
+            "createdAt": "2025-10-09T12:55:49.262Z"
+          },
+          {
+            "id": 10051,
+            "name": "回锅肉",
+            "description": "",
+            "category": "荤菜",
+            "price": 0,
+            "restaurantName": "半步颠",
+            "tags": [],
+            "imageUrl": "/images/default-dish.jpg",
+            "rating": 0,
+            "active": true,
+            "status": "active",
+            "createdAt": "2025-10-09T12:56:03.836Z"
+          }
+        ],
+        "dinner": [
+          {
+            "id": 10052,
+            "name": "汉堡套餐",
+            "description": "",
+            "category": "荤菜",
+            "price": 0,
+            "restaurantName": "Popeyes",
+            "tags": [
+              "meat"
+            ],
+            "imageUrl": "/images/default-dish.jpg",
+            "rating": 0,
+            "active": true,
+            "status": "active",
+            "createdAt": "2025-10-09T12:56:56.772Z"
+          }
+        ]
+      },
+      "sunday": {
+        "lunch": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "必胜客",
+            "dishes": [
+              {
+                "id": 10038,
+                "name": "单人套餐",
+                "tags": []
+              }
+            ]
+          }
+        ],
+        "dinner": [
+          {
+            "isRestaurantMenu": true,
+            "restaurantName": "大米先生",
+            "dishes": [
+              {
+                "id": 10017,
+                "name": "自选菜套餐",
+                "tags": [
+                  "荤菜"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "status": "draft",
+    "savedAt": "2025-10-09T12:57:33.183Z"
+  },
+  {
+    "weekStart": "2025-10-26",
+    "menu": {
+      "sunday": {
+        "lunch": [
+          {
+            "id": "restaurant_小满手工粉",
+            "restaurantName": "小满手工粉",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10008,
+                "name": "跷脚牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "辣"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10009,
+                "name": "番茄招牌牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "特色"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_喜家德",
+            "restaurantName": "喜家德",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10002,
+                "name": "米饭套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "monday": {
+        "lunch": [
+          {
+            "id": "restaurant_顺风大酒店",
+            "restaurantName": "顺风大酒店",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10010,
+                "name": "油焖元宝虾套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10011,
+                "name": "红烧牛肉套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_米村拌饭",
+            "restaurantName": "米村拌饭",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10003,
+                "name": "石锅拌饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10004,
+                "name": "烤牛肉拌饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "tuesday": {
+        "lunch": [
+          {
+            "id": "restaurant_绿茶餐厅",
+            "restaurantName": "绿茶餐厅",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10012,
+                "name": "烤鸡套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10013,
+                "name": "糖醋里脊套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10014,
+                "name": "烤鱼套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_老乡鸡",
+            "restaurantName": "老乡鸡",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10019,
+                "name": "自选菜套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "wednesday": {
+        "lunch": [
+          {
+            "id": "restaurant_轻食TEST",
+            "restaurantName": "轻食TEST",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10054,
+                "name": "TEST",
+                "tags": [
+                  "light"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_大米先生",
+            "restaurantName": "大米先生",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10017,
+                "name": "自选菜套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "thursday": {
+        "lunch": [
+          {
+            "id": "restaurant_越南粉",
+            "restaurantName": "越南粉",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10020,
+                "name": "火车头河粉",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10021,
+                "name": "全牛肉河粉",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_谷田稻香",
+            "restaurantName": "谷田稻香",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10015,
+                "name": "烧菜随心配",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "friday": {
+        "lunch": [
+          {
+            "id": "restaurant_喜家德",
+            "restaurantName": "喜家德",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10002,
+                "name": "米饭套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_达美乐",
+            "restaurantName": "达美乐",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10016,
+                "name": "披萨",
+                "tags": [
+                  "放纵餐"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "saturday": {
+        "lunch": [
+          {
+            "id": "restaurant_小满手工粉",
+            "restaurantName": "小满手工粉",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10008,
+                "name": "跷脚牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "辣"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10009,
+                "name": "番茄招牌牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "特色"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_敏华冰厅",
+            "restaurantName": "敏华冰厅",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10023,
+                "name": "黑椒西冷煎蛋饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10024,
+                "name": "黯然销魂饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      }
+    },
+    "status": "draft",
+    "savedAt": "2025-10-19T11:54:56.737Z"
+  },
+  {
+    "weekStart": "2025-10-19",
+    "menu": {
+      "sunday": {
+        "lunch": [
+          {
+            "id": "restaurant_小满手工粉",
+            "restaurantName": "小满手工粉",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10008,
+                "name": "跷脚牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "辣"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10009,
+                "name": "番茄招牌牛肉粉",
+                "tags": [
+                  "荤菜",
+                  "特色"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_食其家",
+            "restaurantName": "食其家",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10006,
+                "name": "烧肉丼",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10007,
+                "name": "牛肉丼",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "monday": {
+        "lunch": [
+          {
+            "id": "restaurant_谷田稻香",
+            "restaurantName": "谷田稻香",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10015,
+                "name": "烧菜随心配",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_老乡鸡",
+            "restaurantName": "老乡鸡",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10019,
+                "name": "自选菜套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "tuesday": {
+        "lunch": [
+          {
+            "id": "restaurant_米村拌饭",
+            "restaurantName": "米村拌饭",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10003,
+                "name": "石锅拌饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10004,
+                "name": "烤牛肉拌饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_绿茶餐厅",
+            "restaurantName": "绿茶餐厅",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10012,
+                "name": "烤鸡套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10013,
+                "name": "糖醋里脊套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10014,
+                "name": "烤鱼套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "wednesday": {
+        "lunch": [
+          {
+            "id": "restaurant_敏华冰厅",
+            "restaurantName": "敏华冰厅",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10023,
+                "name": "黑椒西冷煎蛋饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10024,
+                "name": "黯然销魂饭",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_越南粉",
+            "restaurantName": "越南粉",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10020,
+                "name": "火车头河粉",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10021,
+                "name": "全牛肉河粉",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "thursday": {
+        "lunch": [
+          {
+            "id": "restaurant_大米先生",
+            "restaurantName": "大米先生",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10017,
+                "name": "自选菜套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_轻食TEST",
+            "restaurantName": "轻食TEST",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10054,
+                "name": "TEST",
+                "tags": [
+                  "light"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "friday": {
+        "lunch": [
+          {
+            "id": "restaurant_顺风大酒店",
+            "restaurantName": "顺风大酒店",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10010,
+                "name": "油焖元宝虾套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10011,
+                "name": "红烧牛肉套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_TACO",
+            "restaurantName": "TACO",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10005,
+                "name": "TACO",
+                "tags": [
+                  "放纵餐"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      },
+      "saturday": {
+        "lunch": [
+          {
+            "id": "restaurant_绿茶餐厅",
+            "restaurantName": "绿茶餐厅",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10012,
+                "name": "烤鸡套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10013,
+                "name": "糖醋里脊套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              },
+              {
+                "id": 10014,
+                "name": "烤鱼套餐",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ],
+        "dinner": [
+          {
+            "id": "restaurant_谷田稻香",
+            "restaurantName": "谷田稻香",
+            "name": "本日菜品",
+            "dishes": [
+              {
+                "id": 10015,
+                "name": "烧菜随心配",
+                "tags": [
+                  "荤菜"
+                ],
+                "rating": 0,
+                "imageUrl": "/images/default-dish.jpg"
+              }
+            ],
+            "isRestaurantMenu": true,
+            "rating": 0
+          }
+        ]
+      }
+    },
+    "status": "draft",
+    "savedAt": "2025-10-19T11:51:43.292Z"
   }
 ]

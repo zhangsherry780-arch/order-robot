@@ -217,5 +217,17 @@
     "tags": [],
     "status": "active",
     "createdAt": "2025-09-22T08:37:10.733Z"
+  },
+  {
+    "id": 28,
+    "name": "健康餐",
+    "address": "",
+    "phone": "",
+    "description": "来自用户投稿: 健康",
+    "rating": 0,
+    "imageUrl": "/images/default-restaurant.jpg",
+    "tags": [],
+    "status": "active",
+    "createdAt": "2025-10-10T08:10:32.943Z"
   }
 ]

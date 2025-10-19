@@ -1,24 +1,13 @@
 [
   {
-    "id": 1758114037094,
-    "dishId": "2025-09-15-dinner-跷脚牛肉粉",
-    "dishName": "跷脚牛肉粉",
-    "restaurant": "小满手工粉",
+    "id": 1760880417984,
+    "dishId": 10022,
+    "dishName": "汉堡炸鸡薯条",
+    "restaurant": "KFC",
     "rating": 5,
-    "comment": "test",
+    "comment": "good",
     "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
     "userName": "张雪岩",
-    "createdAt": "2025-09-17T13:00:37.094Z"
-  },
-  {
-    "id": 1758127356527,
-    "dishId": "2025-09-17-dinner-单人套餐",
-    "dishName": "单人套餐",
-    "restaurant": "必胜客",
-    "rating": 5,
-    "comment": "赞",
-    "userId": "on_14f113d8579bbc6bda6afdbf0a93b6ec",
-    "userName": "张雪岩",
-    "createdAt": "2025-09-17T16:42:36.527Z"
+    "createdAt": "2025-10-19T13:26:57.984Z"
   }
 ]

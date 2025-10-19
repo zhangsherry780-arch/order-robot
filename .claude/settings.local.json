@@ -38,7 +38,17 @@
       "Bash(grep:*)",
       "Read(//d/**)",
       "Bash(ipconfig)",
-      "Bash(shutdown /r /t 5 /c \"重启系统以应用新的服务器配置\")"
+      "Bash(shutdown /r /t 5 /c \"重启系统以应用新的服务器配置\")",
+      "Read(//c/**)",
+      "Bash(python -c \"import sys, json; data=json.load(sys.stdin); print(''''Sunday dinner dishes:'''', len(data[''''data''''][''''0''''][''''dinner'''']), ''''- IDs:'''', [d[''''dishId''''] for d in data[''''data''''][''''0''''][''''dinner'''']])\")",
+      "Bash(python -c \"import sys, json; d=json.load(sys.stdin); print(''''Today date:'''', d[''''data''''][''''date'''']); print(''''Lunch count:'''', len(d[''''data''''][''''lunch''''])); print(''''Dinner count:'''', len(d[''''data''''][''''dinner''''])); print(''''Dinner dishes:'''', [(x[''''dishId''''], x[''''dishName'''']) for x in d[''''data''''][''''dinner'''']])\")",
+      "Bash(python -c \"import sys, json; data=json.load(sys.stdin); sunday=data[''''data''''][''''0'''']; print(''''=== 10-19 (周日, 索引0) ===''''); print(''''午餐菜品数:'''', len(sunday[''''lunch''''])); print(''''午餐菜品:''''); [print(f\"\"  - {d[''''dishName'''']} ({d[''''restaurantName'''']})\"\") for d in sunday[''''lunch'''']]; print(''''\\n晚餐菜品数:'''', len(sunday[''''dinner''''])); print(''''晚餐菜品:''''); [print(f\"\"  - {d[''''dishName'''']} ({d[''''restaurantName'''']})\"\") for d in sunday[''''dinner'''']]\")",
+      "Bash(python -c \"import sys, json; d=json.load(sys.stdin); dinner=d[''''data''''][''''dinner'''']; print(''''晚餐菜品:''''); [print(f\"\"  {i+1}. {dish[''''dishName'''']} - {dish[''''tags'''']}\"\") for i, dish in enumerate(dinner)]; has_light = any(''''light'''' in dish.get(''''tags'''', []) or ''''轻食'''' in dish.get(''''tags'''', []) for dish in dinner); print(f''''\\n有轻食: {has_light}''''); print(f''''应该显示按钮数: {3 if has_light else 2}'''')\")",
+      "Bash(python -m json.tool)",
+      "Bash(python -c \"import sys, json; data=json.load(sys.stdin); [print(json.dumps(r, ensure_ascii=False)) for r in data if ''''轻食'''' in str(r)]\")",
+      "Bash(start http://localhost:3000/user-dashboard.html?page=history)",
+      "Bash(start http://localhost:3000/user-dashboard.html?page=rating)",
+      "Bash(start http://localhost:3000/user-dashboard.html?page=suggestion)"
     ],
     "deny": [],
     "ask": []

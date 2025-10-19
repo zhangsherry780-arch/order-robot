@@ -773,8 +773,8 @@
                             <!-- Weekly Menu Display -->
                             <div v-else>
                                 <div class="weekly-menu">
-                                    <div v-for="day in weekDays" :key="day.key" class="week-day-menu">
-                                        <h4>{{ day.label }}</h4>
+                                    <div v-for="(day, index) in weekDays" :key="day.key" class="week-day-menu">
+                                        <h4>{{ day.label }} <span style="color: #909399; font-size: 14px; font-weight: normal;">({{ getWeekDayDate(index) }})</span></h4>
                                         <el-row :gutter="10">
                                             <el-col :span="12">
                                                 <el-card size="small" class="meal-card">
@@ -902,6 +902,7 @@
                                         <el-select v-model="tagFilter" placeholder="筛选标签" clearable @change="filterDishes">
                                             <el-option label="荤菜" value="meat"></el-option>
                                             <el-option label="素食" value="vegetarian"></el-option>
+                                            <el-option label="轻食" value="light"></el-option>
                                             <el-option label="辛辣" value="spicy"></el-option>
                                             <el-option label="清淡" value="mild"></el-option>
                                             <el-option label="招牌" value="specialty"></el-option>
@@ -1008,6 +1009,7 @@
                                     <el-checkbox-group v-model="newDishForm.tags">
                                         <el-checkbox label="meat">荤菜</el-checkbox>
                                         <el-checkbox label="vegetarian">素食</el-checkbox>
+                                        <el-checkbox label="light">轻食</el-checkbox>
                                         <el-checkbox label="spicy">辛辣</el-checkbox>
                                         <el-checkbox label="mild">清淡</el-checkbox>
                                         <el-checkbox label="specialty">招牌</el-checkbox>
@@ -1271,9 +1273,51 @@
                                             </div>
                                         </template>
                                     </el-table-column>
-                                    <el-table-column prop="orderCount" label="点餐人数" width="100">
+                                    <el-table-column prop="lightMealCount" label="轻食人数" width="120">
                                         <template #default="scope">
-                                            <span style="font-weight: bold; color: #67c23a;">{{ scope.row.orderCount }}</span>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span :style="{
+                                                    fontWeight: 'bold',
+                                                    color: scope.row.lightMealCount > 0 ? '#409EFF' : '#67c23a'
+                                                }">
+                                                    {{ scope.row.lightMealCount || 0 }}
+                                                </span>
+                                                <el-popover
+                                                    v-if="scope.row.lightMealCount > 0 && scope.row.lightMealUsers && scope.row.lightMealUsers.length > 0"
+                                                    placement="top"
+                                                    trigger="hover"
+                                                    width="300">
+                                                    <template #reference>
+                                                        <el-icon style="color: #909399; cursor: help;">
+                                                            <InfoFilled />
+                                                        </el-icon>
+                                                    </template>
+                                                    <div>
+                                                        <div style="font-weight: bold; margin-bottom: 8px; color: #409EFF;">
+                                                            轻食用户详情 ({{ scope.row.lightMealUsers.length }}人)
+                                                        </div>
+                                                        <div style="max-height: 200px; overflow-y: auto;">
+                                                            <div
+                                                                v-for="user in scope.row.lightMealUsers"
+                                                                :key="user.userId"
+                                                                style="padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px;"
+                                                            >
+                                                                <div style="font-weight: bold; color: #303133;">
+                                                                    {{ user.userName }}
+                                                                </div>
+                                                                <div style="color: #909399; font-size: 11px;">
+                                                                    {{ formatTime(user.registrationTime) }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </el-popover>
+                                            </div>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="orderCount" label="非轻食人数" width="120">
+                                        <template #default="scope">
+                                            <span style="font-weight: bold; color: #67c23a;">{{ scope.row.orderCount || 0 }}</span>
                                         </template>
                                     </el-table-column>
                                     <el-table-column prop="statusText" label="状态" width="100">
@@ -1801,14 +1845,15 @@
                         saturday: { lunch: [], dinner: [] },
                         sunday: { lunch: [], dinner: [] }
                     },
-                    // 营业日：周一-周五 + 周日 (6天)
+                    // 营业日：周日-周六 (7天，包括周六)
                     weekDays: [
+                        { key: 'sunday', label: '周日' },
                         { key: 'monday', label: '周一' },
                         { key: 'tuesday', label: '周二' },
                         { key: 'wednesday', label: '周三' },
                         { key: 'thursday', label: '周四' },
                         { key: 'friday', label: '周五' },
-                        { key: 'sunday', label: '周日' }
+                        { key: 'saturday', label: '周六' }
                     ],
                     
                     // 菜单生成历史记录（用于3天不重复规则）
@@ -2212,6 +2257,7 @@
                     const labelMap = {
                         'meat': '荤菜',
                         'vegetarian': '素食',
+                        'light': '轻食',
                         'spicy': '辛辣',
                         'mild': '清淡',
                         'specialty': '招牌'
@@ -2484,9 +2530,9 @@
                         } else {
                             this.dailyMenu = { lunch: [], dinner: [] };
                         }
-                        
-                        // 加载草稿菜单（如果存在）
-                        await this.loadMenuDraft();
+
+                        // 不再加载草稿，直接显示已发布的菜单
+                        // await this.loadMenuDraft();
                     } catch (error) {
                         console.error('加载日菜单失败:', error);
                         this.dailyMenu = { lunch: [], dinner: [] };
@@ -2498,46 +2544,71 @@
                     if (!Array.isArray(dishes) || dishes.length === 0) {
                         return [];
                     }
-                    
-                    // 按餐厅分组
+
+                    // 如果数据已经是餐厅格式，直接返回
+                    if (dishes[0] && dishes[0].isRestaurantMenu) {
+                        return dishes;
+                    }
+
+                    // 按餐厅分组（API返回的是普通菜品数组格式）
                     const restaurantGroups = {};
                     dishes.forEach(dish => {
-                        if (!restaurantGroups[dish.restaurantName]) {
-                            restaurantGroups[dish.restaurantName] = [];
+                        const restaurantName = dish.restaurantName;
+
+                        // 跳过没有餐厅名称的菜品
+                        if (!restaurantName || restaurantName === 'undefined') {
+                            console.warn('跳过没有餐厅名称的菜品:', dish);
+                            return;
                         }
-                        restaurantGroups[dish.restaurantName].push({
-                            id: dish.dishId,
-                            name: dish.dishName,
+
+                        if (!restaurantGroups[restaurantName]) {
+                            restaurantGroups[restaurantName] = [];
+                        }
+
+                        // API返回的字段是 dishId 和 dishName
+                        restaurantGroups[restaurantName].push({
+                            id: dish.dishId || dish.id,
+                            name: dish.dishName || dish.name,
                             tags: dish.tags || []
                         });
                     });
-                    
+
                     // 转换为餐厅式菜单格式
-                    return Object.keys(restaurantGroups).map(restaurantName => ({
-                        isRestaurantMenu: true,
-                        restaurantName: restaurantName,
-                        dishes: restaurantGroups[restaurantName]
-                    }));
+                    return Object.keys(restaurantGroups)
+                        .filter(name => name && name !== 'undefined') // 过滤掉 undefined
+                        .map(restaurantName => ({
+                            isRestaurantMenu: true,
+                            restaurantName: restaurantName,
+                            dishes: restaurantGroups[restaurantName]
+                        }));
                 },
                 
                 async loadWeeklyMenu() {
                     try {
                         const weekStart = this.getWeekStart(this.selectedPeriod);
-                        const response = await fetch('/api/menu/week');
-                        
+                        const response = await fetch(`/api/menu/week?weekStart=${weekStart}`);
+
                         const result = await response.json();
                         if (result.success && result.data) {
                             // 转换API返回的数字索引格式为前端期望的命名天格式
-                            const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                            // API返回: 0=周日, 1=周一, 2=周二, 3=周三, 4=周四, 5=周五, 6=周六
+                            // 前端需要: sunday, monday, tuesday, wednesday, thursday, friday (跳过saturday)
+                            const dayMapping = {
+                                'sunday': '0',      // 周日 = API索引0
+                                'monday': '1',      // 周一 = API索引1
+                                'tuesday': '2',     // 周二 = API索引2
+                                'wednesday': '3',   // 周三 = API索引3
+                                'thursday': '4',    // 周四 = API索引4
+                                'friday': '5'       // 周五 = API索引5
+                                // 跳过 saturday (API索引6)
+                            };
+
                             const convertedData = {};
-                            
-                            // 只处理工作日 + 周日（0-4, 6）
-                            dayNames.forEach((dayName, index) => {
-                                if (index === 5) return; // 跳过周六
-                                
-                                const apiIndex = index === 6 ? 5 : index; // 周日在API中是索引5
-                                const dayData = result.data[apiIndex.toString()];
-                                
+
+                            Object.keys(dayMapping).forEach(dayName => {
+                                const apiIndex = dayMapping[dayName];
+                                const dayData = result.data[apiIndex];
+
                                 if (dayData) {
                                     // 转换菜单数据格式为餐厅式显示
                                     convertedData[dayName] = {
@@ -2548,14 +2619,14 @@
                                     convertedData[dayName] = { lunch: [], dinner: [] };
                                 }
                             });
-                            
+
                             this.weeklyMenu = convertedData;
                         } else {
                             this.weeklyMenu = this.getEmptyWeeklyMenu();
                         }
-                        
-                        // 加载草稿菜单（如果存在）
-                        await this.loadMenuDraft();
+
+                        // 不再加载草稿，直接显示已发布的菜单
+                        // await this.loadMenuDraft();
                     } catch (error) {
                         console.error('加载周菜单失败:', error);
                         this.weeklyMenu = this.getEmptyWeeklyMenu();
@@ -2647,33 +2718,62 @@
                     const weekStart = new Date(this.getWeekStart(this.selectedPeriod));
                     const restaurants = this.getAvailableRestaurants();
                     const weekMenu = {};
-                    
+
+                    console.log('开始生成周菜单:', {
+                        weekStart: weekStart.toISOString().split('T')[0],
+                        restaurantCount: restaurants.length,
+                        weekDays: this.weekDays.map(d => d.key)
+                    });
+
                     // 为每一天生成菜单
                     for (const day of this.weekDays) {
+                        // 修复：正确计算每天的日期偏移
+                        // sunday=0, monday=1, tuesday=2, wednesday=3, thursday=4, friday=5, saturday=6
+                        const dayMapping = {
+                            'sunday': 0,
+                            'monday': 1,
+                            'tuesday': 2,
+                            'wednesday': 3,
+                            'thursday': 4,
+                            'friday': 5,
+                            'saturday': 6
+                        };
+                        const dayOffset = dayMapping[day.key];
                         const dayDate = new Date(weekStart);
-                        const dayIndex = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].indexOf(day.key);
-                        dayDate.setDate(weekStart.getDate() + dayIndex);
-                        
+                        dayDate.setDate(weekStart.getDate() + dayOffset);
+
+                        console.log(`生成 ${day.label} 菜单:`, {
+                            dayKey: day.key,
+                            dayOffset: dayOffset,
+                            date: dayDate.toISOString().split('T')[0]
+                        });
+
                         // 生成午餐菜单
                         const lunchRestaurant = this.selectRestaurantForMeal(restaurants, dayDate, 'lunch');
-                        
+
                         // 生成晚餐菜单
                         const dinnerRestaurant = this.selectRestaurantForMeal(restaurants, dayDate, 'dinner', lunchRestaurant);
-                        
+
+                        console.log(`${day.label} 选择餐厅:`, {
+                            lunch: lunchRestaurant?.name,
+                            dinner: dinnerRestaurant?.name
+                        });
+
                         weekMenu[day.key] = {
                             lunch: lunchRestaurant ? this.getRestaurantMenuData(lunchRestaurant) : [],
                             dinner: dinnerRestaurant ? this.getRestaurantMenuData(dinnerRestaurant) : []
                         };
-                        
+
                         // 更新菜单历史
                         this.updateMenuHistory(dayDate, {
                             lunch: lunchRestaurant ? [lunchRestaurant] : [],
                             dinner: dinnerRestaurant ? [dinnerRestaurant] : []
                         });
                     }
-                    
+
+                    console.log('周菜单生成完成:', weekMenu);
                     this.weeklyMenu = weekMenu;
-                    
+
                     // 生成后自动保存为草稿
                     await this.autoSaveMenuDraft();
                 },
@@ -2846,8 +2946,7 @@
                         dishes: restaurant.dishes.map(dish => ({
                             id: dish.id,
                             name: dish.name,
-                            restaurantName: dish.restaurantName,
-                            tags: dish.tags,
+                            tags: dish.tags || [],
                             rating: dish.rating,
                             imageUrl: dish.imageUrl
                         })),
@@ -2906,29 +3005,58 @@
                 
                 selectDishForMenu(dish) {
                     if (!this.currentMenuAction) return;
-                    
+
                     const { type, mealType, index, dayKey } = this.currentMenuAction;
-                    
+
+                    // 将菜品添加到餐厅菜单格式中
+                    const addDishToRestaurantMenu = (menuArray, dish) => {
+                        // 查找是否已有该餐厅的菜单
+                        let restaurantMenu = menuArray.find(item =>
+                            item.isRestaurantMenu && item.restaurantName === dish.restaurantName
+                        );
+
+                        if (!restaurantMenu) {
+                            // 创建新的餐厅菜单
+                            restaurantMenu = {
+                                isRestaurantMenu: true,
+                                restaurantName: dish.restaurantName,
+                                dishes: []
+                            };
+                            menuArray.push(restaurantMenu);
+                        }
+
+                        // 添加菜品到餐厅菜单中
+                        restaurantMenu.dishes.push({
+                            id: dish.id,
+                            name: dish.name,
+                            tags: dish.tags || []
+                        });
+                    };
+
                     if (dayKey) {
                         // 周菜单操作
                         if (!this.weeklyMenu[dayKey]) {
                             this.weeklyMenu[dayKey] = { lunch: [], dinner: [] };
                         }
-                        
+
                         if (type === 'add') {
-                            this.weeklyMenu[dayKey][mealType].push(dish);
+                            addDishToRestaurantMenu(this.weeklyMenu[dayKey][mealType], dish);
                         } else if (type === 'replace' && index !== undefined) {
-                            this.weeklyMenu[dayKey][mealType].splice(index, 1, dish);
+                            // 替换操作：先删除，再添加
+                            this.weeklyMenu[dayKey][mealType].splice(index, 1);
+                            addDishToRestaurantMenu(this.weeklyMenu[dayKey][mealType], dish);
                         }
                     } else {
                         // 日菜单操作
                         if (type === 'add') {
-                            this.dailyMenu[mealType].push(dish);
+                            addDishToRestaurantMenu(this.dailyMenu[mealType], dish);
                         } else if (type === 'replace' && index !== undefined) {
-                            this.dailyMenu[mealType].splice(index, 1, dish);
+                            // 替换操作：先删除，再添加
+                            this.dailyMenu[mealType].splice(index, 1);
+                            addDishToRestaurantMenu(this.dailyMenu[mealType], dish);
                         }
                     }
-                    
+
                     this.handleDishSelectionClose();
                     ElMessage.success('菜品添加成功');
                 },
@@ -3021,12 +3149,29 @@
                         const result = await response.json();
                         if (result.success && result.data) {
                             if (this.selectedPeriod === 'today') {
+                                // 转换草稿数据为餐厅格式
                                 this.dailyMenu = {
-                                    lunch: result.data.lunch || [],
-                                    dinner: result.data.dinner || []
+                                    lunch: this.convertToRestaurantFormat(result.data.lunch || []),
+                                    dinner: this.convertToRestaurantFormat(result.data.dinner || [])
                                 };
                             } else {
-                                this.weeklyMenu = result.data.menu || {};
+                                // 转换草稿数据为餐厅格式
+                                const draftMenu = result.data.menu || {};
+                                const convertedDraft = {};
+
+                                Object.keys(draftMenu).forEach(dayName => {
+                                    const dayData = draftMenu[dayName];
+                                    if (dayData) {
+                                        convertedDraft[dayName] = {
+                                            lunch: this.convertToRestaurantFormat(dayData.lunch || []),
+                                            dinner: this.convertToRestaurantFormat(dayData.dinner || [])
+                                        };
+                                    } else {
+                                        convertedDraft[dayName] = { lunch: [], dinner: [] };
+                                    }
+                                });
+
+                                this.weeklyMenu = convertedDraft;
                             }
                             console.log('菜单草稿加载成功');
                         }
@@ -3067,6 +3212,13 @@
                         const result = await response.json();
                         if (result.success) {
                             ElMessage.success('菜单发布成功！用户现在可以看到新菜单了');
+
+                            // 发布成功后重新加载菜单数据，确保显示最新内容
+                            if (this.selectedPeriod === 'today') {
+                                await this.loadDailyMenu();
+                            } else {
+                                await this.loadWeeklyMenu();
+                            }
                         } else {
                             ElMessage.error(result.message || '发布失败');
                         }
@@ -3194,17 +3346,18 @@
                 exportOrderData() {
                     try {
                         const csvContent = [
-                            ['日期', '餐次', '总人数', '不吃人数', '点餐人数', '状态'].join(','),
+                            ['日期', '餐次', '总人数', '不吃人数', '轻食人数', '非轻食人数', '状态'].join(','),
                             ...this.ordersData.map(order => [
                                 order.dateFormatted,
                                 order.mealTypeText,
                                 this.systemConfig.totalEmployees || 0,
                                 order.noEatCount || 0,
+                                order.lightMealCount || 0,
                                 order.orderCount || 0,
                                 order.statusText
                             ].join(','))
                         ].join('\n');
-                        
+
                         const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
                         const link = document.createElement('a');
                         const url = URL.createObjectURL(blob);
@@ -3214,7 +3367,7 @@
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        
+
                         ElMessage.success('数据导出成功');
                     } catch (error) {
                         console.error('导出失败:', error);
@@ -3565,7 +3718,17 @@
                     const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
                     return days[new Date().getDay()];
                 },
-                
+
+                // 获取周菜单中某一天的实际日期
+                getWeekDayDate(dayIndex) {
+                    const weekStart = new Date(this.getWeekStart(this.selectedPeriod));
+                    const targetDate = new Date(weekStart);
+                    targetDate.setDate(weekStart.getDate() + dayIndex);
+                    const month = targetDate.getMonth() + 1;
+                    const day = targetDate.getDate();
+                    return `${month}月${day}日`;
+                },
+
                 // 清零不吃人数
                 async clearNoEatCount(order) {
                     try {
@@ -3600,6 +3763,7 @@
                             ElMessage.success(result.message);
                             // 更新本地数据
                             order.noEatCount = 0;
+                            order.lightMealCount = 0;
                         } else {
                             ElMessage.error(result.message || '操作失败');
                         }

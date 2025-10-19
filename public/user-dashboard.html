@@ -114,18 +114,18 @@
             font-size: 14px;
         }
         
-        /* 用户点餐页面样式 */
+        /* 用户点餐页面样式 - 优化版 */
         .meal-section {
             margin-bottom: 30px;
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         }
         .meal-header {
-            background: linear-gradient(135deg, #409eff 0%, #36cfc9 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 20px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -135,12 +135,12 @@
         }
         .meal-title {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 600;
             display: flex;
             align-items: center;
         }
         .meal-icon {
-            margin-right: 10px;
+            margin-right: 12px;
             font-size: 24px;
         }
         .meal-content {
@@ -148,20 +148,23 @@
         }
         .restaurant-section {
             margin-bottom: 25px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: #f8f9fb;
+            border-radius: 12px;
             padding: 20px;
+        }
+        .restaurant-section:last-child {
+            margin-bottom: 0;
         }
         .restaurant-name {
             font-size: 16px;
-            font-weight: bold;
-            color: #409eff;
+            font-weight: 700;
+            color: #667eea;
             margin-bottom: 15px;
-            padding: 8px 15px;
+            padding: 8px 16px;
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
             display: inline-block;
-            border: 2px solid #409eff;
+            border: 2px solid #667eea;
         }
         .dishes-grid {
             display: grid;
@@ -170,32 +173,42 @@
         }
         .dish-card {
             background: white;
-            border: 1px solid #ebeef5;
-            border-radius: 8px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
+            border: 1px solid #e8eaf0;
+            border-radius: 10px;
+            padding: 18px 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 80px;
         }
         .dish-card:hover {
-            border-color: #409eff;
-            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
-            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
         .dish-name {
             font-size: 14px;
-            font-weight: bold;
-            color: #333;
+            font-weight: 600;
+            color: #2d3748;
             margin-bottom: 8px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
         .dish-rating {
-            color: #f56c6c;
-            font-size: 13px;
+            color: #f56565;
+            font-size: 12px;
+            font-weight: 500;
         }
         .no-eat-section {
             text-align: center;
-            padding: 20px;
-            border-top: 1px solid #ebeef5;
-            background: #fff7f0;
+            padding: 25px 20px;
+            border-top: 1px solid #e8eaf0;
+            background: #fafbfc;
+            margin-top: 20px;
         }
         
         /* 响应式设计 */
@@ -218,48 +231,59 @@
         
         /* 页面内容区域 */
         .page-content {
-            background: white;
-            border-radius: 12px;
+            background: linear-gradient(to bottom, #f5f7fa 0%, #ffffff 100%);
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+            min-height: calc(100vh - 200px);
         }
         
-        /* 投稿墙样式 */
+        /* 投稿墙样式 - 苹果风格 */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .header-actions {
             display: flex;
             align-items: center;
+            gap: 12px;
         }
         .submissions-list {
             display: grid;
-            gap: 20px;
+            gap: 16px;
         }
         .submission-card {
-            border: 1px solid #ebeef5;
-            border-radius: 8px;
+            border: none;
+            border-radius: 16px;
             overflow: hidden;
-            background: white;
-            transition: box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 0.5px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .submission-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        .submission-card:active {
+            transform: scale(0.99);
         }
         .submission-content {
             display: flex;
             padding: 20px;
-            gap: 15px;
+            gap: 16px;
         }
         .submission-image {
             flex-shrink: 0;
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .submission-image img {
             width: 100%;
@@ -270,81 +294,96 @@
             flex: 1;
         }
         .restaurant-name {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #303133;
+            margin: 0 0 6px 0;
+            font-size: 17px;
+            font-weight: 600;
+            color: #1d1d1f;
+            letter-spacing: -0.3px;
         }
         .dish-name {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #606266;
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            color: #86868b;
         }
         .submission-tags {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         .submission-tags .el-tag {
             margin-right: 8px;
+            border-radius: 12px;
+            background: rgba(0, 122, 255, 0.1);
+            border: none;
+            color: #007aff;
+            font-weight: 500;
         }
         .description {
-            margin: 0 0 10px 0;
-            color: #606266;
-            font-size: 13px;
+            margin: 0 0 12px 0;
+            color: #1d1d1f;
+            font-size: 14px;
+            line-height: 1.5;
         }
         .submission-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            color: #909399;
+            font-size: 13px;
+            color: #86868b;
         }
         .submission-actions {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             align-items: flex-end;
         }
         .like-section {
             display: flex;
             align-items: center;
+            gap: 6px;
         }
         .loading-container, .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #909399;
+            padding: 60px 40px;
+            color: #86868b;
         }
         
-        /* 图片上传样式 */
+        /* 图片上传样式 - 苹果风格 */
         .image-uploader {
-            border: 1px dashed #d9d9d9;
-            border-radius: 6px;
+            border: 2px dashed rgba(0, 122, 255, 0.3);
+            border-radius: 14px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            transition: border-color 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 122, 255, 0.02);
         }
         .image-uploader:hover {
-            border-color: #409eff;
+            border-color: #007aff;
+            background: rgba(0, 122, 255, 0.05);
+            transform: scale(1.02);
         }
         .upload-placeholder {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 120px;
-            height: 120px;
-            color: #8c939d;
+            width: 140px;
+            height: 140px;
+            color: #86868b;
         }
         .upload-placeholder i {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #007aff;
         }
         .upload-text {
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
         }
         .uploaded-image {
             position: relative;
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
+            border-radius: 12px;
+            overflow: hidden;
         }
         .image-overlay {
             position: absolute;
@@ -352,12 +391,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
         }
         .uploaded-image:hover .image-overlay {
             opacity: 1;
@@ -365,8 +406,8 @@
         
         /* 本周菜单样式 */
         .weekly-menu-section {
-            background: #f8f9fa;
-            border-radius: 12px;
+            background: #f8f9fb;
+            border-radius: 16px;
             padding: 25px;
         }
         .week-container {
@@ -375,26 +416,33 @@
         }
         .day-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .day-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
         .day-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ebeef5;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8eaf0;
         }
         .day-header h4 {
             margin: 0;
-            color: #409eff;
+            color: #667eea;
             font-size: 18px;
+            font-weight: 600;
         }
         .day-date {
             font-size: 14px;
-            color: #666;
+            color: #718096;
+            font-weight: 500;
         }
         
         /* 左右布局容器 */
@@ -407,9 +455,9 @@
         .meal-section-half {
             flex: 1;
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         }
         
         /* 响应式设计 - 小屏幕时恢复上下布局 */
@@ -420,205 +468,240 @@
             }
         }
 
-        /* 评价页面样式 */
+        /* 评价页面样式 - 苹果风格 */
         .ratable-dishes-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 0.5px solid rgba(0, 0, 0, 0.04);
         }
-        
+
         .dishes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 16px;
         }
-        
+
         .dish-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            background: #fafafa;
-            transition: all 0.3s ease;
+            border: none;
+            border-radius: 14px;
+            padding: 0;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
-        
+
         .dish-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-3px);
         }
-        
+
+        .dish-card:active {
+            transform: scale(0.98);
+        }
+
         .dish-image {
             width: 100%;
-            height: 120px;
-            border-radius: 6px;
+            height: 140px;
             overflow: hidden;
-            margin-bottom: 10px;
+            margin-bottom: 0;
         }
-        
+
         .dish-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
         }
-        
+
+        .dish-card:hover .dish-image img {
+            transform: scale(1.05);
+        }
+
+        .dish-info {
+            padding: 16px;
+        }
+
         .dish-info h5 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
+            margin: 0 0 6px 0;
+            font-size: 17px;
             font-weight: 600;
-            color: #333;
+            color: #1d1d1f;
+            letter-spacing: -0.3px;
         }
-        
+
         .dish-info p {
-            margin: 0 0 10px 0;
+            margin: 0 0 12px 0;
             font-size: 14px;
-            color: #666;
+            color: #86868b;
         }
         
         .star-rating {
             display: flex;
-            gap: 2px;
+            gap: 4px;
             align-items: center;
         }
-        
+
         .star-rating.large {
-            gap: 4px;
+            gap: 6px;
         }
-        
+
         .star-rating.large .star {
-            font-size: 24px;
+            font-size: 28px;
         }
-        
+
         .star {
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             filter: grayscale(100%);
-            opacity: 0.3;
+            opacity: 0.25;
         }
-        
+
         .star.active {
             filter: grayscale(0%);
             opacity: 1;
-            transform: scale(1.1);
+            transform: scale(1);
         }
-        
+
         .star:hover {
-            transform: scale(1.2);
+            transform: scale(1.15);
+            opacity: 0.8;
         }
-        
+
         .rating-text {
-            margin-left: 8px;
-            font-size: 12px;
-            color: #f56c6c;
-            font-weight: 500;
+            margin-left: 10px;
+            font-size: 13px;
+            color: #ff9500;
+            font-weight: 600;
         }
-        
+
         .ratings-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 0.5px solid rgba(0, 0, 0, 0.04);
         }
-        
+
         .rating-item {
-            border-bottom: 1px solid #f0f0f0;
-            padding: 20px 0;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            margin: 0 -8px;
+            border-radius: 12px;
+            transition: background 0.2s ease;
         }
-        
+
+        .rating-item:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
         .rating-item:last-child {
             border-bottom: none;
         }
-        
+
         .rating-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
-        
+
         .username {
             font-weight: 600;
-            color: #333;
+            color: #1d1d1f;
+            font-size: 15px;
         }
-        
+
         .star-display {
             display: flex;
-            gap: 1px;
+            gap: 2px;
         }
-        
+
         .star-display .star {
-            font-size: 14px;
+            font-size: 16px;
             cursor: default;
         }
-        
+
         .rating-score {
-            font-size: 12px;
-            color: #666;
+            font-size: 13px;
+            color: #86868b;
+            font-weight: 500;
         }
-        
+
         .rating-meta {
             text-align: right;
-            font-size: 12px;
-            color: #999;
+            font-size: 13px;
+            color: #86868b;
         }
         
         .dish-name {
-            font-weight: 500;
-            color: #666;
+            font-weight: 600;
+            color: #1d1d1f;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-size: 14px;
         }
-        
+
         .rating-time {
-            color: #999;
+            color: #86868b;
         }
-        
+
         .rating-content {
-            margin: 10px 0;
-            padding: 10px 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #409eff;
+            margin: 12px 0;
+            padding: 14px 16px;
+            background: rgba(0, 122, 255, 0.04);
+            border-radius: 12px;
+            border-left: 3px solid #007aff;
         }
-        
+
         .rating-content p {
             margin: 0;
             line-height: 1.6;
-            color: #333;
+            color: #1d1d1f;
+            font-size: 14px;
         }
-        
+
         .rating-actions {
             display: flex;
             justify-content: flex-end;
-            margin-top: 10px;
+            margin-top: 12px;
+            gap: 8px;
         }
-        
+
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: #999;
+            padding: 60px 40px;
+            color: #86868b;
         }
-        
+
         .rating-dialog-content .dish-summary {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(247, 247, 247, 0.8);
+            border-radius: 14px;
+            margin-bottom: 24px;
         }
-        
+
         .dish-summary img {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 6px;
             object-fit: cover;
         }
@@ -668,78 +751,189 @@
             margin: 10px 0;
         }
 
-        /* 点餐记录页面样式 */
-        .history-list {
+        /* 点餐记录页面样式 - 苹果风格 */
+        .history-timeline {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+            padding: 8px 0;
         }
 
-        .history-item {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #67c23a;
-            transition: all 0.3s ease;
+        .date-group {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 0.5px solid rgba(0, 0, 0, 0.04);
         }
 
-        .history-item:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .history-header {
+        .date-header {
+            background: rgba(247, 247, 247, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #1d1d1f;
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            font-weight: 600;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
         }
 
-        .meal-info {
+        .date-text {
+            font-size: 17px;
+            letter-spacing: -0.3px;
+            font-weight: 600;
+        }
+
+        .meal-count {
+            font-size: 13px;
+            color: #86868b;
+            font-weight: 500;
+        }
+
+        .meals-container {
+            padding: 4px;
+        }
+
+        .history-item-compact {
+            background: white;
+            border-radius: 12px;
+            margin: 8px;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .history-item-compact:hover {
+            background: #fafafa;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .history-item-compact:active {
+            transform: scale(0.99);
+        }
+
+        .compact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .meal-basic-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            flex: 1;
+            overflow: hidden;
         }
 
         .meal-icon {
-            font-size: 20px;
+            font-size: 22px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
         }
 
-        .meal-type {
+        .meal-type-badge {
+            font-size: 12px;
             font-weight: 600;
-            color: #333;
+            color: #007aff;
+            background: rgba(0, 122, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            flex-shrink: 0;
+            letter-spacing: 0.2px;
+        }
+
+        .dish-name-compact {
+            font-weight: 600;
+            color: #1d1d1f;
             font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 1;
+            min-width: 0;
+            letter-spacing: -0.3px;
         }
 
-        .meal-date {
-            color: #666;
+        .restaurant-name-compact {
+            color: #86868b;
             font-size: 14px;
-            background: #f5f7fa;
-            padding: 4px 8px;
-            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 1;
+            min-width: 0;
         }
 
-        .dish-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin: 0 0 8px 0;
-        }
-
-        .restaurant-name {
-            color: #666;
-            font-size: 14px;
-            margin: 0 0 10px 0;
-        }
-
-        .meal-details {
+        .compact-actions {
             display: flex;
-            gap: 15px;
             align-items: center;
-            flex-wrap: wrap;
+            gap: 12px;
+            flex-shrink: 0;
         }
 
+        .expand-icon {
+            color: #86868b;
+            font-size: 10px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 50%;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+            background: rgba(0, 122, 255, 0.1);
+            color: #007aff;
+        }
+
+        .detail-content {
+            padding: 0 18px 16px 18px;
+            border-top: 0.5px solid rgba(0, 0, 0, 0.06);
+            background: rgba(247, 247, 247, 0.5);
+            margin: 0 8px 8px 8px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .detail-row {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .detail-row:first-child {
+            padding-top: 14px;
+        }
+
+        .detail-label {
+            color: #86868b;
+            min-width: 90px;
+            flex-shrink: 0;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .detail-value {
+            color: #1d1d1f;
+            flex: 1;
+            font-weight: 400;
+        }
+
+        /* 保留旧样式以兼容其他地方使用 */
         .price {
             color: #e6a23c;
             font-weight: 600;
@@ -762,35 +956,45 @@
         }
 
         .stats-section .stat-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 16px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 0.5px solid rgba(0, 0, 0, 0.04);
             min-width: 120px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stats-section .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         }
 
         .stat-number {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
-            color: #67c23a;
-            margin-bottom: 5px;
+            color: #007aff;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
 
         .stat-number.stat-success {
-            color: #67c23a;
+            color: #34c759;
         }
 
         .stat-number.stat-warning {
-            color: #e6a23c;
+            color: #ff9500;
         }
 
         .stat-number.stat-info {
-            color: #909399;
+            color: #8e8e93;
         }
 
         .stat-label {
-            font-size: 14px;
+            font-size: 13px;
             color: #666;
         }
 
@@ -903,7 +1107,8 @@
                                     <span>中餐</span>
                                 </div>
                                 <div>
-                                    <el-tag type="success" v-if="userPreferences.lunch === 'eat'">吃饭</el-tag>
+                                    <el-tag type="success" v-if="userPreferences.lunch === 'eat'">非轻食</el-tag>
+                                    <el-tag type="success" v-else-if="userPreferences.lunch === 'light'">吃轻食</el-tag>
                                     <el-tag type="warning" v-else>不吃</el-tag>
                                 </div>
                             </div>
@@ -913,10 +1118,9 @@
                                 <div class="restaurant-section" v-for="restaurant in groupByRestaurant(todayMenu.lunch)" :key="restaurant.name">
                                     <div class="restaurant-name">{{ restaurant.name }}</div>
                                     <div class="dishes-grid">
-                                        <div class="dish-card" 
-                                             v-for="dish in restaurant.dishes" 
-                                             :key="dish.dishId"
-                                             @click="goToDishRating(dish, 'lunch')">
+                                        <div class="dish-card"
+                                             v-for="dish in restaurant.dishes"
+                                             :key="dish.dishId">
                                             <div class="dish-name">{{ dish.dishName }}</div>
                                             <div class="dish-rating">
                                                 <span v-if="dish.rating">⭐ {{ dish.rating.toFixed(1) }}</span>
@@ -929,15 +1133,31 @@
                                 <!-- 不吃选择 -->
                                 <div class="no-eat-section">
                                     <p style="margin-bottom: 15px; color: #666;">
-                                        <span v-if="userPreferences.lunch === 'eat'">如果中餐不吃，请点击下方按钮登记：</span>
-                                        <span v-else>已登记中餐不吃，点击下方按钮可取消：</span>
+                                        <span v-if="userPreferences.lunch === 'eat'">请选择您的用餐方式：</span>
+                                        <span v-else-if="userPreferences.lunch === 'no-eat'">已登记中餐不吃</span>
+                                        <span v-else-if="userPreferences.lunch === 'light'">已登记吃轻食</span>
                                     </p>
-                                    <el-button
-                                        :type="userPreferences.lunch === 'no-eat' ? 'warning' : 'default'"
-                                        @click="toggleMealPreference('lunch')"
-                                        :disabled="!canModifyLunch">
-                                        {{ userPreferences.lunch === 'no-eat' ? '取消登记' : '登记不吃' }}
-                                    </el-button>
+                                    <el-button-group>
+                                        <el-button
+                                            :type="userPreferences.lunch === 'eat' ? 'primary' : 'default'"
+                                            @click="setMealPreference('lunch', 'eat')"
+                                            :disabled="!canModifyLunch">
+                                            非轻食
+                                        </el-button>
+                                        <el-button
+                                            v-if="hasLightLunch"
+                                            :type="userPreferences.lunch === 'light' ? 'success' : 'default'"
+                                            @click="setMealPreference('lunch', 'light')"
+                                            :disabled="!canModifyLunch">
+                                            吃轻食
+                                        </el-button>
+                                        <el-button
+                                            :type="userPreferences.lunch === 'no-eat' ? 'warning' : 'default'"
+                                            @click="setMealPreference('lunch', 'no-eat')"
+                                            :disabled="!canModifyLunch">
+                                            不吃
+                                        </el-button>
+                                    </el-button-group>
                                     <div style="margin-top: 10px; font-size: 12px; color: #999;">
                                         <span v-if="canModifyLunch">可修改时间：11:10前</span>
                                         <span v-else style="color: #f56c6c;">修改时间已截止</span>
@@ -954,7 +1174,8 @@
                                     <span>晚餐</span>
                                 </div>
                                 <div>
-                                    <el-tag type="success" v-if="userPreferences.dinner === 'eat'">吃饭</el-tag>
+                                    <el-tag type="success" v-if="userPreferences.dinner === 'eat'">非轻食</el-tag>
+                                    <el-tag type="success" v-else-if="userPreferences.dinner === 'light'">吃轻食</el-tag>
                                     <el-tag type="warning" v-else>不吃</el-tag>
                                 </div>
                             </div>
@@ -964,14 +1185,13 @@
                                 <div class="restaurant-section" v-for="restaurant in groupByRestaurant(todayMenu.dinner)" :key="restaurant.name">
                                     <div class="restaurant-name">{{ restaurant.name }}</div>
                                     <div class="dishes-grid">
-                                        <div class="dish-card" 
-                                             v-for="dish in restaurant.dishes" 
-                                             :key="dish.dishId"
-                                             @click="goToDishRating(dish, 'dinner')">
+                                        <div class="dish-card"
+                                             v-for="dish in restaurant.dishes"
+                                             :key="dish.dishId">
                                             <div class="dish-name">{{ dish.dishName }}</div>
                                             <div class="dish-rating">
                                                 <span v-if="dish.rating">⭐ {{ dish.rating.toFixed(1) }}</span>
-                                                <span v-else>暂无评分</span>
+                                                <span v-else">暂无评分</span>
                                             </div>
                                         </div>
                                     </div>
@@ -980,15 +1200,31 @@
                                 <!-- 不吃选择 -->
                                 <div class="no-eat-section">
                                     <p style="margin-bottom: 15px; color: #666;">
-                                        <span v-if="userPreferences.dinner === 'eat'">如果晚餐不吃，请点击下方按钮登记：</span>
-                                        <span v-else>已登记晚餐不吃，点击下方按钮可取消：</span>
+                                        <span v-if="userPreferences.dinner === 'eat'">请选择您的用餐方式：</span>
+                                        <span v-else-if="userPreferences.dinner === 'no-eat'">已登记晚餐不吃</span>
+                                        <span v-else-if="userPreferences.dinner === 'light'">已登记吃轻食</span>
                                     </p>
-                                    <el-button
-                                        :type="userPreferences.dinner === 'no-eat' ? 'warning' : 'default'"
-                                        @click="toggleMealPreference('dinner')"
-                                        :disabled="!canModifyDinner">
-                                        {{ userPreferences.dinner === 'no-eat' ? '取消登记' : '登记不吃' }}
-                                    </el-button>
+                                    <el-button-group>
+                                        <el-button
+                                            :type="userPreferences.dinner === 'eat' ? 'primary' : 'default'"
+                                            @click="setMealPreference('dinner', 'eat')"
+                                            :disabled="!canModifyDinner">
+                                            非轻食
+                                        </el-button>
+                                        <el-button
+                                            v-if="hasLightDinner"
+                                            :type="userPreferences.dinner === 'light' ? 'success' : 'default'"
+                                            @click="setMealPreference('dinner', 'light')"
+                                            :disabled="!canModifyDinner">
+                                            吃轻食
+                                        </el-button>
+                                        <el-button
+                                            :type="userPreferences.dinner === 'no-eat' ? 'warning' : 'default'"
+                                            @click="setMealPreference('dinner', 'no-eat')"
+                                            :disabled="!canModifyDinner">
+                                            不吃
+                                        </el-button>
+                                    </el-button-group>
                                     <div style="margin-top: 10px; font-size: 12px; color: #999;">
                                         <span v-if="canModifyDinner">可修改时间：17:10前</span>
                                         <span v-else style="color: #f56c6c;">修改时间已截止</span>
@@ -1041,13 +1277,30 @@
                                                 <span>中餐</span>
                                             </div>
                                             <div v-if="!isPastDate(dayIndex)">
-                                                <el-button 
-                                                    size="small"
-                                                    :type="getFutureMealStatus(dayIndex, 'lunch') === 'no-eat' ? 'warning' : 'default'"
-                                                    @click="setFutureMealPreference(dayIndex, 'lunch')"
-                                                    :disabled="!canModifyMeal(dayIndex, 'lunch')">
-                                                    {{ getFutureMealStatus(dayIndex, 'lunch') === 'no-eat' ? '取消登记' : '登记不吃' }}
-                                                </el-button>
+                                                <el-button-group>
+                                                    <el-button
+                                                        size="small"
+                                                        :type="getFutureMealStatus(dayIndex, 'lunch') === 'eat' ? 'primary' : 'default'"
+                                                        @click="setFutureMealPreferenceNew(dayIndex, 'lunch', 'eat')"
+                                                        :disabled="!canModifyMeal(dayIndex, 'lunch')">
+                                                        非轻食
+                                                    </el-button>
+                                                    <el-button
+                                                        v-if="hasLightMeal(dayIndex, 'lunch')"
+                                                        size="small"
+                                                        :type="getFutureMealStatus(dayIndex, 'lunch') === 'light' ? 'success' : 'default'"
+                                                        @click="setFutureMealPreferenceNew(dayIndex, 'lunch', 'light')"
+                                                        :disabled="!canModifyMeal(dayIndex, 'lunch')">
+                                                        吃轻食
+                                                    </el-button>
+                                                    <el-button
+                                                        size="small"
+                                                        :type="getFutureMealStatus(dayIndex, 'lunch') === 'no-eat' ? 'warning' : 'default'"
+                                                        @click="setFutureMealPreferenceNew(dayIndex, 'lunch', 'no-eat')"
+                                                        :disabled="!canModifyMeal(dayIndex, 'lunch')">
+                                                        不吃
+                                                    </el-button>
+                                                </el-button-group>
                                             </div>
                                         </div>
                                         
@@ -1055,10 +1308,9 @@
                                             <div class="restaurant-section" v-for="restaurant in groupByRestaurant(dayMenu.lunch)" :key="restaurant.name">
                                                 <div class="restaurant-name" style="font-size: 14px; margin-bottom: 10px;">{{ restaurant.name }}</div>
                                                 <div class="dishes-grid">
-                                                    <div class="dish-card" 
-                                                         v-for="dish in restaurant.dishes" 
+                                                    <div class="dish-card"
+                                                         v-for="dish in restaurant.dishes"
                                                          :key="dish.dishId"
-                                                         @click="goToDishRating(dish, 'lunch')"
                                                          style="padding: 10px;">
                                                         <div class="dish-name" style="font-size: 13px;">{{ dish.dishName }}</div>
                                                         <div class="dish-rating" style="font-size: 12px;">
@@ -1079,13 +1331,30 @@
                                                 <span>晚餐</span>
                                             </div>
                                             <div v-if="!isPastDate(dayIndex)">
-                                                <el-button 
-                                                    size="small"
-                                                    :type="getFutureMealStatus(dayIndex, 'dinner') === 'no-eat' ? 'warning' : 'default'"
-                                                    @click="setFutureMealPreference(dayIndex, 'dinner')"
-                                                    :disabled="!canModifyMeal(dayIndex, 'dinner')">
-                                                    {{ getFutureMealStatus(dayIndex, 'dinner') === 'no-eat' ? '取消登记' : '登记不吃' }}
-                                                </el-button>
+                                                <el-button-group>
+                                                    <el-button
+                                                        size="small"
+                                                        :type="getFutureMealStatus(dayIndex, 'dinner') === 'eat' ? 'primary' : 'default'"
+                                                        @click="setFutureMealPreferenceNew(dayIndex, 'dinner', 'eat')"
+                                                        :disabled="!canModifyMeal(dayIndex, 'dinner')">
+                                                        非轻食
+                                                    </el-button>
+                                                    <el-button
+                                                        v-if="hasLightMeal(dayIndex, 'dinner')"
+                                                        size="small"
+                                                        :type="getFutureMealStatus(dayIndex, 'dinner') === 'light' ? 'success' : 'default'"
+                                                        @click="setFutureMealPreferenceNew(dayIndex, 'dinner', 'light')"
+                                                        :disabled="!canModifyMeal(dayIndex, 'dinner')">
+                                                        吃轻食
+                                                    </el-button>
+                                                    <el-button
+                                                        size="small"
+                                                        :type="getFutureMealStatus(dayIndex, 'dinner') === 'no-eat' ? 'warning' : 'default'"
+                                                        @click="setFutureMealPreferenceNew(dayIndex, 'dinner', 'no-eat')"
+                                                        :disabled="!canModifyMeal(dayIndex, 'dinner')">
+                                                        不吃
+                                                    </el-button>
+                                                </el-button-group>
                                             </div>
                                         </div>
                                         
@@ -1093,10 +1362,9 @@
                                             <div class="restaurant-section" v-for="restaurant in groupByRestaurant(dayMenu.dinner)" :key="restaurant.name">
                                                 <div class="restaurant-name" style="font-size: 14px; margin-bottom: 10px;">{{ restaurant.name }}</div>
                                                 <div class="dishes-grid">
-                                                    <div class="dish-card" 
-                                                         v-for="dish in restaurant.dishes" 
+                                                    <div class="dish-card"
+                                                         v-for="dish in restaurant.dishes"
                                                          :key="dish.dishId"
-                                                         @click="goToDishRating(dish, 'dinner')"
                                                          style="padding: 10px;">
                                                         <div class="dish-name" style="font-size: 13px;">{{ dish.dishName }}</div>
                                                         <div class="dish-rating" style="font-size: 12px;">
@@ -1172,40 +1440,51 @@
                             <el-skeleton :rows="5" animated />
                         </div>
 
-                        <!-- 点餐历史列表 -->
-                        <div v-else-if="mealHistory.length > 0" class="history-list">
-                            <div v-for="record in mealHistory" :key="record.id" class="history-item">
-                                <div class="history-header">
-                                    <div class="meal-info">
-                                        <span class="meal-icon">{{ record.mealType === 'lunch' ? '🌅' : '🌃' }}</span>
-                                        <span class="meal-type">{{ record.mealTypeName }}</span>
-                                        <span class="meal-date">{{ formatHistoryDate(record.date) }}</span>
-                                    </div>
-                                    <div class="meal-status">
-                                        <el-tag
-                                            :type="getStatusTagType(record)"
-                                            size="small"
-                                        >
-                                            {{ getStatusText(record) }}
-                                        </el-tag>
-                                    </div>
+                        <!-- 点餐历史列表 - 按日期分组 -->
+                        <div v-else-if="mealHistory.length > 0" class="history-timeline">
+                            <div v-for="group in groupedHistory" :key="group.date" class="date-group">
+                                <!-- 日期标题 -->
+                                <div class="date-header">
+                                    <span class="date-text">{{ formatHistoryDate(group.date) }}</span>
+                                    <span class="meal-count">{{ group.meals.length }} 餐</span>
                                 </div>
 
-                                <div class="history-content">
-                                    <div class="dish-info">
-                                        <h4 class="dish-name">{{ record.dishName }}</h4>
-                                        <p class="restaurant-name">{{ record.restaurantName }}</p>
-                                        <div class="meal-details">
-                                            <span v-if="!record.isNoEat && record.price > 0" class="price">
-                                                💰 ¥{{ record.price }}
-                                            </span>
-                                            <span class="created-time">
-                                                ⏰ {{ formatDateTime(record.createdAt) }}
-                                            </span>
+                                <!-- 该日期下的所有餐次 -->
+                                <div class="meals-container">
+                                    <div v-for="record in group.meals" :key="record.id" class="history-item-compact">
+                                        <!-- 简洁模式：一行显示核心信息 -->
+                                        <div class="compact-header" @click="toggleRecordDetail(record.id)">
+                                            <div class="meal-basic-info">
+                                                <span class="meal-icon">{{ record.mealType === 'lunch' ? '🌅' : '🌙' }}</span>
+                                                <span class="meal-type-badge">{{ record.mealType === 'lunch' ? '午餐' : '晚餐' }}</span>
+                                                <span class="dish-name-compact">{{ record.dishName }}</span>
+                                                <span class="restaurant-name-compact">{{ record.restaurantName }}</span>
+                                            </div>
+                                            <div class="compact-actions">
+                                                <el-tag :type="getStatusTagType(record)" size="small">
+                                                    {{ getStatusText(record) }}
+                                                </el-tag>
+                                                <span class="expand-icon" :class="{ expanded: isRecordExpanded(record.id) }">
+                                                    ▼
+                                                </span>
+                                            </div>
                                         </div>
-                                        <p v-if="record.note" class="note">
-                                            📝 {{ record.note }}
-                                        </p>
+
+                                        <!-- 展开的详细信息 -->
+                                        <div v-show="isRecordExpanded(record.id)" class="detail-content">
+                                            <div class="detail-row" v-if="!record.isNoEat && record.price > 0">
+                                                <span class="detail-label">价格</span>
+                                                <span class="detail-value">¥{{ record.price }}</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <span class="detail-label">时间</span>
+                                                <span class="detail-value">{{ formatDateTime(record.createdAt) }}</span>
+                                            </div>
+                                            <div class="detail-row" v-if="record.note">
+                                                <span class="detail-label">备注</span>
+                                                <span class="detail-value">{{ record.note }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1295,40 +1574,63 @@
                         </div>
                         
                         <!-- 新增评价对话框 -->
-                        <el-dialog 
-                            v-model="showRatingDialog" 
-                            title="新增餐厅评价" 
+                        <el-dialog
+                            v-model="showRatingDialog"
+                            title="新增餐厅评价"
                             width="600px"
                         >
                             <div class="rating-dialog-content">
-                                <!-- 选择餐厅 -->
+                                <!-- 第一步：选择餐厅 -->
                                 <div class="form-item">
-                                    <label>选择餐厅:</label>
-                                    <el-select 
-                                        v-model="selectedDish" 
+                                    <label>1. 选择餐厅:</label>
+                                    <el-select
+                                        v-model="selectedRestaurant"
                                         placeholder="请选择您吃过的餐厅"
+                                        style="width: 100%"
+                                        filterable
+                                        @change="onRestaurantChange"
+                                    >
+                                        <el-option
+                                            v-for="restaurant in availableRestaurants"
+                                            :key="restaurant"
+                                            :label="restaurant"
+                                            :value="restaurant"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                        只能评价您吃过的餐厅
+                                    </p>
+                                </div>
+
+                                <!-- 第二步：选择具体菜品 -->
+                                <div class="form-item" v-if="selectedRestaurant">
+                                    <label>2. 选择菜品:</label>
+                                    <el-select
+                                        v-model="selectedDish"
+                                        placeholder="请选择该餐厅的具体菜品"
                                         style="width: 100%"
                                         filterable
                                     >
                                         <el-option
-                                            v-for="dish in ratableDishes"
+                                            v-for="dish in restaurantDishes"
                                             :key="dish.id"
-                                            :label="`${dish.restaurant} - ${dish.name}`"
+                                            :label="`${dish.name} (${dish.date} ${dish.period === 'lunch' ? '午餐' : '晚餐'})`"
                                             :value="dish"
                                         >
                                         </el-option>
                                     </el-select>
                                     <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                        只能评价吃过的餐厅
+                                        选择您品尝过的具体菜品进行评价
                                     </p>
                                 </div>
 
-                                <!-- 餐厅信息展示 -->
+                                <!-- 菜品信息展示 -->
                                 <div class="dish-summary" v-if="selectedDish">
                                     <div>
                                         <h4>{{ selectedDish.restaurant }}</h4>
                                         <p>菜品：{{ selectedDish.name }}</p>
-                                        <p class="dish-date">{{ selectedDish.date }} {{ selectedDish.period === 'lunch' ? '中餐' : '晚餐' }}</p>
+                                        <p class="dish-date">{{ selectedDish.date }} {{ selectedDish.period === 'lunch' ? '午餐' : '晚餐' }}</p>
                                     </div>
                                 </div>
                                 
@@ -1568,7 +1870,9 @@
                     ratings: [],
                     ratingSortBy: 'time',
                     showRatingDialog: false,
-                    selectedDish: null,
+                    selectedRestaurant: null,  // 第一步：选择的餐厅
+                    restaurantDishes: [],       // 第二步：该餐厅的菜品列表
+                    selectedDish: null,         // 第二步：选择的具体菜品
                     dialogRating: 0,
                     dialogComment: '',
                     submittingRating: false,
@@ -1581,7 +1885,8 @@
                     currentHistoryPage: 1,
                     historyPageSize: 20,
                     pagination: null,
-                    historyStats: null
+                    historyStats: null,
+                    expandedRecords: new Set() // 存储展开的记录ID
                 };
             },
             computed: {
@@ -1590,10 +1895,63 @@
                     return today !== 6; // 周日到周五都是工作日，只有周六不是
                 },
                 canModifyLunch() {
-                    return this.isWorkday && this.mealStatus.lunch.canModify;
+                    // 如果管理员明确设置为开放，则允许修改，无论是否工作日
+                    return this.mealStatus.lunch.canModify;
                 },
                 canModifyDinner() {
-                    return this.isWorkday && this.mealStatus.dinner.canModify;
+                    // 如果管理员明确设置为开放，则允许修改，无论是否工作日
+                    return this.mealStatus.dinner.canModify;
+                },
+                // 检查午餐菜单中是否有轻食标签的菜品（支持"轻食"和"light"两种标签）
+                hasLightLunch() {
+                    if (!this.todayMenu.lunch || !Array.isArray(this.todayMenu.lunch)) {
+                        return false;
+                    }
+                    return this.todayMenu.lunch.some(dish =>
+                        dish.tags && Array.isArray(dish.tags) &&
+                        (dish.tags.includes('轻食') || dish.tags.includes('light'))
+                    );
+                },
+                // 检查晚餐菜单中是否有轻食标签的菜品（支持"轻食"和"light"两种标签）
+                hasLightDinner() {
+                    if (!this.todayMenu.dinner || !Array.isArray(this.todayMenu.dinner)) {
+                        return false;
+                    }
+                    return this.todayMenu.dinner.some(dish =>
+                        dish.tags && Array.isArray(dish.tags) &&
+                        (dish.tags.includes('轻食') || dish.tags.includes('light'))
+                    );
+                },
+                // 获取所有可评价的餐厅列表（去重并排序）
+                availableRestaurants() {
+                    const restaurants = new Set();
+                    this.ratableDishes.forEach(dish => {
+                        if (dish.restaurant) {
+                            restaurants.add(dish.restaurant);
+                        }
+                    });
+                    return Array.from(restaurants).sort();
+                },
+                // 按日期分组的点餐历史
+                groupedHistory() {
+                    const groups = {};
+
+                    // 按日期分组
+                    this.mealHistory.forEach(record => {
+                        const date = record.date;
+                        if (!groups[date]) {
+                            groups[date] = {
+                                date: date,
+                                meals: []
+                            };
+                        }
+                        groups[date].meals.push(record);
+                    });
+
+                    // 转换为数组并按日期倒序排序（最新的在前）
+                    return Object.values(groups).sort((a, b) => {
+                        return new Date(b.date) - new Date(a.date);
+                    });
                 }
             },
             async mounted() {
@@ -1824,6 +2182,22 @@
                     this.loadMealHistory();
                 },
 
+                // 切换记录详情的展开/折叠状态
+                toggleRecordDetail(recordId) {
+                    if (this.expandedRecords.has(recordId)) {
+                        this.expandedRecords.delete(recordId);
+                    } else {
+                        this.expandedRecords.add(recordId);
+                    }
+                    // 强制Vue更新
+                    this.expandedRecords = new Set(this.expandedRecords);
+                },
+
+                // 检查记录是否展开
+                isRecordExpanded(recordId) {
+                    return this.expandedRecords.has(recordId);
+                },
+
                 // 格式化历史日期
                 formatHistoryDate(dateStr) {
                     const date = new Date(dateStr);
@@ -1894,14 +2268,14 @@
                         console.log(`[DEBUG 前端] 开始检查用户餐次偏好，日期: ${dateStr}`);
 
                         // 检查午餐状态
-                        const lunchResponse = await fetch(`/api/no-eat/status?mealType=lunch&date=${dateStr}`);
+                        const lunchResponse = await fetch(`/api/meal-preference/status?mealType=lunch&date=${dateStr}`);
                         console.log(`[DEBUG 前端] 午餐响应状态: ${lunchResponse.status}, ${lunchResponse.statusText}`);
                         const lunchResult = await lunchResponse.json();
 
                         console.log(`[DEBUG 前端] 午餐API响应:`, lunchResult);
 
                         if (lunchResult.success) {
-                            this.userPreferences.lunch = lunchResult.data.registered ? 'no-eat' : 'eat';
+                            this.userPreferences.lunch = lunchResult.data.preference;
                             console.log(`[DEBUG 前端] 午餐状态设置为: ${this.userPreferences.lunch}`);
                         } else {
                             console.error(`[DEBUG 前端] 午餐API调用失败:`, lunchResult);
@@ -1914,14 +2288,14 @@
                         }
 
                         // 检查晚餐状态
-                        const dinnerResponse = await fetch(`/api/no-eat/status?mealType=dinner&date=${dateStr}`);
+                        const dinnerResponse = await fetch(`/api/meal-preference/status?mealType=dinner&date=${dateStr}`);
                         console.log(`[DEBUG 前端] 晚餐响应状态: ${dinnerResponse.status}, ${dinnerResponse.statusText}`);
                         const dinnerResult = await dinnerResponse.json();
 
                         console.log(`[DEBUG 前端] 晚餐API响应:`, dinnerResult);
 
                         if (dinnerResult.success) {
-                            this.userPreferences.dinner = dinnerResult.data.registered ? 'no-eat' : 'eat';
+                            this.userPreferences.dinner = dinnerResult.data.preference;
                             console.log(`[DEBUG 前端] 晚餐状态设置为: ${this.userPreferences.dinner}`);
                         } else {
                             console.error(`[DEBUG 前端] 晚餐API调用失败:`, dinnerResult);
@@ -1972,12 +2346,12 @@
                             // 检查午餐和晚餐状态
                             for (const mealType of ['lunch', 'dinner']) {
                                 try {
-                                    const response = await fetch(`/api/no-eat/status?mealType=${mealType}&date=${dateStr}`);
+                                    const response = await fetch(`/api/meal-preference/status?mealType=${mealType}&date=${dateStr}`);
                                     const result = await response.json();
 
                                     if (result.success) {
                                         const key = `${i}-${mealType}`;
-                                        this.futureMealPreferences[key] = result.data.registered ? 'no-eat' : 'eat';
+                                        this.futureMealPreferences[key] = result.data.preference; // 'eat', 'light', or 'no-eat'
                                     }
                                 } catch (error) {
                                     console.error(`检查${dateStr}的${mealType}状态失败:`, error);
@@ -2070,7 +2444,77 @@
                         ElMessage.error('操作失败，请重试');
                     }
                 },
-                
+
+                // 新的用餐偏好设置方法（支持正常用餐、轻食、不吃三种状态）
+                async setMealPreference(mealType, preference) {
+                    // 检查是否可以修改
+                    if (mealType === 'lunch' && !this.canModifyLunch) {
+                        ElMessage.warning('午餐修改时间已截止');
+                        return;
+                    }
+                    if (mealType === 'dinner' && !this.canModifyDinner) {
+                        ElMessage.warning('晚餐修改时间已截止');
+                        return;
+                    }
+
+                    // 如果当前状态和目标状态相同，不需要操作
+                    if (this.userPreferences[mealType] === preference) {
+                        return;
+                    }
+
+                    const today = new Date();
+                    const dateStr = today.getFullYear() + '-' +
+                                   String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                                   String(today.getDate()).padStart(2, '0');
+
+                    try {
+                        if (preference === 'eat') {
+                            // 设置为正常用餐 - 需要取消之前的登记
+                            const response = await fetch('/api/meal-preference/register', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.userPreferences[mealType] = 'eat';
+                                ElMessage.success(`已设置${mealType === 'lunch' ? '中餐' : '晚餐'}非轻食`);
+                                await this.loadMealStatus();
+                            } else {
+                                ElMessage.error(result.message || '设置失败');
+                            }
+                        } else {
+                            // 设置为轻食或不吃
+                            const response = await fetch('/api/meal-preference/register', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr,
+                                    preference: preference  // 'light' 或 'no-eat'
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.userPreferences[mealType] = preference;
+                                const preferenceText = preference === 'light' ? '吃轻食' : '不吃';
+                                ElMessage.success(`已登记${mealType === 'lunch' ? '中餐' : '晚餐'}${preferenceText}`);
+                                await this.loadMealStatus();
+                            } else {
+                                ElMessage.error(result.message || '登记失败');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('设置用餐偏好失败:', error);
+                        ElMessage.error('操作失败，请重试');
+                    }
+                },
+
                 async registerNoEat(mealType) {
                     const today = new Date();
                     const dateStr = today.getFullYear() + '-' +
@@ -2113,8 +2557,21 @@
                 },
                 
                 goToDishRating(dish, mealType) {
+                    // 构造标准的菜品对象格式
+                    const today = new Date().toISOString().split('T')[0];
+                    const dishObj = {
+                        id: `${today}-${mealType}-${dish.dishName}`,
+                        name: dish.dishName,
+                        restaurant: dish.restaurantName,
+                        date: today,
+                        period: mealType
+                    };
+
                     this.switchPage('rating');
-                    // TODO: 传递菜品信息到评价页面
+                    // 打开评价对话框并预选菜品
+                    this.$nextTick(() => {
+                        this.rateDish(dishObj);
+                    });
                 },
                 
                 
@@ -2273,7 +2730,7 @@
                     if (this.isPastDate(dayIndex)) {
                         return false;
                     }
-                    
+
                     if (this.isToday(dayIndex)) {
                         if (mealType === 'lunch') {
                             return this.canModifyLunch;
@@ -2281,10 +2738,32 @@
                             return this.canModifyDinner;
                         }
                     }
-                    
+
                     return true; // 未来日期可以修改
                 },
-                
+
+                // 检查特定天的特定餐次是否有轻食菜品（支持"轻食"和"light"两种标签）
+                hasLightMeal(dayIndex, mealType) {
+                    if (!this.weeklyMenuData || !this.weeklyMenuData.days) {
+                        return false;
+                    }
+
+                    const dayMenu = this.weeklyMenuData.days[dayIndex];
+                    if (!dayMenu || !dayMenu[mealType]) {
+                        return false;
+                    }
+
+                    const dishes = dayMenu[mealType];
+                    if (!Array.isArray(dishes)) {
+                        return false;
+                    }
+
+                    return dishes.some(dish =>
+                        dish.tags && Array.isArray(dish.tags) &&
+                        (dish.tags.includes('轻食') || dish.tags.includes('light'))
+                    );
+                },
+
                 async setFutureMealPreference(dayIndex, mealType) {
                     if (this.isPastDate(dayIndex)) {
                         ElMessage.warning('过去的日期不能修改');
@@ -2361,7 +2840,93 @@
                         console.error('设置未来餐次偏好失败:', error);
                     }
                 },
-                
+
+                async setFutureMealPreferenceNew(dayIndex, mealType, preference) {
+                    if (this.isPastDate(dayIndex)) {
+                        ElMessage.warning('过去的日期不能修改');
+                        return;
+                    }
+
+                    if (this.isToday(dayIndex)) {
+                        // 今天的使用现有的 setMealPreference 方法
+                        await this.setMealPreference(mealType, preference);
+                        return;
+                    }
+
+                    const key = `${dayIndex}-${mealType}`;
+                    const currentStatus = this.getFutureMealStatus(dayIndex, mealType);
+
+                    // 如果点击的是当前状态，不做任何操作
+                    if (currentStatus === preference) {
+                        return;
+                    }
+
+                    try {
+                        // 计算目标日期
+                        const today = new Date();
+                        const currentDay = today.getDay();
+                        let offset = dayIndex - currentDay;
+
+                        if (dayIndex === 0 && currentDay !== 0) {
+                            offset = 7 - currentDay;
+                        } else if (offset < 0) {
+                            offset += 7;
+                        }
+
+                        const targetDate = new Date(today);
+                        targetDate.setDate(today.getDate() + offset);
+
+                        const dateStr = targetDate.getFullYear() + '-' +
+                                       String(targetDate.getMonth() + 1).padStart(2, '0') + '-' +
+                                       String(targetDate.getDate()).padStart(2, '0');
+
+                        if (preference === 'eat') {
+                            // 取消偏好，恢复正常用餐
+                            const response = await fetch('/api/meal-preference/register', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.futureMealPreferences[key] = 'eat';
+                                ElMessage.success(`已设置${this.getDayName(dayIndex)}${mealType === 'lunch' ? '中餐' : '晚餐'}非轻食`);
+                                await this.loadWeeklyMealPreferences();
+                            } else {
+                                ElMessage.error(result.message || '设置失败');
+                            }
+                        } else {
+                            // 设置轻食或不吃
+                            const response = await fetch('/api/meal-preference/register', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    mealType: mealType,
+                                    date: dateStr,
+                                    preference: preference
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (result.success) {
+                                this.futureMealPreferences[key] = preference;
+                                const preferenceText = preference === 'light' ? '吃轻食' : '不吃';
+                                ElMessage.success(`已设置${this.getDayName(dayIndex)}${mealType === 'lunch' ? '中餐' : '晚餐'}${preferenceText}`);
+                                await this.loadWeeklyMealPreferences();
+                            } else {
+                                ElMessage.error(result.message || '设置失败');
+                            }
+                        }
+                    } catch (error) {
+                        ElMessage.error('操作失败，请重试');
+                        console.error('设置未来餐次偏好失败:', error);
+                    }
+                },
+
                 // 投稿墙相关方法
                 async loadSubmissions() {
                     try {
@@ -2632,10 +3197,29 @@
                 
                 resetRatingDialog() {
                     this.showRatingDialog = false;
+                    this.selectedRestaurant = null;
+                    this.restaurantDishes = [];
                     this.selectedDish = null;
                     this.dialogRating = 0;
                     this.dialogComment = '';
                     this.hoverRating = 0;
+                },
+
+                // 当选择餐厅后，筛选该餐厅的菜品
+                onRestaurantChange() {
+                    if (!this.selectedRestaurant) {
+                        this.restaurantDishes = [];
+                        this.selectedDish = null;
+                        return;
+                    }
+
+                    // 根据选择的餐厅筛选菜品
+                    this.restaurantDishes = this.ratableDishes.filter(
+                        dish => dish.restaurant === this.selectedRestaurant
+                    );
+
+                    // 重置菜品选择
+                    this.selectedDish = null;
                 },
                 
                 setRating(rating) {
